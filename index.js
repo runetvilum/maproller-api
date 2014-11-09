@@ -78,9 +78,9 @@ app.all('/_fti*', function (req, res) {
 
 var transport = nodemailer.createTransport(config.transport);
 //nano
-var url_5986 = "http://localhost:" + config.port5986;
-var db = require('nano')('http://' + config.user + '@localhost:' + config.port5986 + '/_users');
-var nano = require('nano')('http://' + config.user + '@localhost:' + config.port5984);
+var url_5986 = "http://localhost:" + config.couchdb.port5986;
+var db = require('nano')('http://' + config.couchdb.user + '@localhost:' + config.couchdb.port5986 + '/_users');
+var nano = require('nano')('http://' + config.couchdb.user + '@localhost:' + config.couchdb.port5984);
 var db_admin = nano.db.use("admin");
 
 
@@ -2798,7 +2798,7 @@ app.get('/api/kfticket', function (req, res) {
     // Replace the VisStedet login information with your own login
     // Fetch a ticket from Kortforsyningen, using your organization's login
 
-    http.get('http://kortforsyningen.kms.dk/service?request=GetTicket&login=' + config.kms.login + '&password=' + config.kms.password, function (response) {
+    http.get('http://kortforsyningen.kms.dk/service?request=GetTicket&login=' + config.kms.user + '&password=' + config.kms.password, function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
