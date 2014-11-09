@@ -12,10 +12,10 @@ module.exports = function (grunt) {
             }
         },
         'couch-push': {
-            "users": {
+            users: {
                 options: {
-                    user: config.couchdb.user,
-                    pass: config.couchdb.password
+                    user: '<%= config.couchdb.user %>',
+                    pass: '<%= config.couchdb.password %>'
                 },
                 files: {
                     'http://localhost:5986/_users': 'tmp/users.json'
