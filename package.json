@@ -29,5 +29,9 @@
         "request": "^2.45.0",
         "sqlite3": "^3.0.2",
         "uuid": "^2.0.1"
+    },
+    "devDependencies": {
+        "grunt": "^0.4.5",
+        "grunt-couch": "^1.4.0"
     }
 }

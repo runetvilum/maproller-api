@@ -1,0 +1,16 @@
+{
+    "transport": {
+        "host": "localhost",
+        "ignoreTLS": true
+    },
+    "couchdb": {
+        "user": "admin",
+        "password": "password",
+        "port5986": "5986",
+        "port5984": "5984"
+    },
+    "kms": {
+        "user": "login",
+        "password": "password"
+    }
+}
