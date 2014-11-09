@@ -2038,7 +2038,7 @@ app.get('/api/template/:id/logo', function (req, res) {
             res.set('set-cookie', headers['set-cookie']);
         }
         delete req.headers.cookie;
-        var url = 'http://' + config.user + '@localhost:' + config.port5984 + '/admin/' + req.params.id + '/logo.png';
+        var url = 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@localhost:' + config.port5984 + '/admin/' + req.params.id + '/logo.png';
         req.pipe(request(url)).pipe(res);
     });
 });
