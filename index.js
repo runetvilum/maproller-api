@@ -79,8 +79,8 @@ app.all('/_fti*', function (req, res) {
 var transport = nodemailer.createTransport(config.transport);
 //nano
 var url_5986 = "http://localhost:" + config.couchdb.port5986;
-var db = require('nano')('http://' + config.couchdb.user + '@localhost:' + config.couchdb.port5986 + '/_users');
-var nano = require('nano')('http://' + config.couchdb.user + '@localhost:' + config.couchdb.port5984);
+var db = require('nano')('http://' + config.couchdb.user + ':' + config.couchdb.password + '@localhost:' + config.couchdb.port5986 + '/_users');
+var nano = require('nano')('http://' + config.couchdb.user + ':' + config.couchdb.password + '@localhost:' + config.couchdb.port5984);
 var db_admin = nano.db.use("admin");
 
 
