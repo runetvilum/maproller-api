@@ -10,7 +10,7 @@
     "license": "ISC",
     "repository": {
         "type": "git",
-        "url": "http://github.com/runetvilum/maproller-api"
+        "url": "http://github.com/runetvilum/maproller-api.git"
     },
     "dependencies": {
         "basic-auth": "^1.0.0",
