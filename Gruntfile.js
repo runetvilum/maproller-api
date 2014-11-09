@@ -3,6 +3,7 @@ module.exports = function (grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        config: grunt.file.readJSON('config.json'),
         'couch-compile': {
             users: {
                 files: {
@@ -12,6 +13,10 @@ module.exports = function (grunt) {
         },
         'couch-push': {
             "users": {
+                options: {
+                    user: config.couchdb.user,
+                    pass: config.couchdb.password
+                },
                 files: {
                     'http://localhost:5986/_users': 'tmp/users.json'
                 }
