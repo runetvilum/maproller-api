@@ -26,11 +26,11 @@ var nodemailer = require('nodemailer');
 var fs = require('fs');
 
 var config;
-console.log(argv);
+
 if (argv.config) {
     config = jf.readFileSync(argv.config);
 } else {
-    console.log("Du skal angive config fil, f.eks.:  -config=config.json");
+    console.log("Du skal angive config fil, f.eks.:  --config=config.json");
 }
 
 
