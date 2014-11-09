@@ -1,13 +1,13 @@
 {
-    transport: {
-        host: 'localhost',
-        ignoreTLS: true
+    "transport": {
+        "host": "localhost",
+        "ignoreTLS": true
     },
-    user: "admin:password",
-    port5986: "5986",
-    port5984: "5984",
-    kms: {
-        login: "login",
-        password: "password"
+    "user": "admin:password",
+    "port5986": "5986",
+    "port5984": "5984",
+    "kms": {
+        "login": "login",
+        "password": "password"
     }
 }
