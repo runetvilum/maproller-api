@@ -81,6 +81,7 @@ var transport = nodemailer.createTransport(config.transport);
 var userpass = config.couchdb.user + ':' + config.couchdb.password;
 console.log(userpass);
 var url_5986 = "http://localhost:" + config.couchdb.port5986;
+console.log(url_5986);
 var db = require('nano')('http://' + userpass + '@localhost:' + config.couchdb.port5986 + '/_users');
 var nano = require('nano')('http://' + userpass + '@localhost:' + config.couchdb.port5984);
 var db_admin = nano.db.use("admin");
