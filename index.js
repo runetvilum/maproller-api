@@ -621,16 +621,16 @@ app.post('/api/user', function (req, res) {
                             }
                             template('verify', {
                                 user: body,
-                                url: 'http://maproller.org/#/verify/' + code
+                                url: 'http://data.addin.dk/#/verify/' + code
                                 //url: 'http://localhost:3000/#/verify/' + code
                             }, function (err, html, text) {
                                 if (err) {
                                     return res.status(err.status_code ? err.status_code : 500).send(err);
                                 }
                                 transport.sendMail({
-                                    from: 'noreply@maproller.org',
+                                    from: 'rune@addin.dk',
                                     to: req.body.name,
-                                    subject: 'Invitation til maproller.org',
+                                    subject: 'Invitation',
                                     html: html,
                                     // generateTextFromHTML: true,
                                     text: text
