@@ -45,11 +45,11 @@ app.use('/mbtiles', function (req, res) {
         req.pipe(request.get(url)).pipe(res);
     }
 });
-app.all('/couchdb*',  function (req, res) {
+app.all('/couchdb*', function (req, res) {
     res.set('Access-Control-Allow-Credentials', 'true');
     res.set('Access-Control-Allow-Origin', 'http://localhost:8100');
-    res.set('Access-Control-Allow-Methods','GET, PUT, POST, HEAD, DELETE');
-    res.set('Access-Control-Allow-Headers','accept, authorization, content-type, origin, referer');
+    res.set('Access-Control-Allow-Methods', 'GET, PUT, POST, HEAD, DELETE');
+    res.set('Access-Control-Allow-Headers', 'accept, authorization, content-type, origin, referer');
     var url = "http://localhost:5984/" + req.url.substring(9);
     console.log(url);
     //console.log(inspect(req,{colors:true}));
@@ -1343,6 +1343,14 @@ var schemaGetPut = function (req, res) {
                     doc.lib = {
                         tv4: data,
                         schema: "exports.schema=" + JSON.stringify(req.body.schema)
+                    };
+                    doc.filters = {
+                        schema: "function (doc, req) {" +
+                            "      if (doc._id === '_design/schema') {" +
+                            "        return true;" +
+                            "      }" +
+                            "      return false;" +
+                            "    }"
                     };
                     doc.schema = req.body.schema;
                     d.insert(doc, "_design/schema", function (err, body) {
