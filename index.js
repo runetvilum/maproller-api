@@ -1344,14 +1344,14 @@ var schemaGetPut = function (req, res) {
                         tv4: data,
                         schema: "exports.schema=" + JSON.stringify(req.body.schema)
                     };
-                    doc.filters = {
+                    /*doc.filters = {
                         schema: "function (doc, req) {" +
                             "      if (doc._id === '_design/schema') {" +
                             "        return true;" +
                             "      }" +
                             "      return false;" +
                             "    }"
-                    };
+                    };*/
                     doc.schema = req.body.schema;
                     d.insert(doc, "_design/schema", function (err, body) {
                         if (err) {
