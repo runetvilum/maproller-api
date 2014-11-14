@@ -68,7 +68,8 @@ module.exports = function (grunt) {
                 files: {
                     'http://localhost:5984/admin': 'dist/admin/security.json'
                 }
-            },
+            }
+        }
     });
 
     // Load the plugin that provides the "uglify" task.
