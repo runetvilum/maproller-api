@@ -12,12 +12,12 @@ module.exports = function (grunt) {
             },
             www: {
                 files: {
-                    'tmp/www.json': ['dist/www']
+                    'tmp/www.json': ['dist/www/data']
                 }
             },
             admin: {
                 files: {
-                    'tmp/admin.json': ['dist/admin']
+                    'tmp/admin.json': ['dist/admin/organizations', 'dist/admin/templates']
                 }
             }
         },
