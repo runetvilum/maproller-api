@@ -70,10 +70,10 @@ module.exports = function (grunt) {
                 }
             }
         },
-        copy: {
-            www: {
+        'copy': {
+            'www': {
                 expand: true,
-                cwd: 'srs/www',
+                cwd: 'src/www',
                 src: '**/*',
                 dest: 'dist/www/data/_attachments'
             }
