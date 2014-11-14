@@ -1,0 +1,23 @@
+<div ng-controller="database-upload">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form novalidate class="form-horizontal" role="form" name="myform" ng-submit="update(myform)">
+                <div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && !myform.name.$pristine, 'has-success': myform.name.$valid && !myform.name.$pristine}">
+                    <label for="name" class="col-sm-2 control-label">Fil</label>
+                    <div class="col-sm-10">
+                        <input type="file" ng-file-select="onFileSelect($files)" class="form-control" id="name" name="name" required>
+                        <span ng-show="myform.name.$valid && !myform.name.$pristine" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                        <span ng-show="myform.name.$error.required && !myform.name.$pristine" class="help-block">Fil er påkrævet!</span>
+                    </div>
+                </div>
+            </form>
+            <progressbar class="progress-striped active" value="dynamic" type="{{type}}">{{dynamic}} %</progressbar>
+            <div class="alert alert-danger" role="alert" ng-show="error">
+                <strong>Fejl:</strong> {{error}}
+            </div>
+            <div class="alert alert-success" role="alert" ng-show="success">
+                <strong>OK:</strong> {{success}}
+            </div>
+        </div>
+    </div>
+</div>

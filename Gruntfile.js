@@ -69,13 +69,22 @@ module.exports = function (grunt) {
                     'http://localhost:5984/admin': 'dist/admin/security.json'
                 }
             }
+        },
+        copy: {
+            www: {
+                expand: true,
+                cwd: 'srs/www',
+                src: '**/*',
+                dest: 'dist/www/_attachments'
+            }
         }
     });
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-couch');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     // Default task(s).
-    grunt.registerTask('default', ['couch-compile', 'couch-push', 'couch-security']);
+    grunt.registerTask('default', ['copy', 'couch-compile', 'couch-push', 'couch-security']);
 
 };

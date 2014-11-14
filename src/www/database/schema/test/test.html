@@ -1,0 +1,6 @@
+<div class="alert alert-danger alert-dismissible" role="alert" ng-show="testError">
+    <button type="button" class="close" ng-click="error=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+    </button><strong>Fejl:</strong> {{testError}}
+</div>
+<textarea class="form-control" rows="20" ng-model="test" ng-change="testChanged()"></textarea>
+<form sf-schema="schema" sf-form="form" sf-model="model"></form>

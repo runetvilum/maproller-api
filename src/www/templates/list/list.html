@@ -1,0 +1,17 @@
+<div class="table-responsive">
+    <table class="table table-striped">
+        <tr>
+            <th></th>
+            <th><i class="fa fa-flask"></i> Template</th>
+            <th># Antal</th>
+        </tr>
+        <tr ng-repeat="item in templates">
+            <td>
+                <a ng-href="/api/template/{{item.id}}/logo"><img ng-src="/api/template/{{item.id}}/logo" /></a>
+            </td>
+            <td><a href="#/templates/{{item.id}}/info">{{item.key}}</a>
+            </td>
+            <td>{{item.antal}}</td>
+        </tr>
+    </table>
+</div>

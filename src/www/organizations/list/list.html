@@ -1,0 +1,16 @@
+<div class="table-responsive">
+    <table class="table table-striped">
+        <tr>
+            <th><i class="fa fa-university"></i> Organisation</th>
+            <th><i class="fa fa-database"></i> Databaser</th>
+            <th><i class="fa fa-users"></i> Brugere</th>
+        </tr>
+        <tr ng-repeat="item in profile.user.organizations">
+
+            <td><a href="#/organizations/{{item.id}}/info">{{item.value.name}}</a>
+            </td>
+            <td>{{item.databases}}</td>
+            <td>{{item.users}}</td>
+        </tr>
+    </table>
+</div>

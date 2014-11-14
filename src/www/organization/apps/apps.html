@@ -1,0 +1,19 @@
+<div class="table-responsive">
+    <table class="table table-hover table-striped">
+        <tr>
+            <th><i class="fa fa-mobile-phone"></i> App</th>
+            <th><i class="fa fa-magic"></i> Konfigurer</th>
+        </tr>
+        <tr ng-repeat="item in apps" ng-click="read(item)">
+            <td>
+                <a ng-href="/api/template/{{item.id}}/logo">
+                    <img ng-src="/api/template/{{item.id}}/logo" height="80px" />
+                </a>
+            </td>
+            <!--td><a ng-href="/couchdb/db-{{item.id}}/_design/config/index.html#/{{organizationId}}" target="_blank">{{item.value}}</a>
+            </td-->
+            <td><a ng-href="/couchdb/app-{{item.id}}/_design/config/index.html#/{{organizationId}}" target="_blank">{{item.value}}</a>
+            </td>
+        </tr>
+    </table>
+</div>

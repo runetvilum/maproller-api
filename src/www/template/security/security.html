@@ -1,0 +1,24 @@
+<div class="alert alert-success alert-dismissible" role="alert" ng-show="success">
+    <button type="button" class="close" ng-click="success=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+    </button><strong>OK:</strong> {{success}}.
+</div>
+<div class="alert alert-danger alert-dismissible" role="alert" ng-show="error">
+    <button type="button" class="close" ng-click="error=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+    </button><strong>Fejl:</strong> {{error}}
+</div>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Tillad</th>
+            <th>Organisation</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="(key,value) in organizations">
+            <td>
+                <input type="checkbox" ng-change="change()" ng-model="value.checked">
+            </td>
+            <td>{{value.name}}</td>
+        </tr>
+    </tbody>
+</table>

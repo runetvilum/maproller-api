@@ -1,0 +1,48 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Bruger</h3>
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal" role="form" name="myform">
+            <div class="form-group">
+                <div class="col-sm-2 control-label">
+                    <img class="img-circle" ng-src="http://www.gravatar.com/avatar/{{user.name | md5}}?s=50&d=identicon" />
+                </div>
+                <div class="col-sm-10">
+                    <p class="form-control-static">{{fullname}}</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Email</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">{{user.name}}</p>
+                </div>
+            </div>
+            <div class="form-group" ng-hide="admin">
+                <label class="col-sm-2 control-label">Rolle</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">{{role.name}}</p>
+                </div>
+            </div>
+            <div class="form-group" ng-show="admin">
+                <label for="inputRole" class="col-sm-2 control-label">Rolle</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="inputRole" ng-model="user.role" ng-options="r.value as r.name for r in options">
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div class="alert alert-danger alert-dismissible" role="alert" ng-show="error">
+            <button type="button" class="close" ng-click="error=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+            </button>
+            <p><strong>Fejl:</strong> Der er sket en fejl ved rettelse af brugeren.</p>
+            <p>{{error}}</p>
+        </div>
+        <div class="alert alert-success alert-dismissible" role="alert" ng-show="success">
+            <button type="button" class="close" ng-click="success=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+            </button>
+            <p><strong>OK:</strong> Brugeren er rettet.</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,40 @@
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <ul class="nav navbar-nav">
+            <li ui-sref-active="active">
+                <a ui-sref="database.schema.list">
+                    <i class="fa fa-list"></i> Liste
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="database.schema.text">
+                    <i class="fa fa-file-text-o"></i> Tekst
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="database.schema.desktop">
+                    <i class="fa fa-desktop"></i> Desktop
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="database.schema.mobile">
+                    <i class="fa fa-mobile-phone"></i> Mobile
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="alert alert-warning clearfix" role="alert" ng-show="changed">
+    <div class="pull-right">
+        <button type="button" class="btn btn-warning" ng-click="save()"><i class="fa fa-save"></i> Gem</button>
+    </div>
+    <div><strong>Advarsel:</strong> Skemaet er blevet ændret, husk at gemme.</div>
+</div>
+<div class="alert alert-danger" role="alert" ng-show="error">
+    <strong>Fejl:</strong> {{error}}
+</div>
+<div class="alert alert-success" role="alert" ng-show="success">
+    <strong>OK:</strong> Skemaet er gemt
+</div>
+<div ui-view></div>

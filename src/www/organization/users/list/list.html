@@ -1,0 +1,23 @@
+<div class="table-responsive">
+    <table class="table table-hover">
+        <tr>
+            <th><i class="fa fa-envelope"></i> Email</th>
+            <th><i class="fa fa-users"></i> Rolle</th>
+            <th><i class="fa fa-calendar"></i> Oprettet</th>
+            <th><i class="fa fa-calendar"></i> Bekræftet</th>
+            <th>Avatar</th>
+            <th>Navn</th>
+        </tr>
+        <tr ng-repeat="item in users" ng-class="{ info: selectedItem==item, warning: selectedItem!=item && !item.value.verified}" ng-click="read(item)">
+            <td><a href="#/organizations/{{organization._id}}/users/{{item.value.name}}/info">{{item.value.name}}</a>
+            </td>
+            <td>{{item.value.role.name}}</td>
+            <td>{{item.value.timestamp}}</td>
+            <td>{{item.value.verified}}</td>
+            <td>
+                <img class="img-circle" ng-src="http://www.gravatar.com/avatar/{{item.value.name | md5}}?s=50&d=identicon" />
+            </td>
+            <td>{{item.value.fullname}}</td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,58 @@
+<div class="container-fluid padding-sm app-wrapper">
+    <div ncy-breadcrumb></div>
+    <div class="page-header">
+        <h1><i class="fa fa-database"></i> {{data.database.name}}</h1>
+    </div>
+    <ul class="nav nav-pills">
+        <li ui-sref-active="active">
+            <a ui-sref="database.info">
+                <div><i class="fa fa-2x fa-info-circle"></i>
+                </div>
+                <div>Info</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="database.security">
+                <div><i class="fa fa-2x fa-lock"></i>
+                </div>
+                <div>Sikkerhed</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="database.schema.wizard">
+                <div><i class="fa fa-2x fa-check"></i>
+                </div>
+                <div>Validering</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="database.fulltext">
+                <div><i class="fa fa-2x fa-search"></i>
+                </div>
+                <div>Fulltext</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="database.data">
+                <div><i class="fa fa-2x fa-table"></i>
+                </div>
+                <div>Data</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="database.upload">
+                <div><i class="fa fa-2x fa-cloud-upload"></i>
+                </div>
+                <div>Upload</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="database.delete">
+                <div><i class="fa fa-2x fa-trash-o"></i>
+                </div>
+                <div>Slet</div>
+            </a>
+        </li>
+    </ul>
+    <div ui-view></div>
+</div>

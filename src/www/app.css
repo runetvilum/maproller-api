@@ -1,0 +1,84 @@
+/* app css stylesheet */
+
+.jumbotron.bg1 {
+    background-color: #160DFF;
+    color: #FFF;
+    text-align: center;
+}
+.jumbotron.bg2 {
+    background-color: #134CE8;
+    color: #FFF;
+    text-align: center;
+}
+.jumbotron.bg3 {
+    background-color: #0091FF;
+    color: #FFF;
+    text-align: center;
+}
+.jumbotron.bg4 {
+    background-color: #0CCCE8;
+    color: #FFF;
+    text-align: center;
+}
+.jumbotron.bg5 {
+    background-color: #01FFCE;
+    color: #FFF;
+    text-align: center;
+}
+.jumbotron.error {
+    background-color: #ff3d3d;
+    color: #FFF;
+    text-align: center;
+}
+.login {
+    margin-top: -15px;
+    margin-bottom: -15px;
+    margin-left: 10px;
+}
+.jumbotron {
+    background-color: transparent !important;
+}
+.padding-sm {
+    padding-top: 20px;
+}
+.padding-md {
+    padding-top: 40px;
+}
+.padding-lg {
+    padding-top: 80px;
+}
+.navbar-brand.active {
+    color: #fff !important;
+}
+.nav-pills>li>a {
+    width: 74px;
+    height: 74px;
+    text-align: center;
+    padding: 16px 0px !important
+}
+a:hover {
+    cursor: pointer;
+}
+.bg-primary .help-block,
+.bg-primary a {
+    color: #fff;
+}
+.app-content {
+    position: absolute;
+    z-index: 1;
+    top: 50px;
+    bottom: 0px;
+    left: 0;
+    width: 100%;
+    overflow: auto;
+}
+.app-wrapper {
+    height=100%;
+}
+.angular-leaflet-map {
+    height: 400px;
+    border: 4px #fff solid;
+    margin-bottom: 20px;
+    box-shadow: 0 0 5px -1px rgba(0, 0, 0, 1);
+    border-radius: 4px;
+}

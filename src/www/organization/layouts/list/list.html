@@ -1,0 +1,13 @@
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <tr>
+            <th>Navn</th>
+            
+        </tr>
+        <tr ng-repeat="item in layouts">
+            <td><a href="#/organizations/{{organization._id}}/layouts/{{item.id}}/info">{{item.value}}</a>
+            </td>
+            
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,69 @@
+<div class="alert alert-success alert-dismissible" role="alert" ng-show="success">
+    <button type="button" class="close" ng-click="success=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+    </button><strong>OK:</strong> {{success}}.
+</div>
+<div class="alert alert-danger alert-dismissible" role="alert" ng-show="error">
+    <button type="button" class="close" ng-click="error=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+    </button><strong>Fejl:</strong> {{error}}
+</div>
+
+<div class="alert alert-info clearfix" role="alert" ng-show="missing">
+    <div class="pull-right">
+        <button type="button" class="btn btn-info" ng-click="save()">Opret index</button>
+    </div>
+    <div><strong>Info:</strong> Der er ikke oprettet et index til fulltext søgning.</div>
+</div>
+{{keys}}
+<div class="row" ng-show="!missing">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Fulltext Index</h3>
+            </div>
+            <div class="panel-body">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="name" class="col-sm-2 control-label">Sortering</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" ng-model="sort" ng-change="save()" ng-options="key as key for key in keys">
+                                <option value="" selected>-- ingen sortering --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="name" class="col-sm-2 control-label">Størrelse</label>
+                        <div class="col-sm-10">
+                            <p class="form-control-static">{{info.disk_size | bytes}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="name" class="col-sm-2 control-label">Antal</label>
+                        <div class="col-sm-10">
+                            <p class="form-control-static">{{info.doc_count}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="button" class="btn btn-danger" ng-click="delete()">Slet index</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Test søgning</h3>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="query" ng-keyup="search($event)">
+                </div>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="item in result.rows">{{item.fields.sort}}</li>
+            </ul>
+        </div>
+    </div>
+</div>

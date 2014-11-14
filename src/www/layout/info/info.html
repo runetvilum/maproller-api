@@ -1,0 +1,62 @@
+<div class="row">
+    
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Rediger layout</h3>
+            </div>
+            <div class="panel-body">
+                <form novalidate role="form" name="myform" ng-submit="update(myform)">
+                    <div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && !myform.name.$pristine, 'has-success': myform.name.$valid && !myform.name.$pristine}">
+                        <label for="name">Navn</label>
+
+                        <input name="name" ng-model="layout.name" type="text" class="form-control" id="name" placeholder="Navn" required>
+                        <span ng-show="myform.name.$valid && !myform.name.$pristine" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                        <span ng-show="myform.name.$error.required && !myform.name.$pristine" class="help-block">Navn er påkrævet!</span>
+
+                    </div>
+                    <div class="form-group">
+       
+                        <div class="btn-group" dropdown is-open="openBaselayer">
+                            <button type="button" class="btn btn-primary dropdown-toggle">Tilføj baselayer <span class="caret"></span></button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li ng-repeat="(key,value) in layers"><a ng-click="addBaselayer(key)">{{value}}</a></li>
+                            </ul>
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item" ng-class="{active:value.active}" ng-repeat="(key,value) in layout.baselayers" ng-click="selectBaselayer(key)"><i class="fa fa-times pull-right" ng-click="removeBaselayer(key)"></i>{{lookup[key]}}</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <div class="btn-group" dropdown is-open="openOverlay">
+                            <button type="button" class="btn btn-primary dropdown-toggle">Tilføj overlay <span class="caret"></span></button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li ng-repeat="(key,value) in layers"><a ng-click="addOverlay(key)">{{value}}</a></li>
+                            </ul>
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item" ng-repeat="(key,value) in layout.overlays" ng-click="selectOverlay(key);value.active=!value.active" ng-class="{active:value.active}"><i class="fa fa-times pull-right"  ng-click="removeOverlay(key)"></i>{{lookup[key]}}</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-success">OK</button>
+                            <button type="button" class="btn btn-warning" ng-click="showForm=false;name=organization.value.name;myform.name.$pristine=true;error=null;success=null;">Fortryd</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="alert alert-danger" role="alert" ng-show="error">
+                    <p><strong>Fejl:</strong> Der er sket en fejl ved rettelse af layoutet.</p>
+                    <p>{{error}}</p>
+                </div>
+                <div class="alert alert-success" role="alert" ng-show="success">
+                    <p><strong>OK:</strong> Layoutet er rettet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        
+        <div layout-map ticket="ticket" style="height:380px;width:100%"></div>
+    </div>
+</div>

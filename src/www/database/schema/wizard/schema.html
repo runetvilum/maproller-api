@@ -1,0 +1,84 @@
+<div class="panel panel-warning" ng-init="isCollapsed=name">
+    <div class="panel-heading">
+        <a style="color:inherit" class="pull-right" ng-click="removeProperty(name)" ng-if="name"><i class="fa fa-close"></i></a>
+        <a style="color:inherit;margin-right:5px" class="panel-title pull-left" ng-click="isCollapsed=!isCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isCollapsed,'fa-plus-square-o':isCollapsed}"></i></a>
+        <h3 class="panel-title clearfix" ng-click="editName=true" ng-hide="editName && name">{{name || 'Skema'}}</h3>
+        <form class="form-inline" role="form" ng-show="editName && name">
+            <div class="input-group">
+                <input type="text" class="form-control" id="inputName" name="inputName" ng-model="key" ng-blur="changeName();editName=false">
+                <span class="input-group-btn">
+                    <button class="btn btn-warning" type="button" ng-click="changeName();editName=false">OK</button>
+                </span>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body" collapse="isCollapsed">
+
+        <div ng-if="schema|isArray">
+            <form class="form" novalidate ng-submit="addPropertyDependency()">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="newPropertyDependency">
+                    <span class="input-group-btn">
+        <button class="btn btn-default" type="submit"><i class="fa fa-plus"></i></button>
+      </span>
+                </div>
+            </form>
+            <div class="input-group" ng-repeat="item in schema track by $index">
+                <input type="text" class="form-control" ng-model="schema[$index]" ng-change="$emit('validate')">
+                <span class="input-group-btn">
+        <button class="btn btn-default" type="button" ng-click="removePropertyDependency()"><i class="fa fa-minus"></i></button>
+      </span>
+            </div>
+        </div>
+        <div ng-if="!(schema|isArray)">
+            <div class="form-group">
+                <label for="inputRef">$ref</label>
+                <input type="text" class="form-control" id="inputRef" ng-model="schema.$ref" ng-blur="$emit('validate')">
+            </div>
+            <div class="form-group">
+                <label for="inputId">id</label>
+                <input type="text" class="form-control" id="inputId" ng-model="schema.id" ng-blur="$emit('validate')">
+            </div>
+            <div class="form-group">
+                <label for="inputTitle">title</label>
+                <input type="text" class="form-control" id="inputTitle" ng-model="schema.title" ng-blur="$emit('validate')">
+            </div>
+            <div class="form-group">
+                <label for="inputDescription">description</label>
+                <textarea class="form-control" id="inputDescription" ng-model="schema.description" ng-blur="$emit('validate')"></textarea>
+            </div>
+
+            <div class="form-group" ng-if="parentSchema">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-checked="parentSchema.required.indexOf(name)!==-1" ng-click="changeRequired()">required
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputDefault">default</label>
+                <input type="text" class="form-control" id="inputDefault" ng-model="schema.default" ng-blur="$emit('validate')">
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <button class="btn btn-xs btn-default pull-right" ng-click="addType()"><i class="fa fa-plus"></i>
+                    </button>
+                    <h3 class="panel-title"><a style="" ng-click="isTypesCollapsed=!isTypesCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isTypesCollapsed,'fa-plus-square-o':isTypesCollapsed}"></i></a> type</h3>
+                </div>
+                <div class="panel-body" collapse="isTypesCollapsed">
+                    <div ng-if="schema.type|isArray">
+                        <div ng-repeat="type in schema.type">
+                            <div ng-include="'database/schema/wizard/type.html'"></div>
+                        </div>
+                    </div>
+                    <div ng-if="!(schema.type|isArray)">
+                        <div ng-init="type = schema.type">
+                            <div ng-include="'database/schema/wizard/type.html'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="container-fluid">
+    <div ncy-breadcrumb></div>
+    <div class="page-header">
+        <h1><i class="fa fa-university"></i> {{organization.name}}</h1>
+    </div>
+    <ul class="nav nav-pills">
+        <li ui-sref-active="active">
+            <a ui-sref="organization.info">
+                <div><i class="fa fa-2x fa-info-circle"></i>
+                </div>
+                <div>Info</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="organization.apps">
+                <div><i class="fa fa-2x fa-mobile-phone"></i>
+                </div>
+                <div>Apps</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="organization.databases.list">
+                <div><i class="fa fa-2x fa-database"></i>
+                </div>
+                <div>Databaser</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="organization.layouts.list">
+                <div><i class="fa fa-2x fa-eye"></i>
+                </div>
+                <div>Layouts</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="organization.maps">
+                <div><i class="fa fa-2x fa-globe"></i>
+                </div>
+                <div>Kortlag</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="organization.users.list">
+                <div><i class="fa fa-2x fa-users"></i>
+                </div>
+                <div>Brugere</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="organization.delete">
+                <div><i class="fa fa-2x fa-trash-o"></i>
+                </div>
+                <div>Slet</div>
+            </a>
+        </li>
+    </ul>
+    <div ui-view></div>
+</div>

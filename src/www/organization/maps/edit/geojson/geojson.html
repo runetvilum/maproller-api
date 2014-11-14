@@ -1,0 +1,21 @@
+<div class="form-group">
+    <label for="type" class="col-sm-2 control-label">Database</label>
+    <div class="col-sm-10">
+        <select class="form-control" id="database" ng-model="map.database" ng-options="r.id as r.value for r in databases">
+        </select>
+    </div>
+</div>
+<div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && !myform.name.$pristine, 'has-success': myform.name.$valid && !myform.name.$pristine}">
+    <label for="name" class="col-sm-2 control-label">Navn</label>
+    <div class="col-sm-10">
+        <input name="name" ng-model="map.name" type="text" class="form-control" id="name" placeholder="Navn" required>
+        <span ng-show="myform.name.$valid && !myform.name.$pristine" class="glyphicon glyphicon-ok form-control-feedback"></span>
+        <span ng-show="myform.name.$error.required && !myform.name.$pristine" class="help-block">Navn er påkrævet!</span>
+    </div>
+</div>
+<div class="form-group">
+    <label for="options" class="col-sm-2 control-label">Options</label>
+    <div class="col-sm-10">
+        <textarea name="options" ng-model="map.options" class="form-control" id="options"></textarea>
+    </div>
+</div>

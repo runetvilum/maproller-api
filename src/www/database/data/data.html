@@ -1,0 +1,10 @@
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th ng-repeat="felt in felter">{{felt.key}}</th>
+        </tr>
+        <tr ng-repeat="row in rows">
+            <td ng-repeat="felt in felter">{{row.doc.properties[felt.key]}}</td>
+        </tr>
+    </table>
+</div>

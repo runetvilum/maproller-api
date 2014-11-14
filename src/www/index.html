@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html lang="en" ng-app="myApp" class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Maproller</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <!--link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/main.css"-->
+    <link rel="stylesheet" href="app.css">
+    <!--link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"-->
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css">
+    <!--link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" -->
+    <link rel="stylesheet" href="lib/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="lib/leaflet/dist/leaflet.css">
+
+
+
+    <!--script src="js/modernizr-2.6.2.min.js"></script-->
+</head>
+
+<body>
+    <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+    <!-- Add your site or application content here -->
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="navigation">
+        <div class="container-fluid">
+
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" ng-init="isCollapsed=true" ng-click="isCollapsed=!isCollapsed">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <!--a class="navbar-brand" ui-sref="home.dashboard" ui-sref-active="active"><i class="fa fa-home"></i></a-->
+            </div>
+
+            <div class="collapse navbar-collapse" collapse="isCollapsed">
+
+                <ul class="nav navbar-nav">
+                    <li ui-sref-active="active">
+                        <a ui-sref="organizations">Organisationer</a> 
+                    </li>
+                    <li ui-sref-active="active">
+                        <a ui-sref="templates">Templates</a> 
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li ui-sref-active="active" ng-show="!profile.user.verified"><a ui-sref="login"><i class="fa fa-sign-in"></i> Login</a>
+                    </li>
+
+                    <li ng-show="profile.user.verified" class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><strong>{{profile.user.name}}</strong><img class="login img-circle" ng-src="http://www.gravatar.com/avatar/{{profile.hash}}?s=50&d=identicon" /></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#" ng-click="logoff()"><i class="fa fa-sign-out"></i> Log ud</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-content" ui-view></div>
+
+    <!--nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
+        <div class="container">
+            <p class="navbar-text navbar-right">Version: <span app-version></span>
+            </p>
+        </div>
+    </nav-->
+    <!--script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+        window.jQuery || document.write('<script src="js/vendor/jquery-1.11.1.min.js"><\/script>')
+    </script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script-->
+    <!--
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+        -->
+    <script src="lib/ng-file-upload/angular-file-upload-shim.min.js"></script>
+    <!--script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-route.min.js"></script>
+    <script src="js/angular-md5.min.js"></script>    
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-cookies.min.js"></script-->
+    <script src="lib/leaflet/dist/leaflet.js"></script>
+    <script src="lib/angular/angular.min.js"></script>
+    <script src="lib/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="lib/angular-md5/angular-md5.min.js"></script>
+    <script src="lib/ng-file-upload/angular-file-upload.min.js"></script>
+    <script src="lib/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="lib/angular-breadcrumb/release/angular-breadcrumb.min.js"></script>
+    <script src="lib/proj4/dist/proj4.js"></script>
+    <script src="lib/proj4leaflet/lib/proj4-compressed.js"></script>
+    <script src="lib/tv4/tv4.js"></script>
+    
+    <script src="schema.js"></script>
+    <script src="bbox.js"></script>
+    <script src="geojson.js"></script>
+    <script src="geometry.js"></script>
+    <script src="crs.js"></script>
+    <script src="app.js"></script>
+    <script src="app-services.js"></script>
+    <script src="app-controllers.js"></script>
+    <script src="app-directives.js"></script>
+    <script src="login/login-controllers.js"></script>
+    <script src="home/home-controllers.js"></script>
+    <script src="home/profile/profile-controllers.js"></script>
+    <script src="templates/templates-controllers.js"></script>
+    <script src="templates/list/list-controllers.js"></script>
+    <script src="templates/create/create-controllers.js"></script>
+    <script src="template/template-controllers.js"></script>
+    <script src="template/info/info-controllers.js"></script>
+    <script src="template/security/security-controllers.js"></script>
+    <script src="template/delete/delete-controllers.js"></script>
+    <script src="organizations/organizations-controllers.js"></script>
+    <script src="organizations/create/create-controllers.js"></script>
+    <script src="organizations/list/list-controllers.js"></script>
+    <script src="organization/organization-controllers.js"></script>
+    <script src="organization/delete/delete-controllers.js"></script>
+    <script src="organization/info/info-controllers.js"></script>
+    <script src="organization/databases/databases-controllers.js"></script>
+    <script src="organization/databases/databases-filters.js"></script>
+    <script src="organization/databases/list/list-controllers.js"></script>
+    <script src="organization/databases/create/create-controllers.js"></script>
+    <script src="organization/layouts/layouts-controllers.js"></script>
+    <script src="organization/layouts/list/list-controllers.js"></script>
+    <script src="organization/layouts/create/create-controllers.js"></script>
+    <script src="organization/maps/maps-controllers.js"></script>
+    <script src="organization/maps/list/list-controllers.js"></script>
+    <script src="organization/maps/edit/xyz/xyz-controllers.js"></script>
+    <script src="organization/maps/edit/geojson/geojson-controllers.js"></script>
+    <script src="organization/maps/edit/mbtiles/mbtiles-controllers.js"></script>
+    <script src="organization/maps/edit/wms/wms-controllers.js"></script>
+    <script src="organization/maps/edit/edit-controllers.js"></script>
+    <script src="organization/maps/edit/map/map-services.js"></script>
+    <script src="organization/maps/edit/map/map-directives.js"></script>
+    <script src="database/database-controllers.js"></script>
+    <script src="database/data/data-controllers.js"></script>
+    <script src="database/delete/delete-controllers.js"></script>
+    <script src="database/info/info-controllers.js"></script>
+    <script src="database/schema/schema-controllers.js"></script>
+    <script src="database/schema/schema-directives.js"></script>
+    <script src="database/schema/wizard/wizard-controllers.js"></script>
+    <script src="database/schema/wizard/wizard-directives.js"></script>
+    <script src="database/schema/text/text-controllers.js"></script>
+    <script src="database/schema/test/test-controllers.js"></script>
+    <script src="database/fulltext/fulltext-controllers.js"></script>
+    <script src="database/security/security-controllers.js"></script>
+    <script src="database/upload/upload-controllers.js"></script>
+    <script src="organization/users/users-controllers.js"></script>
+    <script src="organization/users/list/list-controllers.js"></script>
+    <script src="organization/users/create/create-controllers.js"></script>
+    <script src="organization/apps/apps-controllers.js"></script>
+    <script src="user/user-controllers.js"></script>
+    <script src="user/delete/delete-controllers.js"></script>
+    <script src="user/info/info-controllers.js"></script>
+    <script src="frontpage/frontpage-controllers.js"></script>
+    <script src="verify/verify-controllers.js"></script>
+    <script src="layout/delete/delete-controllers.js"></script>
+    <script src="layout/info/info-controllers.js"></script>
+    <script src="layout/info/map-directive.js"></script>
+    <script src="layout/layout-controllers.js"></script>
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <!--script>
+        (function (b, o, i, l, e, r) {
+            b.GoogleAnalyticsObject = l;
+            b[l] || (b[l] =
+                function () {
+                    (b[l].q = b[l].q || []).push(arguments)
+                });
+            b[l].l = +new Date;
+            e = o.createElement(i);
+            r = o.getElementsByTagName(i)[0];
+            e.src = '//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e, r)
+        }(window, document, 'script', 'ga'));
+        ga('create', 'UA-XXXXX-X');
+        ga('send', 'pageview');
+    </script-->
+</body>
+
+</html>

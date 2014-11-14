@@ -1,0 +1,126 @@
+<div class="alert alert-success alert-dismissible" role="alert" ng-show="success">
+    <button type="button" class="close" ng-click="success=false"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+    </button><strong>OK:</strong> Sikkerheden er blevet ændret.
+</div>
+<div class="alert alert-danger alert-dismissible" role="alert" ng-show="error">
+    <button type="button" class="close" ng-click="error=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>
+    </button><strong>Fejl:</strong> {{error}}
+</div>
+<div class="alert alert-warning clearfix" role="alert" ng-show="changed">
+    <div class="pull-right">
+        <button type="button" class="btn btn-warning" ng-click="update()"><i class="fa fa-save"></i> Gem</button>
+    </div>
+    <div><strong>Advarsel:</strong> Du har ændret sikkerhedsindstillingerne, husk at gemme.</div>
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-lock"></i> Sikkerhed nivau 1</h3>
+            </div>
+            <div class="panel-body">
+                <p>Definere overordnet adgang til database. Alt adgang er begrænset til valgte rolle(r). Hvis der vælges "Alle" så er der ingen begrænsinger.</p>
+                <p>Hvis der vælges "Bruger" så har "Administrator" også adgang.</p>
+                <div class="radio">
+                    <label>
+                        <input type="radio" value="1" ng-model="security.r" ng-click="security.c='1';security.u='1';security.d='1';">Alle
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" value="2" ng-model="security.r" ng-click="security.c='2';security.u='2';security.d='2';">Bruger
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" value="3" ng-model="security.r" ng-click="security.c='3';security.u='3';security.d='3';">Administrator
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-lock"></i> Sikkerhed niveau 2</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-6 col-md-4">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Oprette</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="radio" ng-show="security.r=='1'">
+                                    <label>
+                                        <input type="radio" value="1" ng-model="security.c">Alle
+                                    </label>
+                                </div>
+                                <div class="radio" ng-hide="security.r=='3'">
+                                    <label>
+                                        <input type="radio" value="2" ng-model="security.c">Bruger
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" value="3" ng-model="security.c">Administrator
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Opdatere</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="radio" ng-show="security.r=='1'">
+                                    <label>
+                                        <input type="radio" value="1" ng-model="security.u">Alle
+                                    </label>
+                                </div>
+                                <div class="radio" ng-hide="security.r=='3'">
+                                    <label>
+                                        <input type="radio" value="2" ng-model="security.u">Bruger
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" value="3" ng-model="security.u">Administrator
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Slette</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="radio" ng-show="security.r=='1'">
+                                    <label>
+                                        <input type="radio" value="1" ng-model="security.d">Alle
+                                    </label>
+                                </div>
+                                <div class="radio" ng-hide="security.r=='3'">
+                                    <label>
+                                        <input type="radio" value="2" ng-model="security.d">Bruger
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    <label>
+                                        <input type="radio" value="3" ng-model="security.d">Administrator
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

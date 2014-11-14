@@ -1,0 +1,131 @@
+<div class="col-sm-6">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Nyt felt</h3>
+                </div>
+                <div class="panel-body">
+                    <form role="form" name="formfelt" novalidate ng-submit="new(formfelt)">
+                        <div class="form-group" ng-class="{'has-error': (formfelt.inputName.$error.required || formfelt.inputName.$error.unique)  && !formfelt.inputName.$pristine }">
+                            <label for="inputName" class="control-label">Navn</label>
+                            <input type="text" class="form-control" id="inputName" name="inputName" ng-model="edititem.key" required unique>
+                            <span class="help-block" ng-show="formfelt.inputName.$error.required && !formfelt.inputName.$pristine">Navn er påkrævet.</span>
+                            <span class="help-block" ng-show="formfelt.inputName.$error.unique && !formfelt.inputName.$pristine">Navn er ikke unikt.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputType">Type</label>
+                            <select class="form-control" class="form-control" id="inputType" ng-model="edititem.value.type" ng-options="o for o in inputtypes">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputLabel">Label</label>
+                            <input type="text" class="form-control" id="inputLabel" ng-model="edititem.value.label">
+                        </div>
+                        <div class="form-group" ng-hide="edititem.value.type=='checkbox' || edititem.value.type=='radio' || edititem.value.type=='ruler' || edititem.value.type=='select'">
+                            <label for="inputPlaceholder">Placeholder</label>
+                            <input type="text" class="form-control" id="inputPlaceholder" ng-model="edititem.value.placeholder">
+                        </div>
+                        <div class="form-group" ng-show="edititem.value.type=='text' || edititem.value.type=='textarea'">
+                            <label for="inputPattern">Pattern</label>
+                            <input type="text" class="form-control" id="inputPattern" ng-model="edititem.value.pattern">
+                        </div>
+                        <div class="form-group" ng-hide="edititem.value.type=='ruler'">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" ng-model="edititem.value.required">Required
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="edititem.value.type=='textarea'">
+                            <label for="inputRows">Rows</label>
+                            <input type="text" class="form-control" id="inputRows" ng-model="edititem.value.rows">
+                        </div>
+                        <div class="form-group" ng-hide="edititem.value.type=='ruler'">
+                            <label for="inputDefault">Default</label>
+                            <input type="text" class="form-control" id="inputDefault" ng-model="edititem.value.default" ng-hide="edititem.value.type=='select'">
+                            <select class="form-control" class="form-control" id="inputType" ng-model="edititem.value.default" ng-options="o.value as o.value for o in edititem.value.options" ng-show="edititem.value.type=='select'">
+                                <option value="">-- Ingen --</option>
+                            </select>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default" ng-click="up(item)" ng-disabled="$first"><i class="fa fa-level-up"></i>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-click="down(item)" ng-disabled="$last"><i class="fa fa-level-down"></i>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-click="deleteFelt()"><i class="fa fa-minus"></i>
+                            </button>
+                            <button type="submit" class="btn btn-default"><i class="fa fa-plus"></i>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-click="clear()"><i class="fa fa-file-o"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="panel panel-primary" ng-show="edititem.value.type=='select' || edititem.value.type=='radio'">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Options</h3>
+                </div>
+                <div class="panel-body">
+                    <form role="form" name="formoption" novalidate ng-submit="createOption(formoption)">
+                        <div class="form-group" ng-class="{'has-error': formoption.inputLabel.$error.required && !formoption.inputLabel.$pristine}">
+                            <label for="inputLabel" class="control-label">Label</label>
+                            <input type="text" class="form-control" id="inputLabel" name="inputLabel" ng-model="editoption.label" required>
+                            <span class="help-block" ng-show="formoption.inputLabel.$error.required && !formoption.inputLabel.$pristine">Label er påkrævet.</span>
+                        </div>
+                        <div class="form-group" ng-class="{'has-error': formoption.inputValue.$error.required && !formoption.inputValue.$pristine}">
+                            <label for="inputValue" class="control-label">Value</label>
+                            <input type="text" class="form-control" id="inputValue" name="inputValue" ng-model="editoption.value" required>
+                            <span class="help-block" ng-show="formoption.inputValue.$error.required && !formoption.inputValue.$pristine">Value er påkrævet.</span>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default" ng-click="upOption()" ng-disabled="$first"><i class="fa fa-level-up"></i>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-click="downOption()" ng-disabled="$last"><i class="fa fa-level-down"></i>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-click="deleteOption()"><i class="fa fa-minus"></i>
+                            </button>
+                            <button type="submit" class="btn btn-default"><i class="fa fa-plus"></i>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-click="clearOption()"><i class="fa fa-file-o"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <table class="table table-hover">
+                    <tr>
+                        <th>Label</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr ng-repeat="option in edititem.value.options" ng-click="selectOption(option)" ng-class="{info: selectedOption==option}">
+                        <td>{{option.label}}</td>
+                        <td>{{option.value}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-6">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Felter</h3>
+        </div>
+
+        <table class="table table-hover">
+            <tr>
+                <th>Navn</th>
+                <th>Type</th>
+            </tr>
+            <tr ng-repeat="item in felter" ng-class="{info:edititem==item}" ng-click="edit(item)">
+                <td>{{item.key}}</td>
+                <td>
+                    {{item.value.type}}
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

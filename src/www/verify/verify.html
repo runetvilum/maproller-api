@@ -1,0 +1,60 @@
+<div class="bg-primary" style="height:100%" ng-show="!error">
+    <div class="container-fluid">
+        <div class="row">
+            <!--div class="jumbotron text-center"-->
+            <div class="text-center">
+                <h1>Velkommen til MapRoller</h1>
+                <h2>Synkronisering af data i skyen</h2>
+                <h2>Designet til offline first</h2>
+                <h2><i class="fa fa-user"></i> {{name}}</h3>
+                <h3>Du skal oprettet et password før du kan bruge systemet.</h3>
+            </div>
+
+            <div class="col-sm-3"></div>
+            <div class="col-sm-6">
+                <form name="myform" novalidate role="form" ng-submit="submit(myform)">
+
+                    <div class="form-group has-feedback" ng-class="{ 'has-error': myform.confirmPassword.$error.match || (myform.password.$error.required && !myform.password.$pristine), 'has-success': myform.password.$valid && !myform.password.$pristine}">
+                        <label for="inputPassword1">Password</label>
+
+                        <input required ng-model="password" name="password" type="password" class="form-control" id="inputPassword1" placeholder="Password" ng-minlength="6">
+                        <span ng-show="myform.password.$error.required && !myform.password.$pristine" class="help-block">Password er påkrævet!</span>
+                        <span ng-show="myform.password.$error.minlength  && !myform.password.$pristine" class="help-block">Password skal være på mindst 6 tegn!</span>
+                        <span ng-show="myform.password.$valid && !myform.password.$pristine" class="glyphicon glyphicon-ok form-control-feedback"></span>
+
+                    </div>
+                    <div class="form-group has-feedback" ng-class="{ 'has-error': (myform.confirmPassword.$error.match && !myform.confirmPassword.$pristine) || (myform.confirmPassword.$error.required && !myform.confirmPassword.$pristine), 'has-success': myform.confirmPassword.$valid && !myform.confirmPassword.$pristine}">
+                        <label for="inputPassword3">Bekræft Password</label>
+                        <input required name="confirmPassword" ng-model="passwordConfirm" type="password" data-match="password" class="form-control" id="inputPassword3" placeholder="Bekræft Password">
+                        <span ng-show="myform.confirmPassword.$error.required && !myform.confirmPassword.$pristine" class="help-block">Bekræftelse af password er påkrævet!</span>
+                        <span ng-show="myform.confirmPassword.$error.match && !myform.confirmPassword.$pristine" class="help-block">Passwords er ikke identiske!</span>
+                        <span ng-show="myform.confirmPassword.$valid && !myform.confirmPassword.$pristine" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
+
+                    <div class="form-group text-center">
+
+                        <button type="submit" class="btn btn-success btn-lg">Send</button>
+
+                    </div>
+
+                </form>
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+        
+    </div>
+</div>
+<div class="bg-danger" style="height:100%" ng-show="error">
+    <div class="container padding-md">
+        <div class="text-center text-danger">
+            <h1>maproller.org</h1>
+            <div ng-show="verified">
+                <h2><i class="fa fa-user"></i> {{name}}</h3>
+                <h3>Din konto er allerede verificeret!</h3>
+            </div>
+            <div ng-show="!verified">
+                <h3>Fejl i verificeringskode!</h3>
+            </div>
+        </div>
+    </div>
+</div>

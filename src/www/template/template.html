@@ -1,0 +1,31 @@
+<div class="container-fluid padding-sm">
+    <div ncy-breadcrumb></div>
+    <div class="page-header">
+        <h1><i class="fa fa-flask"></i> {{template.name}}</h1>
+    </div>
+    
+    <ul class="nav nav-pills">
+        <li ui-sref-active="active">
+            <a ui-sref="template.info">
+                <div><i class="fa fa-2x fa-info-circle"></i>
+                </div>
+                <div>Info</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="template.security">
+                <div><i class="fa fa-2x fa-lock"></i>
+                </div>
+                <div>Sikkerhed</div>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="template.delete">
+                <div><i class="fa fa-2x fa-trash-o"></i>
+                </div>
+                <div>Slet</div>
+            </a>
+        </li>
+    </ul>
+    <div ui-view></div>
+</div>

@@ -1,0 +1,46 @@
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <ul class="nav navbar-nav">
+            <li ui-sref-active="active">
+                <a ui-sref="database.schema.wizard">
+                    <i class="fa fa-magic"></i> Wizard
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="database.schema.text">
+                    <i class="fa fa-file-text-o"></i> Tekst
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="database.schema.test">
+                    <i class="fa fa-bug"></i> Test
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="btn-group">
+  <button type="button" class="btn btn-default" ng-click="createGeoJSONSchema()">GeoJSON</button>
+  <button type="button" class="btn btn-default" ng-click="createBlankSchema()">Tomt</button>
+</div>
+<div class="alert alert-warning clearfix" role="alert" ng-show="missing">
+    <div class="pull-right">
+        <button type="button" class="btn btn-warning" ng-click="save()">Opret valideringsskema</button>
+    </div>
+    <div><strong>Advarsel:</strong> Data bliver ikke valideret! Hvis du vil sikre at databasen kun indeholder data i en bestemt struktur så opret et valideringsskema.</div>
+</div>
+<div class="alert alert-warning clearfix" role="alert" ng-show="valid.valid">
+    <div class="pull-right">
+        <button type="button" class="btn btn-warning" ng-click="save()"><i class="fa fa-save"></i> Gem</button>
+    </div>
+    <div><strong>Advarsel:</strong> Skemaet er blevet ændret, husk at gemme.</div>
+</div>
+<div class="alert alert-danger" role="alert" ng-show="error">
+    <strong>Fejl:</strong> {{error}}
+</div>
+<div class="alert alert-success" role="alert" ng-show="success">
+    <strong>OK:</strong> {{success}}
+</div>
+<pre ng-show="valid" ng-class="{'bg-danger':!valid.valid,'bg-success':valid.valid}">{{valid|json}}</pre>
+<div ui-view ng-show="!missing"></div>
