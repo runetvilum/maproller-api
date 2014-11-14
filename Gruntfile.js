@@ -75,7 +75,7 @@ module.exports = function (grunt) {
                 expand: true,
                 cwd: 'srs/www',
                 src: '**/*',
-                dest: 'dist/www/_attachments'
+                dest: 'dist/www/data/_attachments'
             }
         }
     });
