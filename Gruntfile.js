@@ -17,7 +17,7 @@ module.exports = function (grunt) {
             },
             admin: {
                 files: {
-                    'tmp/admin.json': ['dist/admin/organizations', 'dist/admin/templates']
+                    'tmp/admin.json': ['dist/admin/organization', 'dist/admin/templates']
                 }
             }
         },
@@ -57,7 +57,7 @@ module.exports = function (grunt) {
                     pass: '<%= config.couchdb.password %>'
                 },
                 files: {
-                    'http://localhost:5984/www': 'www/security.json'
+                    'http://localhost:5984/www': 'dist/www/security.json'
                 }
             },
             "admin": {
