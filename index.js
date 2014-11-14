@@ -628,14 +628,14 @@ app.post('/api/user', function (req, res) {
                             }
                             template('verify', {
                                 user: body,
-                                url: 'http://data.addin.dk/#/verify/' + code
+                                url: 'http://data.kosgis.dk/#/verify/' + code
                                 //url: 'http://localhost:3000/#/verify/' + code
                             }, function (err, html, text) {
                                 if (err) {
                                     return res.status(err.status_code ? err.status_code : 500).send(err);
                                 }
                                 transport.sendMail({
-                                    from: 'rune@addin.dk',
+                                    from: 'noreply@kosgis.dk',
                                     to: req.body.name,
                                     subject: 'Invitation',
                                     html: html,
