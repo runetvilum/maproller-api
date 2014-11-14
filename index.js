@@ -1309,6 +1309,7 @@ var schemaGetPut = function (req, res) {
         cookie: req.headers.cookie,
         url: url_5986
     });
+
     couchdb.session(function (err, session, headers) {
         if (!session.userCtx.name) {
             return res.status(401).send(JSON.stringify({
@@ -1319,32 +1320,36 @@ var schemaGetPut = function (req, res) {
         if (headers && headers['set-cookie']) {
             res.set('set-cookie', headers['set-cookie']);
         }
-        if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.body.organization) === -1) {
-            return res.status(401).send(JSON.stringify({
-                ok: false,
-                message: 'Du har ikke rettigheder til at oprette databaser.'
-            }));
-        }
-        fs.readFile('tv4.js', 'utf8', function (err, data) {
+        db_admin.get(req.params.id, function (err, database) {
             if (err) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
-            fs.readFile('validate_doc_update.js', 'utf8', function (err, validate_doc_update) {
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Du har ikke rettigheder til at oprette databaser.'
+                }));
+            }
+            fs.readFile('tv4.js', 'utf8', function (err, data) {
                 if (err) {
                     return res.status(err.status_code ? err.status_code : 500).send(err);
                 }
-                var db_id = 'db-' + req.params.id;
-                var d = nano.db.use(db_id);
-                d.get("_design/schema", function (err, doc) {
+                fs.readFile('validate_doc_update.js', 'utf8', function (err, validate_doc_update) {
                     if (err) {
-                        doc = {};
+                        return res.status(err.status_code ? err.status_code : 500).send(err);
                     }
-                    doc.validate_doc_update = validate_doc_update;
-                    doc.lib = {
-                        tv4: data,
-                        schema: "exports.schema=" + JSON.stringify(req.body.schema)
-                    };
-                    /*doc.filters = {
+                    var db_id = 'db-' + req.params.id;
+                    var d = nano.db.use(db_id);
+                    d.get("_design/schema", function (err, doc) {
+                        if (err) {
+                            doc = {};
+                        }
+                        doc.validate_doc_update = validate_doc_update;
+                        doc.lib = {
+                            tv4: data,
+                            schema: "exports.schema=" + JSON.stringify(req.body.schema)
+                        };
+                        /*doc.filters = {
                         schema: "function (doc, req) {" +
                             "      if (doc._id === '_design/schema') {" +
                             "        return true;" +
@@ -1352,12 +1357,13 @@ var schemaGetPut = function (req, res) {
                             "      return false;" +
                             "    }"
                     };*/
-                    doc.schema = req.body.schema;
-                    d.insert(doc, "_design/schema", function (err, body) {
-                        if (err) {
-                            return res.status(err.status_code ? err.status_code : 500).send(err);
-                        }
-                        res.json(body);
+                        doc.schema = req.body.schema;
+                        d.insert(doc, "_design/schema", function (err, body) {
+                            if (err) {
+                                return res.status(err.status_code ? err.status_code : 500).send(err);
+                            }
+                            res.json(body);
+                        });
                     });
                 });
             });
