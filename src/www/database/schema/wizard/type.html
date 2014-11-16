@@ -16,7 +16,7 @@
                 <option>object</option>
                 <option>string</option>
             </select>
-            <select class="form-control" class="form-control" id="type" ng-model="schema.type" ng-change="changeType()" ng-if="!(schema.type|isArray)" >
+            <select class="form-control" class="form-control" id="type" ng-model="schema.type" ng-change="changeType()" ng-if="!(schema.type|isArray)">
                 <option>array</option>
                 <option>boolean</option>
                 <option>integer</option>
@@ -35,24 +35,29 @@
             <div class="panel-body">
                 <form class="form" name="myForm" novalidate ng-submit="addEnum(myForm)">
                     <div class="input-group" ng-if="((schema.type|isArray) && (schema.type.indexOf('integer')!==-1 || schema.type.indexOf('number')!==-1)) || (!(schema.type|isArray) && (schema.type==='integer' || schema.type==='number'))">
+                        <span class="input-group-addon">Tal</span>
                         <input type="number" class="form-control" name="newEnum" ng-model="newEnum">
                         <span class="input-group-btn">
         <button class="btn btn-default" type="submit"><i class="fa fa-plus"></i></button>
       </span>
                     </div>
                     <div class="input-group" ng-if="((schema.type|isArray) && schema.type.indexOf('string')!==-1) || (!(schema.type|isArray) && schema.type==='string')">
+                        <span class="input-group-addon">Tekst</span>
                         <input type="text" class="form-control" name="newEnum" ng-model="newEnum">
                         <span class="input-group-btn">
         <button class="btn btn-default" type="submit"><i class="fa fa-plus"></i></button>
       </span>
                     </div>
                 </form>
-                <div class="input-group" ng-repeat="item in schema.enum track by $index">
-                    <input type="text" class="form-control" ng-model="schema.enum[$index]" ng-change="$emit('validate')" ng-if="schema.type.indexOf('string')!==-1">
-                    <input type="number" class="form-control" ng-model="schema.enum[$index]" ng-change="$emit('validate')" ng-if="((schema.type|isArray) && (schema.type.indexOf('integer')!==-1 || schema.type.indexOf('number')!==-1)) || (!(schema.type|isArray) && (schema.type==='integer' || schema.type==='number'))">
-                    <span class="input-group-btn">
+                <div ui-sortable ng-model="schema.enum">
+                    <div class="input-group" ng-repeat="item in schema.enum track by $index">
+                        <span class="input-group-addon"><i class="fa fa-arrows-v"></i></span>
+                        <input type="text" class="form-control" ng-model="schema.enum[$index]" ng-change="$emit('validate')" ng-if="schema.type.indexOf('string')!==-1">
+                        <input type="number" class="form-control" ng-model="schema.enum[$index]" ng-change="$emit('validate')" ng-if="((schema.type|isArray) && (schema.type.indexOf('integer')!==-1 || schema.type.indexOf('number')!==-1)) || (!(schema.type|isArray) && (schema.type==='integer' || schema.type==='number'))">
+                        <span class="input-group-btn">
         <button class="btn btn-default" type="button" ng-click="removeEnum()"><i class="fa fa-minus"></i></button>
       </span>
+                    </div>
                 </div>
             </div>
         </div>

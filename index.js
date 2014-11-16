@@ -133,7 +133,7 @@ app.post('/api/signin', function (req, res) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
 
-            if (!user.verified) {
+            if (user.roles.indexOf('_admin')===-1 && !user.verified) {
                 return res.status(401).send(JSON.stringify({
                     ok: false,
                     message: 'Du skal bekræfte din konto inden du kan logge ind. Check venligst din email (inklusiv spam folder) for mere information.'

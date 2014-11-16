@@ -87,6 +87,9 @@
                 };
                 $scope.changeType = function () {
                     var type = angular.isArray($scope.schema.type) ? $scope.schema.type[this.$index] : $scope.schema.type;
+                    if($scope.schema.default){
+                        delete $scope.schema.default;
+                    }
                     switch (this.type) {
                     case "array":
                         break;
