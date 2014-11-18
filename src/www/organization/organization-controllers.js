@@ -6,6 +6,11 @@
             success(function (data, status, headers, config) {
                 console.log(data);
                 $scope.organization = data;
+                if (data._attachments && data._attachments.logo) {
+                    $scope.logo = true;
+                } else {
+                    $scope.logo = false;
+                }
             }).
             error(function (data, status, headers, config) {
                 console.log(data);

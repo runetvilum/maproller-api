@@ -11,7 +11,7 @@
         function ($rootScope) {
             return {
                 allowed: function (menu) {
-                    if ($rootScope.user.roles.indexOf('sys') === -1 && menu === "delete") {
+                    if ($rootScope.user.roles.indexOf('_admin') === -1 && $rootScope.user.roles.indexOf('sys') === -1 && menu === "delete") {
                         return false;
                     }
                     return true;
@@ -38,13 +38,14 @@
                 });
             };
             var checkOrganization = function () {
-                $rootScope.admin = $rootScope.profile.user.roles.indexOf('sys') !== -1;
+                $rootScope.admin = $rootScope.profile.user.roles.indexOf('_admin') !== -1 || $rootScope.profile.user.roles.indexOf('sys') !== -1;
                 if ($rootScope.organizationId) {
                     for (var i = 0; i < $rootScope.profile.user.organizations.length; i++) {
                         var organization = $rootScope.profile.user.organizations[i];
                         if (organization.id === $rootScope.organizationId) {
                             $rootScope.organization = organization;
-                            $rootScope.admin = $rootScope.profile.user.roles.indexOf('sys') !== -1 || $rootScope.profile.user.roles.indexOf('admin_' + organization.id) !== -1;
+                            $rootScope.admin = 
+                                $rootScope.profile.user.roles.indexOf('_admin') !== -1 || $rootScope.profile.user.roles.indexOf('sys') !== -1 || $rootScope.profile.user.roles.indexOf('admin_' + organization.id) !== -1;
                             break;
                         }
                     }

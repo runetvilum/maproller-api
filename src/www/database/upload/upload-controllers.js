@@ -16,7 +16,7 @@
             };
             var upload = function (file) {
                 $scope.upload = $upload.upload({
-                    url: 'api/upload/' + $stateParams.database, //upload.php script, node.js route, or servlet url
+                    url: '/api/upload/' + $stateParams.database, //upload.php script, node.js route, or servlet url
                     //method: 'POST' or 'PUT',
                     //headers: {'header-key': 'header-value'},
                     //withCredentials: true,

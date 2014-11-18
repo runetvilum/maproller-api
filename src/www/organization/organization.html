@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div ncy-breadcrumb></div>
     <div class="page-header">
-        <h1><i class="fa fa-university"></i> {{organization.name}}</h1>
+        <h1><img ng-src="/api/organization/{{organization.id}}/logo" ng-show="logo"><i class="fa fa-university" ng-show="!logo"></i> {{organization.name}}</h1>
     </div>
     <ul class="nav nav-pills">
         <li ui-sref-active="active">

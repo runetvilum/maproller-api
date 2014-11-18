@@ -168,12 +168,7 @@
                                     "title": "Navn",
                                     "type": "string"
                                 }
-                            },
-                            "required": [
-        "projekttype",
-        "timestamp",
-        "user"
-      ]
+                            }
                         }
                     },
                     "required": [

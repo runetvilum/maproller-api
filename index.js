@@ -85,12 +85,28 @@ app.all('/_fti*', function (req, res) {
 
 var transport = nodemailer.createTransport(config.transport);
 //nano
-var userpass = config.couchdb.user + ':' + config.couchdb.password;
+
 
 var url_5986 = "http://localhost:" + config.couchdb.port5986;
 
-var db = require('nano')('http://' + userpass + '@localhost:' + config.couchdb.port5986 + '/_users');
-var nano = require('nano')('http://' + userpass + '@localhost:' + config.couchdb.port5984);
+var db = require('nano')({
+    url: 'http://localhost:' + config.couchdb.port5986 + '/_users',
+    requestDefaults: {
+        auth: {
+            user: config.couchdb.user,
+            pass: config.couchdb.password
+        }
+    }
+});
+var nano = require('nano')({
+    url: 'http://localhost:' + config.couchdb.port5984,
+    requestDefaults: {
+        auth: {
+            user: config.couchdb.user,
+            pass: config.couchdb.password
+        }
+    }
+});
 var db_admin = nano.db.use("admin");
 
 
@@ -120,27 +136,31 @@ app.post('/api/signin', function (req, res) {
             message: 'Brugernavn og password er påkrævet.'
         }));
     }
-
-    db.auth(req.body.name, req.body.password, function (err, body, headers) {
+    var couchdb = require('nano')({
+        url: url_5986
+    });
+    couchdb.auth(req.body.name, req.body.password, function (err, body, headers) {
         if (err) {
+
             return res.status(err.status_code ? err.status_code : 500).send(err);
         }
         if (headers && headers['set-cookie']) {
             res.set('set-cookie', headers['set-cookie']);
         }
-        db.get('org.couchdb.user:' + body.name, function (err, user) {
+
+        db.get('org.couchdb.user:' + req.body.name, function (err, user) {
             if (err) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
-
-            if (user.roles.indexOf('_admin')===-1 && !user.verified) {
+            user.roles = body.roles;
+            if (body.roles.indexOf('_admin') === -1 && !user.verified) {
                 return res.status(401).send(JSON.stringify({
                     ok: false,
                     message: 'Du skal bekræfte din konto inden du kan logge ind. Check venligst din email (inklusiv spam folder) for mere information.'
                 }));
             }
             user.organizations = [];
-            if (user.roles.indexOf('sys') === -1) {
+            if (user.roles.indexOf('sys') === -1 && user.roles.indexOf('_admin') === -1) {
                 var roles = [];
                 for (var i = 0; i < user.roles.length; i++) {
                     var role = user.roles[i];
@@ -162,10 +182,10 @@ app.post('/api/signin', function (req, res) {
                     if (!err) {
                         user.organizations = body.rows;
                     }
-                    res.end(JSON.stringify({
+                    res.json({
                         ok: true,
                         user: user
-                    }));
+                    });
                 });
             }
         });
@@ -193,8 +213,9 @@ app.get('/api/session', function (req, res) {
             if (err) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
+            user.roles = session.userCtx.roles;
             user.organizations = [];
-            if (user.roles.indexOf('sys') === -1) {
+            if (user.roles.indexOf('_admin') === -1 && user.roles.indexOf('sys') === -1) {
                 var roles = [];
                 for (var i = 0; i < user.roles.length; i++) {
                     var role = user.roles[i];
@@ -241,10 +262,10 @@ app.delete('/api/session', function (req, res) {
 //region Organisation
 //Opret ny organisation
 app.post('/api/organization', function (req, res) {
-    if (!req.body || !req.body.organization) {
+    if (!req.body || !req.body.name) {
         return res.status(400).send(JSON.stringify({
             ok: false,
-            message: 'Organisation er påkrævet.'
+            message: 'name er påkrævet.'
         }));
     }
     var couchdb = require('nano')({
@@ -261,27 +282,48 @@ app.post('/api/organization', function (req, res) {
         if (headers && headers['set-cookie']) {
             res.set('set-cookie', headers['set-cookie']);
         }
-        db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
+        if (session.userCtx.roles.indexOf("sys") === -1) {
+            return res.status(401).json({
+                ok: false,
+                message: 'Du har ikke rettigheder til at oprette organisationer.'
+            });
+        }
+        db_admin.insert({
+            name: req.body.name,
+            type: 'organization'
+        }, function (err, body) {
             if (err) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
-            if (user.roles.indexOf("sys") === -1) {
-                return res.status(401).send(JSON.stringify({
-                    ok: false,
-                    message: 'Du har ikke rettigheder til at oprette organisationer.'
-                }));
-            }
-            db_admin.insert({
-                name: req.body.organization,
-                type: 'organization'
-            }, function (err, body) {
-                if (err) {
-                    return res.status(err.status_code ? err.status_code : 500).send(err);
-                }
-                res.end(JSON.stringify(body));
-            });
-
+            res.json(body);
         });
+    });
+});
+app.get('/api/organization/:id/logo', function (req, res) {
+    var couchdb = require('nano')({
+        cookie: req.headers.cookie,
+        url: url_5986
+    });
+    couchdb.session(function (err, session, headers) {
+        if (!session.userCtx.name) {
+            return res.status(401).send(JSON.stringify({
+                ok: false,
+                message: 'Brugernavn og password er påkrævet.'
+            }));
+        }
+        if (headers && headers['set-cookie']) {
+            res.set('set-cookie', headers['set-cookie']);
+        }
+        delete req.headers.cookie;
+
+        req.pipe(request({
+            url: 'http://localhost:' + config.couchdb.port5984 + '/admin/' + req.params.id + '/logo',
+            auth: {
+                user: config.couchdb.user,
+                pass: config.couchdb.password
+
+            }
+        })).pipe(res);
     });
 });
 //Hent en organisation
@@ -321,13 +363,7 @@ app.get('/api/organization/:id', function (req, res) {
     });
 });
 //Opdater organisation
-app.put('/api/organization', function (req, res) {
-    if (!req.body || !req.body._id || !req.body.name) {
-        return res.status(400).send(JSON.stringify({
-            ok: false,
-            message: 'Organisation er påkrævet.'
-        }));
-    }
+app.put('/api/organization/:id', function (req, res) {
     var couchdb = require('nano')({
         cookie: req.headers.cookie,
         url: url_5986
@@ -342,28 +378,65 @@ app.put('/api/organization', function (req, res) {
         if (headers && headers['set-cookie']) {
             res.set('set-cookie', headers['set-cookie']);
         }
-        db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
+
+        if (session.userCtx.roles.indexOf("sys") === -1) {
+            return res.status(401).send(JSON.stringify({
+                ok: false,
+                message: 'Du har ikke rettigheder til at rette organisationer.'
+            }));
+        }
+        db_admin.get(req.params.id, function (err, doc) {
             if (err) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
-            if (user.roles.indexOf("sys") === -1) {
-                return res.status(401).send(JSON.stringify({
-                    ok: false,
-                    message: 'Du har ikke rettigheder til at rette organisationer.'
-                }));
-            }
-            db_admin.get(req.body._id, function (err, body) {
-                if (err) {
-                    return res.status(err.status_code ? err.status_code : 500).send(err);
-                }
-                body.name = req.body.name;
-                db_admin.insert(body, req.body._id, function (err, body) {
+            if (req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') !== -1) {
+                var busboy = new Busboy({
+                    headers: req.headers
+                });
+                busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated) {
+                    doc[fieldname] = val;
+                });
+                var buffer = [];
+                var finalbuffer;
+                var contentType;
+                busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+                    if (mimetype !== 'image/png' && mimetype !== 'image/jpeg') {
+                        return res.status(401).json({
+                            ok: false,
+                            message: 'Billedet skal være JPG eller PNG'
+                        });
+                    }
+                    contentType = mimetype;
+                    file.on('data', function (data) {
+                        buffer.push(data);
+                    });
+                    file.on('end', function () {
+                        finalbuffer = Buffer.concat(buffer);
+                    });
+                });
+                busboy.on('finish', function () {
+                    console.log(contentType);
+                    db_admin.multipart.insert(doc, [{
+                        name: 'logo',
+                        data: finalbuffer,
+                        contentType: contentType
+                }], doc._id, function (err, body) {
+                        if (err) {
+                            return res.status(err.status_code ? err.status_code : 500).send(err);
+                        }
+                        res.json(body);
+                    });
+                });
+                req.pipe(busboy);
+            } else {
+                doc.name = req.body.name;
+                db_admin.insert(doc, req.body._id, function (err, body) {
                     if (err) {
                         return res.status(err.status_code ? err.status_code : 500).send(err);
                     }
-                    res.end(JSON.stringify(body));
+                    res.json(body);
                 });
-            });
+            }
         });
     });
 });
@@ -1565,68 +1638,68 @@ app.post('/api/upload/:database', function (req, res) {
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, body) {
-                if (err) {
-                    return res.status(err.status_code ? err.status_code : 500).send(err);
-                }
-                if (body.roles.indexOf("sys") === -1 && body.roles.indexOf("admin_" + schema.organization) === -1) {
-                    return res.status(401).send(JSON.stringify({
-                        ok: false,
-                        message: 'Du har ikke rettigheder til at opdatere skemaet.'
-                    }));
-                }
-                if (!(req.headers['content-type'] &&
-                    req.headers['content-type'].indexOf('multipart/form-data') === 0 && req.method === 'POST')) {
-                    return res.status(400).send(JSON.stringify({
-                        ok: false,
-                        message: 'Fil er påkrævet.'
-                    }));
-                } else {
-                    var busboy = new Busboy({
-                        headers: req.headers
+
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + schema.organization) === -1) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Du har ikke rettigheder til at opdatere skemaet.'
+                }));
+            }
+            if (!(req.headers['content-type'] &&
+                req.headers['content-type'].indexOf('multipart/form-data') === 0 && req.method === 'POST')) {
+                return res.status(400).send(JSON.stringify({
+                    ok: false,
+                    message: 'Fil er påkrævet.'
+                }));
+            } else {
+                var busboy = new Busboy({
+                    headers: req.headers
+                });
+                var d = nano.db.use('db-' + req.params.database);
+                busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+                    //console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
+                    var buffer = "";
+                    file.on('data', function (data) {
+                        //console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
+                        buffer += data;
                     });
-                    var d = nano.db.use('db-' + req.params.database);
-                    busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-                        console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
-                        var buffer = "";
-                        file.on('data', function (data) {
-                            console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
-                            buffer += data;
-                        });
-                        file.on('end', function () {
-                            console.log('File [' + fieldname + '] Finished');
-                            var json = JSON.parse(buffer);
-                            if (json.features && json.features.length > 0) {
-                                schema.properties = schema.properties || {};
-                                for (var key in json.features[0].properties) {
-                                    if (!schema.properties.hasOwnProperty(key)) {
-                                        schema.properties[key] = {
-                                            type: "text"
-                                        };
-                                    }
+                    file.on('end', function () {
+                        //console.log('File [' + fieldname + '] Finished');
+                        var json;
+                        try {
+                            json = JSON.parse(buffer);
+                        } catch (ex) {
+                            return res.status(500).send(ex.message);
+                        }
+                        if (json.features && json.features.length > 0) {
+                            schema.properties = schema.properties || {};
+                            for (var key in json.features[0].properties) {
+                                if (!schema.properties.hasOwnProperty(key)) {
+                                    schema.properties[key] = {
+                                        type: "text"
+                                    };
                                 }
-                                db_admin.insert(schema, schema._id, function (err, body) {
+                            }
+                            db_admin.insert(schema, schema._id, function (err, body) {
+                                if (err) {
+                                    return res.status(err.status_code ? err.status_code : 500).send(err);
+                                }
+                                var insert = function (err, body) {
                                     if (err) {
                                         return res.status(err.status_code ? err.status_code : 500).send(err);
                                     }
-                                    var insert = function (err, body) {
-                                        if (err) {
-                                            return res.status(err.status_code ? err.status_code : 500).send(err);
-                                        }
-                                    };
-                                    for (var i = 0; i < json.features.length; i++) {
-                                        var doc = json.features[i];
-                                        d.insert(doc, insert);
-                                    }
-                                    res.end(JSON.stringify(body));
-                                });
-
-                            }
-                        });
+                                };
+                                for (var i = 0; i < json.features.length; i++) {
+                                    var doc = json.features[i];
+                                    d.insert(doc, insert);
+                                }
+                                res.json(body);
+                            });
+                        }
                     });
-                    req.pipe(busboy);
-                }
-            });
+                });
+                req.pipe(busboy);
+            }
         });
     });
 });
@@ -2062,8 +2135,15 @@ app.get('/api/template/:id/logo', function (req, res) {
             res.set('set-cookie', headers['set-cookie']);
         }
         delete req.headers.cookie;
-        var url = 'http://' + userpass + '@localhost:' + config.couchdb.port5984 + '/admin/' + req.params.id + '/logo.png';
-        req.pipe(request(url)).pipe(res);
+
+        req.pipe(request({
+            url: 'http://localhost:' + config.couchdb.port5984 + '/admin/' + req.params.id + '/logo.png',
+            auth: {
+                user: config.couchdb.user,
+                pass: config.couchdb.password
+
+            }
+        })).pipe(res);
     });
 });
 //henter sikkerhed for en template
