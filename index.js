@@ -2224,7 +2224,7 @@ app.put('/api/template/:id/security', function (req, res) {
                 for (var i = 0; i < req.body.organizations.length; i++) {
                     validate_create += "|| userCtx.roles.indexOf('admin_" + req.body.organizations[i] + "') !== -1 ";
                 }
-                validate += validate_create.substring(2) + "){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}} else { if(userCtx.roles.indexOf('admin_'+oldDoc.organization) !== -1){ return; } else { throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' }); }} }";
+                validate += validate_create.substring(2) + "){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}} else { if(userCtx.roles.indexOf('admin_'+oldDoc.organization) !== -1 || userCtx.roles.indexOf('admin_'+oldDoc._id) !== -1){ return; } else { throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' }); }} }";
                 var id = '_design/security';
                 d.get(id, function (err, body) {
                     if (err) {
