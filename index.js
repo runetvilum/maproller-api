@@ -1422,6 +1422,14 @@ var schemaGetPut = function (req, res) {
                             tv4: data,
                             schema: "exports.schema=" + JSON.stringify(req.body.schema)
                         };
+                        doc.filters = {
+                            schema: "function (doc, req) {" +
+                                "        if (doc._id === '_design/schema') {" +
+                                "            return true;" +
+                                "        }" +
+                                "        return false;" +
+                                "    }"
+                        };
                         /*doc.filters = {
                         schema: "function (doc, req) {" +
                             "      if (doc._id === '_design/schema') {" +
