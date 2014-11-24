@@ -51,7 +51,7 @@
             <div class="form-group" ng-if="parentSchema">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-checked="parentSchema.required.indexOf(name)!==-1" ng-click="changeRequired()">required
+                        <input type="checkbox" ng-checked="parentSchema.required && parentSchema.required.indexOf(name)!==-1" ng-click="changeRequired()">required
                     </label>
                 </div>
             </div>

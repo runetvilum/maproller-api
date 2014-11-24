@@ -2690,24 +2690,20 @@ app.get('/api/maps/:organization', function (req, res) {
         if (headers && headers['set-cookie']) {
             res.set('set-cookie', headers['set-cookie']);
         }
-        db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
+
+        if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.params.organization) === -1) {
+            return res.status(401).send(JSON.stringify({
+                ok: false,
+                message: 'Du har ikke rettigheder til at se kort for denne organisation.'
+            }));
+        }
+        db_admin.view('organization', 'maps', {
+            keys: [req.params.organization]
+        }, function (err, body) {
             if (err) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
-            if (user.roles.indexOf("sys") === -1 && user.roles.indexOf("admin_" + req.params.organization) === -1) {
-                return res.status(401).send(JSON.stringify({
-                    ok: false,
-                    message: 'Du har ikke rettigheder til at se databaser for denne organisation.'
-                }));
-            }
-            db_admin.view('organization', 'maps', {
-                keys: [req.params.organization]
-            }, function (err, body) {
-                if (err) {
-                    return res.status(err.status_code ? err.status_code : 500).send(err);
-                }
-                res.json(body);
-            });
+            res.json(body);
         });
     });
 });
@@ -2746,7 +2742,7 @@ app.get('/api/map/:id', function (req, res) {
         });
     });
 });
-//Hent alle kort for en organisation
+//Slet et kort for en organisation
 app.delete('/api/map/:id', function (req, res) {
     var couchdb = require('nano')({
         cookie: req.headers.cookie,
@@ -3244,21 +3240,23 @@ app.post('/api/mbtiles', function (req, res) {
                 file.pipe(fs.createWriteStream(saveTo));
             });
             busboy.on('finish', function () {
+                
                 fs.stat(saveTo, function (err, stats) {
                     doc.size = stats.size;
+                    
                     var mbtilesDB = new sqlite3.Database(saveTo, sqlite3.OPEN_READONLY, function (err) {
                         if (err) {
                             return res.status(err.status_code ? err.status_code : 500).send(err);
                         }
                         mbtilesDB.all("select * from metadata", function (err, rows) {
-                            if (err) {
+                            /*if (err) {
                                 console.log("metadata: " + err);
                             } else {
                                 for (var i = 0; i < rows.length; i++) {
                                     var row = rows[i];
                                     doc[row.name] = row.value;
                                 }
-                            }
+                            }*/
                             mbtilesDB.each("select * from tiles limit 1", function (err, row) {
                                 if (err) {
                                     return res.status(err.status_code ? err.status_code : 500).send(err);

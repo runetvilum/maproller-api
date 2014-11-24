@@ -2,7 +2,7 @@
     'use strict';
     angular.module('myApp.controllers').controller('maps-create', ['$scope', '$http', '$stateParams', '$rootScope', '$state',
         function ($scope, $http, $stateParams, $rootScope, $state) {
-            $scope.optionsType = [{
+            /*$scope.optionsType = [{
                 key: 'Tiles (xyz)',
                 value: 'xyz'
             }, {
@@ -14,6 +14,10 @@
             }, {
                 key: 'GeoJSON',
                 value: 'geojson'
+            }];*/
+            $scope.optionsType = [ {
+                key: 'MBTiles',
+                value: 'mbtiles'
             }];
             $scope.optionsEPSG = [{
                 key: 'Web mercator (EPSG:3857)',
@@ -24,12 +28,12 @@
             }];
             var init = {
                 epsg: '3857',
-                mapType: 'xyz',
+                mapType: 'mbtiles',
                 organization: $stateParams.organization
             };
             $scope.map = {
                 epsg: '3857',
-                mapType: 'xyz',
+                mapType: 'mbtiles',
                 organization: $stateParams.organization
             };
             /*$rootScope.$on("item", function (evt, item) {

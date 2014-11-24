@@ -9,10 +9,10 @@
                 link: function (scope, element, attrs) {
                     var mapScope = scope;
                     
-                    /*map = new L.Map(element[0]);
+                    map = new L.Map(element[0]);
                     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
-                    map.setView(L.latLng(55.9, 11.8), 7);*/
-                    map = new L.Map(element[0], {
+                    map.setView(L.latLng(55.9, 11.8), 7);
+                    /*map = new L.Map(element[0], {
                         crs: new L.Proj.CRS.TMS('EPSG:25832',
                             '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs', [120000, 5900000, 1000000, 6500000], {
                                 resolutions: [1638.4, 819.2, 409.6, 204.8, 102.4, 51.2, 25.6, 12.8, 6.4, 3.2, 1.6, 0.8, 0.4, 0.2, 0.1]
@@ -32,7 +32,7 @@
                             }
                         }
                     }).addTo(map);
-                    map.setView(L.latLng(55.9, 11.8), 1);
+                    map.setView(L.latLng(55.9, 11.8), 1);*/
 
                     scope.$watch(attrs.options, function (value) {
                         if (value) {
@@ -125,7 +125,7 @@
                                         jsonTransformed.bounds = [[bounds2[1], bounds2[0]], [bounds2[3], bounds2[2]]];
                                     }
                                 }
-                                L.tileLayer('http://{s}.tilestream.maproller.org/v2/' + value._id + '/{z}/{x}/{y}.' + value.format, jsonTransformed).addTo(map);
+                                L.tileLayer('http://{s}.tilestream.data.kosgis.dk/v2/' + value._id + '/{z}/{x}/{y}.' + value.format, jsonTransformed).addTo(map);
                                 //L.tileLayer('http://localhost:8888/v2/' + value._id + '/{z}/{x}/{y}.' + value.format, jsonTransformed).addTo(map);
                             }
                         }

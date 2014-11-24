@@ -1,10 +1,19 @@
+<form class="form-horizontal" role="form">
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Visning</label>
+        <div class="col-sm-10">
+            <select class="form-control" ng-model="sort" ng-change="changeSort()" ng-options="key as key for key in keys">
+            </select>
+        </div>
+    </div>
+</form>
 <div class="table-responsive">
     <table class="table table-bordered table-striped">
         <tr>
-            <th ng-repeat="felt in felter">{{felt.key}}</th>
+            <th ng-repeat="(key,value) in schema | objectpath:sort">{{key}}</th>
         </tr>
-        <tr ng-repeat="row in rows">
-            <td ng-repeat="felt in felter">{{row.doc.properties[felt.key]}}</td>
+        <tr ng-repeat="row in rows" ng-show="row.id.substring(0,7)!=='_design'">
+            <td ng-repeat="(key,value) in schema | objectpath:sort">{{row.doc|valuepath:sort+key}}</td>
         </tr>
     </table>
 </div>
