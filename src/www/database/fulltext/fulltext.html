@@ -7,13 +7,28 @@
     </button><strong>Fejl:</strong> {{error}}
 </div>
 
-<div class="alert alert-info clearfix" role="alert" ng-show="missing">
-    <div class="pull-right">
-        <button type="button" class="btn btn-info" ng-click="save()">Opret index</button>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Sortering</h3>
     </div>
-    <div><strong>Info:</strong> Der er ikke oprettet et index til fulltext søgning.</div>
+    <div class="panel-body">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">Sortering</label>
+                <div class="col-sm-10">
+                    <select class="form-control" ng-model="sort" ng-options="key as key for key in keys">
+                        <option value="" selected>-- ingen sortering --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" class="btn btn-warning" ng-click="save()">{{missing?'Opret index':'Gem'}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
-{{keys}}
 <div class="row" ng-show="!missing">
     <div class="col-md-6">
         <div class="panel panel-default">
@@ -23,23 +38,15 @@
             <div class="panel-body">
                 <form class="form-horizontal" role="form">
                     <div class="form-group">
-                        <label for="name" class="col-sm-2 control-label">Sortering</label>
-                        <div class="col-sm-10">
-                            <select class="form-control" ng-model="sort" ng-change="save()" ng-options="key as key for key in keys">
-                                <option value="" selected>-- ingen sortering --</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label for="name" class="col-sm-2 control-label">Størrelse</label>
                         <div class="col-sm-10">
-                            <p class="form-control-static">{{info.disk_size | bytes}}</p>
+                            <p class="form-control-static">{{info.indices['db-'+database].index.size_in_bytes | bytes}}</p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="name" class="col-sm-2 control-label">Antal</label>
+                        <label for="name" class="col-sm-2 control-label">Antal dokumenter</label>
                         <div class="col-sm-10">
-                            <p class="form-control-static">{{info.doc_count}}</p>
+                            <p class="form-control-static">{{info.indices['db-'+database].docs.num_docs}}</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -62,7 +69,15 @@
                 </div>
             </div>
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="item in result.rows">{{item.fields.sort}}</li>
+                <li class="list-group-item" ng-repeat="item in result.hits.hits">
+                    <div>id: {{item._source._id}}</div>
+                    <div ng-repeat="(key,value) in item.highlight">
+                        <h4>{{key}}</h4>
+                        <div ng-repeat="highlight in value">
+                            <p ng-bind-html="html(highlight)"></p>
+                        </div>
+                    </div>
+                </li>
             </ul>
         </div>
     </div>

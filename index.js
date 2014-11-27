@@ -45,6 +45,18 @@ app.use('/mbtiles', function (req, res) {
         req.pipe(request.get(url)).pipe(res);
     }
 });
+app.all('/es*', function (req, res) {
+    var url = "http://127.0.0.1:9200/" + req.url.substring(4);
+    if (req.method === 'PUT') {
+        req.pipe(request.put(url)).pipe(res);
+    } else if (req.method === 'POST') {
+        req.pipe(request.post(url)).pipe(res);
+    } else if (req.method === 'GET') {
+        req.pipe(request.get(url)).pipe(res);
+    } else if (req.method === 'DELETE') {
+        req.pipe(request.del(url)).pipe(res);
+    }
+});
 app.all('/couchdb*', function (req, res) {
     res.set('Access-Control-Allow-Credentials', 'true');
     res.set('Access-Control-Allow-Origin', 'http://localhost:8100');
@@ -1428,6 +1440,12 @@ var schemaGetPut = function (req, res) {
                                 "            return true;" +
                                 "        }" +
                                 "        return false;" +
+                                "    }",
+                            data: "function (doc, req) {" +
+                                "        if (doc._id.substring(0,7) !== '_design') {" +
+                                "            return true;" +
+                                "        }" +
+                                "        return false;" +
                                 "    }"
                         };
                         /*doc.filters = {
@@ -2351,18 +2369,123 @@ app.put('/api/fulltext/:id', function (req, res) {
         if (headers && headers['set-cookie']) {
             res.set('set-cookie', headers['set-cookie']);
         }
-        db_admin.get(req.params.id, function (err, schema) {
+        db_admin.get(req.params.id, function (err, database) {
             if (err) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
-            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + schema.organization) === -1) {
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
                 return res.status(401).send(JSON.stringify({
                     ok: false,
                     message: 'Du har ikke rettigheder til at opdatere fulltext.'
                 }));
             }
             var d = nano.db.use('db-' + req.params.id);
-            var fulltext = {
+            d.get('_design/schema', function (err, schema) {
+                if (err) {
+                    return res.status(err.status_code ? err.status_code : 500).send(err);
+                }
+                var keys = req.body.sort.split('/');
+                keys.splice(0, 1);
+                console.log(keys);
+                var item = schema.schema;
+                for (var m = 0; m < keys.length; m++) {
+                    var key = keys[m];
+                    if (item.properties && item.properties.hasOwnProperty(key)) {
+                        item = item.properties[key];
+                    }
+                }
+                console.log(item);
+                var buildMappings = function (keys) {
+                    console.log(keys);
+                    
+                    var json = {};
+                    var key = keys[0];
+                    if (keys.length === 1) {
+
+                        json[key] = {
+                            type: "string",
+                            analyzer: "danish",
+                            fields: {
+                                raw: {
+                                    type: "string",
+                                    index: "not_analyzed"
+                                }
+                            }
+                        };
+                        return json;
+                    }
+                    keys.splice(0, 1);
+                    json[key] = {
+                        properties: buildMappings(keys)
+                    };
+                    
+                    return json;
+                };
+                var mappings = {};
+                if (item.type === 'string') {
+
+                    mappings["db-" + req.params.id] = {
+                        "properties": buildMappings(keys)
+                    };
+                }
+                /*console.log(inspect(mappings, {
+                    depth: null,
+                    colors: true
+                }));*/
+                request.del({
+                    uri: "http://127.0.0.1:9200/db-" + req.params.id
+                }, function (err, response, body) {
+                    request.del({
+                        uri: "http://127.0.0.1:9200/_river/db-" + req.params.id
+                    }, function (err, response, body) {
+                        request.post({
+                            uri: "http://127.0.0.1:9200/db-" + req.params.id,
+                            json: {
+                                mappings: mappings
+                            }
+                        }, function (err, response, body) {
+                            if (err) {
+                                return res.status(err.status_code ? err.status_code : 500).send(err);
+                            }
+                            var river = {
+                                "type": "couchdb",
+                                "couchdb": {
+                                    "host": "127.0.0.1",
+                                    "port": 5984,
+                                    "db": "db-" + req.params.id,
+                                    "filter": "schema/data"
+                                },
+                                "index": {
+                                    "index": "db-" + req.params.id,
+                                    "type": "db-" + req.params.id,
+                                    "bulk_size": 100,
+                                    "bulk_timeout": "10ms"
+                                }
+                            };
+                            request.put({
+                                uri: "http://127.0.0.1:9200/_river/db-" + req.params.id + '/_meta',
+                                json: river
+                            }, function (err, response, body) {
+                                if (err) {
+                                    return res.status(err.status_code ? err.status_code : 500).send(err);
+                                }
+                                schema.sort = req.body.sort;
+
+                                d.insert(schema, '_design/schema', function (err, body) {
+                                    if (err) {
+                                        return res.status(err.status_code ? err.status_code : 500).send(err);
+                                    }
+                                    res.json(body);
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
+
+            //Lucene
+            /*var fulltext = {
                 "data": {
                     "index": ""
                 }
@@ -2387,7 +2510,7 @@ app.put('/api/fulltext/:id', function (req, res) {
                     }
                     res.json(body);
                 });
-            });
+            });*/
         });
     });
 });
@@ -3240,10 +3363,10 @@ app.post('/api/mbtiles', function (req, res) {
                 file.pipe(fs.createWriteStream(saveTo));
             });
             busboy.on('finish', function () {
-                
+
                 fs.stat(saveTo, function (err, stats) {
                     doc.size = stats.size;
-                    
+
                     var mbtilesDB = new sqlite3.Database(saveTo, sqlite3.OPEN_READONLY, function (err) {
                         if (err) {
                             return res.status(err.status_code ? err.status_code : 500).send(err);

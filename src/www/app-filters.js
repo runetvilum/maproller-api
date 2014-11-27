@@ -1,12 +1,9 @@
 (function (window, angular, console) {
     'use strict';
     angular.module('myApp.filters', []).filter('objectpath', function () {
-        return function (input, doc) {
+        return function (input, value) {
             if (typeof (input) !== 'undefined'){
-         
-                
-                var path = doc.split('/');
-                console.log(path.length);
+                var path = value.split('/');
                 var item = input.properties;
                 for (var m = 1; m < path.length; m++) {
                     var key = path[m];
@@ -19,10 +16,10 @@
             return input;
         };
     }).filter('valuepath', function () {
-        return function (doc, sort) {
-            if (typeof (doc) !== 'undefined'){
-                var item = doc;
-                var path = sort.split('/');
+        return function (input, value) {
+            if (typeof (input) !== 'undefined'){
+                var path = value.split('/');
+                var item = input;
                 for (var m = 1; m < path.length; m++) {
                     var key = path[m];
                     if (item.hasOwnProperty(key)) {
@@ -31,7 +28,7 @@
                 }
                 return item;
             }
-            return doc;
+            return input;
         };
     });
 })(this, this.angular, this.console);
