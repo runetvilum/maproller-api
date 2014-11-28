@@ -2433,13 +2433,13 @@ app.put('/api/fulltext/:id', function (req, res) {
                     colors: true
                 }));*/
                 request.del({
-                    uri: "http://127.0.0.1:9200/db-" + req.params.id
+                    uri: "http://proxy/es/db-" + req.params.id
                 }, function (err, response, body) {
                     request.del({
-                        uri: "http://127.0.0.1:9200/_river/db-" + req.params.id
+                        uri: "http://proxy/es/_river/db-" + req.params.id
                     }, function (err, response, body) {
                         request.post({
-                            uri: "http://127.0.0.1:9200/db-" + req.params.id,
+                            uri: "http://proxy/es/db-" + req.params.id,
                             json: {
                                 mappings: mappings
                             }
@@ -2450,7 +2450,7 @@ app.put('/api/fulltext/:id', function (req, res) {
                             var river = {
                                 "type": "couchdb",
                                 "couchdb": {
-                                    "host": "127.0.0.1",
+                                    "host": "proxy/couchdb",
                                     "port": 5984,
                                     "db": "db-" + req.params.id,
                                     "filter": "schema/data"
@@ -2463,7 +2463,7 @@ app.put('/api/fulltext/:id', function (req, res) {
                                 }
                             };
                             request.put({
-                                uri: "http://127.0.0.1:9200/_river/db-" + req.params.id + '/_meta',
+                                uri: "http://proxy/es/_river/db-" + req.params.id + '/_meta',
                                 json: river
                             }, function (err, response, body) {
                                 if (err) {
