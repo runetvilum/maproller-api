@@ -2451,7 +2451,7 @@ app.put('/api/fulltext/:id', function (req, res) {
                                 "type": "couchdb",
                                 "couchdb": {
                                     "host": "proxy/couchdb",
-                                    "port": 5984,
+                                    "port": 80,
                                     "db": "db-" + req.params.id,
                                     "filter": "schema/data"
                                 },
