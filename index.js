@@ -2450,9 +2450,9 @@ app.put('/api/fulltext/:id', function (req, res) {
                             var river = {
                                 "type": "couchdb",
                                 "couchdb": {
-                                    "host": "proxy/couchdb",
+                                    "host": "proxy",
                                     "port": 80,
-                                    "db": "db-" + req.params.id,
+                                    "db": "couchdb/db-" + req.params.id,
                                     "filter": "schema/data"
                                 },
                                 "index": {
