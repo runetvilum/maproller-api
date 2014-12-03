@@ -28,7 +28,7 @@ module.exports = function (grunt) {
                     pass: '<%= config.couchdb.password %>'
                 },
                 files: {
-                    'http://localhost:5986/_users': 'tmp/users.json'
+                    'http://localhost:<%= config.couchdb.port5986 %>/_users': 'tmp/users.json'
                 }
             },
             www: {
