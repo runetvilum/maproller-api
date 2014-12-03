@@ -17,14 +17,14 @@
     ]).
     config(['$stateProvider', '$urlRouterProvider', '$breadcrumbProvider',
         function ($stateProvider, $urlRouterProvider, $breadcrumbProvider) {
-            $breadcrumbProvider.setOptions({
+            /*$breadcrumbProvider.setOptions({
                 template: '<ol class="breadcrumb">' +
                     '<li ng-repeat="step in steps" ng-class="{active: $last}" ng-switch="$last || !!step.abstract">' +
                     '<a ng-switch-when="false" href="#{{step.ncyBreadcrumbLink}}">{{step.ncyBreadcrumbLabel}}</a> ' +
                     '<span ng-switch-when="true">{{step.ncyBreadcrumbLabel}}</span>' +
                     '</li>' +
                     '</ol>'
-            });
+            });*/
             $urlRouterProvider.when('/organizations', '/organizations/list');
             $urlRouterProvider.when('/templates', '/templates/list');
             $urlRouterProvider.when('/organizations/:organization/databases', '/organizations/:organization/databases/list');
