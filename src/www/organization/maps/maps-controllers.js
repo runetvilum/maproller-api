@@ -92,7 +92,7 @@
                         $http.put('/api/map', $scope.map).
                         success(function (data, status, headers, config) {
                             $scope.success = data;
-                            $scope.map._rev = data._rev;
+                            $scope.map._rev = data.rev;
                         }).
                         error(function (data, status, headers, config) {
                             $scope.error = data;
