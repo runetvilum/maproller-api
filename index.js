@@ -35,8 +35,10 @@ if (argv.config) {
 
 
 var app = express();
-app.use('/mbtiles', function (req, res) {
-    var url = "http://localhost:8888/" + req.url.substring(8);
+app.use('/tilestream', function (req, res) {
+
+    var url = "http://localhost:8888" + req.url;
+    console.log(url);
     if (req.method === 'PUT') {
         req.pipe(request.put(url)).pipe(res);
     } else if (req.method === 'POST') {
@@ -2397,7 +2399,7 @@ app.put('/api/fulltext/:id', function (req, res) {
                 console.log(item);
                 var buildMappings = function (keys) {
                     console.log(keys);
-                    
+
                     var json = {};
                     var key = keys[0];
                     if (keys.length === 1) {
@@ -2418,7 +2420,7 @@ app.put('/api/fulltext/:id', function (req, res) {
                     json[key] = {
                         properties: buildMappings(keys)
                     };
-                    
+
                     return json;
                 };
                 var mappings = {};
@@ -3391,7 +3393,12 @@ app.post('/api/mbtiles', function (req, res) {
                                     if (err) {
                                         return res.status(err.status_code ? err.status_code : 500).send(err);
                                     }
-                                    res.json(body);
+                                    res.json({
+                                        id: body.id,
+                                        rev: body.rev,
+                                        format: doc.format,
+                                        size: doc.size
+                                    });
                                     /*var db_id = 'db-' + body.id;
                                 nano.db.create(db_id, function (err, body2) {
                                     if (err) {
