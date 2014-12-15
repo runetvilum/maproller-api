@@ -10,7 +10,7 @@
                 $scope.error = null;
                 if (form.$valid) {
                     $http.post('/api/organization', {
-                        organization: $scope.name
+                        name: $scope.name
                     }).
                     success(function (data, status, headers, config) {
                         console.log(data);
