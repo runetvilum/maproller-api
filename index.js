@@ -1385,7 +1385,7 @@ app.post('/api/database', function (req, res) {
     });
 });
 
-var schemaGetPut = function (req, res) {
+var schemaPostPut = function (req, res) {
     if (!req.body || !req.body.schema) {
         return res.status(400).send(JSON.stringify({
             ok: false,
@@ -1407,7 +1407,7 @@ var schemaGetPut = function (req, res) {
         if (headers && headers['set-cookie']) {
             res.set('set-cookie', headers['set-cookie']);
         }
-        db_admin.get(req.params.id, function (err, database) {
+        db_admin.get(req.params.database, function (err, database) {
             if (err) {
                 return res.status(err.status_code ? err.status_code : 500).send(err);
             }
@@ -1425,7 +1425,7 @@ var schemaGetPut = function (req, res) {
                     if (err) {
                         return res.status(err.status_code ? err.status_code : 500).send(err);
                     }
-                    var db_id = 'db-' + req.params.id;
+                    var db_id = 'db-' + req.params.database;
                     var d = nano.db.use(db_id);
                     d.get("_design/schema", function (err, doc) {
                         if (err) {
@@ -1473,12 +1473,12 @@ var schemaGetPut = function (req, res) {
 };
 
 //Opret skema
-app.post('/api/database/:id/schema', function (req, res) {
-    schemaGetPut(req, res);
+app.post('/api/database/:database/schema', function (req, res) {
+    schemaPostPut(req, res);
 });
 //Opdater skema
-app.put('/api/database/:id/schema', function (req, res) {
-    schemaGetPut(req, res);
+app.put('/api/database/:database/schema', function (req, res) {
+    schemaPostPut(req, res);
 });
 //Slet database
 app.delete('/api/database/:id', function (req, res) {
@@ -1647,8 +1647,9 @@ app.put('/api/security', function (req, res) {
     });
 });
 //Upload data
+
 app.post('/api/upload/:database', function (req, res) {
-    db_admin.get(req.params.database, function (err, schema) {
+    db_admin.get(req.params.database, function (err, database) {
         if (err) {
             return res.status(err.status_code ? err.status_code : 500).send(err);
         }
@@ -1667,7 +1668,7 @@ app.post('/api/upload/:database', function (req, res) {
                 res.set('set-cookie', headers['set-cookie']);
             }
 
-            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + schema.organization) === -1) {
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
                 return res.status(401).send(JSON.stringify({
                     ok: false,
                     message: 'Du har ikke rettigheder til at opdatere skemaet.'
@@ -1683,7 +1684,7 @@ app.post('/api/upload/:database', function (req, res) {
                 var busboy = new Busboy({
                     headers: req.headers
                 });
-                var d = nano.db.use('db-' + req.params.database);
+
                 busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
                     //console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
                     var buffer = "";
@@ -1699,30 +1700,220 @@ app.post('/api/upload/:database', function (req, res) {
                         } catch (ex) {
                             return res.status(500).send(ex.message);
                         }
+                        var schema = {
+                            "$schema": "http://json-schema.org/draft-04/schema#",
+                            "title": "Projekt",
+                            "description": "",
+                            "type": [
+    "object"
+  ],
+                            "properties": {
+                                "_id": {
+                                    "type": "string"
+                                },
+                                "_rev": {
+                                    "type": "string"
+                                },
+                                "_revisions": {
+                                    "type": "object",
+                                    "properties": {
+                                        "start": {
+                                            "type": "integer"
+                                        },
+                                        "ids": {
+                                            "type": "array"
+                                        }
+                                    }
+                                },
+                                "type": {
+                                    "enum": [
+        "Feature"
+      ]
+                                },
+                                "geometry": {
+                                    "title": "geometry",
+                                    "description": "One geometry as defined by GeoJSON",
+                                    "type": "object",
+                                    "required": [
+        "type",
+        "coordinates"
+      ],
+                                    "oneOf": [
+                                        {
+                                            "title": "Point",
+                                            "properties": {
+                                                "type": {
+                                                    "enum": [
+                "Point"
+              ]
+                                                },
+                                                "coordinates": {
+                                                    "$ref": "#/definitions/position"
+                                                }
+                                            }
+        },
+                                        {
+                                            "title": "MultiPoint",
+                                            "properties": {
+                                                "type": {
+                                                    "enum": [
+                "MultiPoint"
+              ]
+                                                },
+                                                "coordinates": {
+                                                    "$ref": "#/definitions/positionArray"
+                                                }
+                                            }
+        },
+                                        {
+                                            "title": "LineString",
+                                            "properties": {
+                                                "type": {
+                                                    "enum": [
+                "LineString"
+              ]
+                                                },
+                                                "coordinates": {
+                                                    "$ref": "#/definitions/lineString"
+                                                }
+                                            }
+        },
+                                        {
+                                            "title": "MultiLineString",
+                                            "properties": {
+                                                "type": {
+                                                    "enum": [
+                "MultiLineString"
+              ]
+                                                },
+                                                "coordinates": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/lineString"
+                                                    }
+                                                }
+                                            }
+        },
+                                        {
+                                            "title": "Polygon",
+                                            "properties": {
+                                                "type": {
+                                                    "enum": [
+                "Polygon"
+              ]
+                                                },
+                                                "coordinates": {
+                                                    "$ref": "#/definitions/polygon"
+                                                }
+                                            }
+        },
+                                        {
+                                            "title": "MultiPolygon",
+                                            "properties": {
+                                                "type": {
+                                                    "enum": [
+                "MultiPolygon"
+              ]
+                                                },
+                                                "coordinates": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/definitions/polygon"
+                                                    }
+                                                }
+                                            }
+        }
+      ]
+                                },
+                                "properties": {
+                                    "type": "object",
+                                    "properties": {
+
+                                    }
+                                }
+                            },
+                            "required": [
+    "properties",
+    "type",
+    "geometry"
+  ],
+                            "definitions": {
+                                "position": {
+                                    "description": "A single position",
+                                    "type": "array",
+                                    "minItems": 2,
+                                    "items": [
+                                        {
+                                            "type": "number"
+        },
+                                        {
+                                            "type": "number"
+        }
+      ],
+                                    "additionalItems": false
+                                },
+                                "positionArray": {
+                                    "description": "An array of positions",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/position"
+                                    }
+                                },
+                                "lineString": {
+                                    "description": "An array of two or more positions",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/definitions/positionArray"
+        },
+                                        {
+                                            "minItems": 2
+        }
+      ]
+                                },
+                                "linearRing": {
+                                    "description": "An array of four positions where the first equals the last",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/definitions/positionArray"
+        },
+                                        {
+                                            "minItems": 4
+        }
+      ]
+                                },
+                                "polygon": {
+                                    "description": "An array of linear rings",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/linearRing"
+                                    }
+                                }
+                            }
+                        };
                         if (json.features && json.features.length > 0) {
-                            schema.properties = schema.properties || {};
+
                             for (var key in json.features[0].properties) {
-                                if (!schema.properties.hasOwnProperty(key)) {
-                                    schema.properties[key] = {
-                                        type: "text"
+                                if (!schema.properties.properties.properties.hasOwnProperty(key)) {
+                                    schema.properties.properties.properties[key] = {
+                                        "type": typeof key,
                                     };
                                 }
                             }
-                            db_admin.insert(schema, schema._id, function (err, body) {
+
+
+                            var insert = function (err, body) {
                                 if (err) {
                                     return res.status(err.status_code ? err.status_code : 500).send(err);
                                 }
-                                var insert = function (err, body) {
-                                    if (err) {
-                                        return res.status(err.status_code ? err.status_code : 500).send(err);
-                                    }
-                                };
-                                for (var i = 0; i < json.features.length; i++) {
-                                    var doc = json.features[i];
-                                    d.insert(doc, insert);
-                                }
-                                res.json(body);
-                            });
+                            };
+                            
+                            var d = nano.db.use('db-' + req.params.database);
+                            for (var i = 0; i < json.features.length; i++) {
+                                var doc = json.features[i];
+                                d.insert(doc, insert);
+                            }
+                            req.body.schema = schema;
+                            schemaPostPut(req, res);
                         }
                     });
                 });
