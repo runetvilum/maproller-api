@@ -1900,20 +1900,18 @@ app.post('/api/upload/:database', function (req, res) {
                                 }
                             }
 
-
-                            var insert = function (err, body) {
+                            var d = nano.db.use('db-' + req.params.database);
+                            d.bulk({
+                                docs: json.features
+                            }, function (err, body) {
+                                console.log(err);
+                                console.log(body);
                                 if (err) {
                                     return res.status(err.status_code ? err.status_code : 500).send(err);
                                 }
-                            };
-                            
-                            var d = nano.db.use('db-' + req.params.database);
-                            for (var i = 0; i < json.features.length; i++) {
-                                var doc = json.features[i];
-                                d.insert(doc, insert);
-                            }
-                            req.body.schema = schema;
-                            schemaPostPut(req, res);
+                                req.body.schema = schema;
+                                schemaPostPut(req, res);
+                            });
                         }
                     });
                 });
