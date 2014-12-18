@@ -1904,8 +1904,6 @@ app.post('/api/upload/:database', function (req, res) {
                             d.bulk({
                                 docs: json.features
                             }, function (err, body) {
-                                console.log(err);
-                                console.log(body);
                                 if (err) {
                                     return res.status(err.status_code ? err.status_code : 500).send(err);
                                 }
