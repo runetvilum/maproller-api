@@ -1,0 +1,78 @@
+<div class="row">
+    <div class="col-sm-3">
+        <div class="list-group">
+            <a class="list-group-item" ng-class="{active:$index===selectedIndex}" ng-repeat="item in data" ng-click="select($index)">{{item.name}}</a>
+        </div>
+    </div>
+    <div class="col-sm-9">
+        <div class="row">
+            <div class="col-md-6">
+                <div map on-create="mapCreated(map)" style="height:380px;width:100%"></div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">GeoJSON</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form novalidate class="form-horizontal" role="form" name="myform" ng-submit="submit(myform)">
+                            <div class="alert alert-danger" role="alert" ng-show="error">
+                                <p><strong>Advarsel:</strong> Der er sket en fejl.</p>
+                                <p>{{error}}</p>
+                            </div>
+                            <div class="alert alert-success alert-dismissible" role="alert" ng-show="success">
+                                <button type="button" class="close" data-dismiss="alert" ng-click="success=null"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                                </button>
+                                <strong>OK:</strong> {{success}}
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-success">Gem</button>
+                                    <button type="button" class="btn btn-warning" ng-click="new()">Ny</button>
+                                    <button type="button" class="btn btn-danger" ng-click="delete()">Slet lag</button>
+                                    <button type="button" class="btn btn-danger" ng-click="deleteAll()">Slet straks opsætning</button>
+                                </div>
+                            </div>
+                            <div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && myform.$submitted, 'has-success': myform.name.$valid && !myform.name.$pristine}">
+                                <label for="name" class="col-sm-2 control-label">Navn</label>
+                                <div class="col-sm-10">
+                                    <input name="name" ng-model="straks.name" type="text" class="form-control" id="name" placeholder="Navn" required>
+                                    <span ng-show="myform.name.$valid && !myform.name.$pristine" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                                    <span ng-show="myform.name.$error.required && myform.$submitted" class="help-block">Navn er påkrævet!</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description" class="col-sm-2 control-label">Beskrivelse</label>
+                                <div class="col-sm-10">
+                                    <textarea name="description" ng-model="straks.description" class="form-control" id="description"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="link" class="col-sm-2 control-label">Link</label>
+                                <div class="col-sm-10">
+                                    <input type="url" name="link" ng-model="straks.link" class="form-control" id="link">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" ng-model="straks.inside">Inside
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-class="{ 'has-error': fileError, 'has-success': fileSuccess}" ng-if="!map._id">
+                                <label for="logo" class="col-sm-2 control-label">Upload</label>
+                                <div class="col-sm-10">
+                                    <input type="file" ng-file-select="onFileSelect($files)" class="form-control" id="logo" name="logo" required>
+                                    <span ng-show="fileError" class="help-block">Fil er påkrævet!</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

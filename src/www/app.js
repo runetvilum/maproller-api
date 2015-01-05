@@ -315,6 +315,14 @@
                     ncyBreadcrumbLabel: 'Fulltext index'
                 }
             });
+            $stateProvider.state('database.straks', {
+                url: '/straks',
+                templateUrl: 'database/straks/straks.html',
+                controller: 'database-straks',
+                data: {
+                    ncyBreadcrumbLabel: 'Straksafgørelse'
+                }
+            });
             $stateProvider.state('database.schema', {
                 url: '/schema',
                 templateUrl: 'database/schema/schema.html',

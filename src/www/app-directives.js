@@ -25,6 +25,22 @@
         };
     })
     
+    .directive('map', function () {
+        return {
+            restrict: 'A',
+            scope: {
+                onCreate: '&'
+            },
+            link: function ($scope, $element, $attr) {
+                var map = new L.Map($element[0]);
+                map.attributionControl.setPrefix('');
+                $scope.onCreate({
+                    map: map
+                });
+            }
+        };
+    })
+    
     .filter('isPropertyDependency', function () {
         return function (input) {
             if (input && !angular.isArray(input)) {

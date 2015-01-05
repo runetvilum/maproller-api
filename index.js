@@ -1476,7 +1476,7 @@ app.get('/api/compact/:id', function (req, res) {
                             };
                             doc.filters = {
                                 schema: "function (doc, req) {" +
-                                    "        if (doc._id === '_design/schema') {" +
+                                    "        if (doc._id === '_design/schema' || doc._id === '_design/straks') {" +
                                     "            return true;" +
                                     "        }" +
                                     "        return false;" +
@@ -3865,6 +3865,146 @@ app.get('/api/compact/:id', function (req, res) {
             });
         });
     });
+
+
+    app.get('/api/:database/straks', function (req, res) {
+
+        var couchdb = require('nano')({
+            cookie: req.headers.cookie,
+            url: url_5986
+        });
+        couchdb.session(function (err, session, headers) {
+            if (!session.userCtx.name) {
+                return res.status(401).json({
+                    ok: false,
+                    message: 'Brugernavn og password er påkrævet.'
+                });
+            }
+            if (headers && headers['set-cookie']) {
+                res.set('set-cookie', headers['set-cookie']);
+            }
+            db_admin.get(req.params.database, function (err, database) {
+                if (err) {
+                    return res.status(err.status_code || 500).send(err);
+                }
+
+                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
+                    return res.status(401).send(JSON.stringify({
+                        ok: false,
+                        message: 'Du har ikke rettigheder til at se straksafgørelser.'
+                    }));
+                }
+
+                var db_id = 'db-' + req.params.database,
+                    d = nano.db.use(db_id);
+                d.get("_design/straks", function (err, doc) {
+                    if (err) {
+                        return res.status(err.status_code || 500).send(err);
+                    }
+                    res.send(doc.lib.straks.substring(15));
+                });
+            });
+        });
+    });
+    //Opret / opdater straksafgørelser
+    app.put('/api/:database/straks', function (req, res) {
+
+        var couchdb = require('nano')({
+            cookie: req.headers.cookie,
+            url: url_5986
+        });
+        couchdb.session(function (err, session, headers) {
+            if (!session.userCtx.name) {
+                return res.status(401).json({
+                    ok: false,
+                    message: 'Brugernavn og password er påkrævet.'
+                });
+            }
+            if (headers && headers['set-cookie']) {
+                res.set('set-cookie', headers['set-cookie']);
+            }
+            db_admin.get(req.params.database, function (err, database) {
+                if (err) {
+                    return res.status(err.status_code || 500).send(err);
+                }
+
+                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
+                    return res.status(401).send(JSON.stringify({
+                        ok: false,
+                        message: 'Du har ikke rettigheder til at oprette straksafgørelser.'
+                    }));
+                }
+                fs.readFile('validate_doc_update_straks.js', 'utf8', function (err, validate_doc_update) {
+                    if (err) {
+                        return res.status(err.status_code || 500).send(err);
+                    }
+                    var db_id = 'db-' + req.params.database,
+                        d = nano.db.use(db_id);
+                    d.get("_design/straks", function (err, doc) {
+                        if (err) {
+                            doc = {};
+                        }
+                        doc.validate_doc_update = validate_doc_update;
+                        doc.lib = {
+                            straks: "exports.straks=" + JSON.stringify(req.body.straks)
+                        };
+
+                        d.insert(doc, "_design/straks", function (err, body) {
+                            if (err) {
+                                return res.status(err.status_code || 500).send(err);
+                            }
+                            res.json(body);
+                        });
+                    });
+                });
+            });
+        });
+    });
+    app["delete"]('/api/:database/straks', function (req, res) {
+
+        var couchdb = require('nano')({
+            cookie: req.headers.cookie,
+            url: url_5986
+        });
+        couchdb.session(function (err, session, headers) {
+            if (!session.userCtx.name) {
+                return res.status(401).json({
+                    ok: false,
+                    message: 'Brugernavn og password er påkrævet.'
+                });
+            }
+            if (headers && headers['set-cookie']) {
+                res.set('set-cookie', headers['set-cookie']);
+            }
+            db_admin.get(req.params.database, function (err, database) {
+                if (err) {
+                    return res.status(err.status_code || 500).send(err);
+                }
+
+                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
+                    return res.status(401).send(JSON.stringify({
+                        ok: false,
+                        message: 'Du har ikke rettigheder til at slette straksafgørelser.'
+                    }));
+                }
+                var db_id = 'db-' + req.params.database,
+                    d = nano.db.use(db_id);
+                d.get('_design/straks', function (err, body) {
+                    if (err) {
+                        return res.status(err.status_code || 500).send(err);
+                    }
+                    d.destroy('_design/straks', body._rev, function (err, body) {
+                        if (err) {
+                            return res.status(err.status_code || 500).send(err);
+                        }
+                        res.json(body);
+                    });
+                });
+            });
+        });
+    });
+
+
 
     app.listen(4000);
     console.log('Listening on port 4000');
