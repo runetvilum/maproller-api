@@ -4,7 +4,7 @@
     </div>
     <div class="panel-body">
         <form novalidate class="form-horizontal" role="form" name="myform" ng-submit="submit(myform)">
-            <div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && !myform.name.$pristine, 'has-success': myform.name.$valid && !myform.name.$pristine}">
+            <div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && myform.$submitted, 'has-success': myform.name.$valid && myform.$submitted}">
                 <label for="name" class="col-sm-2 control-label">Navn</label>
                 <div class="col-sm-10">
                     <input name="name" ng-model="doc.name" type="text" class="form-control" id="name" placeholder="Navn" required>

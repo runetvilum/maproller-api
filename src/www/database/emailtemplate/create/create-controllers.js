@@ -21,20 +21,23 @@
                 if (form.$valid) {
                     $http.post('/api/' + $stateParams.database + '/emailtemplate', $scope.doc).
                     success(function (data, status, headers, config) {
-                        console.log(data);
-                        $scope.success = true;
-                        $scope.name = null;
-                        form.name.$pristine = true;
-                        $state.go('database.emailtemplate.list', {
-                            organization: $stateParams.organization
+                        $http.put('/follow/' + $stateParams.database).
+                        success(function (data, status, headers, config) {
+                            $scope.success = true;
+                            $scope.name = null;
+                            $state.go('database.emailtemplate.list', {
+                                organization: $stateParams.organization
+                            });
+                        }).
+                        error(function (data, status, headers, config) {
+                            $scope.error = data;
+                            console.log(data);
                         });
                     }).
                     error(function (data, status, headers, config) {
                         $scope.error = data;
                         console.log(data);
                     });
-                } else {
-                    form.name.$pristine = false;
                 }
             };
         }]);
