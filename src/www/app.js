@@ -13,7 +13,8 @@
         'myApp.controllers',
         'angular-md5',
         'angularFileUpload',
-        'ncy-angular-breadcrumb'
+        'ncy-angular-breadcrumb',
+        'ngSanitize'
     ]).
     config(['$stateProvider', '$urlRouterProvider', '$breadcrumbProvider',
         function ($stateProvider, $urlRouterProvider, $breadcrumbProvider) {
@@ -170,66 +171,7 @@
                     ncyBreadcrumbLabel: 'Opret'
                 }
             });
-            $stateProvider.state('organization.layouts', {
-                url: '/layouts',
-                templateUrl: 'organization/layouts/layouts.html',
-                controller: 'organization-layouts',
-                data: {
-                    ncyBreadcrumbLabel: 'Layouts'
-                }
-            });
-            $stateProvider.state('organization.layouts.list', {
-                url: '/list',
-                templateUrl: 'organization/layouts/list/list.html',
-                controller: 'layouts-list',
-                data: {
-                    ncyBreadcrumbLabel: 'Liste'
-                }
-            });
-            $stateProvider.state('organization.layouts.create', {
-                url: '/create',
-                templateUrl: 'organization/layouts/create/create.html',
-                controller: 'layouts-create',
-                data: {
-                    ncyBreadcrumbLabel: 'Opret'
-                }
-            });
-            $stateProvider.state('layout', {
-                url: '/organizations/:organization/layouts/:layout',
-                templateUrl: 'layout/layout.html',
-                controller: 'layout',
-                data: {
-                    ncyBreadcrumbLabel: '{{layout.name}}',
-                    ncyBreadcrumbParent: 'organization.layouts'
-                },
-                resolve: {
-                    profile: function (auth) {
-                        return auth.authorize();
-                    },
-                    layout: function ($http, $stateParams, $q) {
-                        return $http.get('/api/layout/' + $stateParams.layout);
-                    }
-                }
-            });
-            $stateProvider.state('layout.info', {
-                url: '/info',
-                templateUrl: 'layout/info/info.html',
-                controller: 'layout-info',
-                data: {
-                    ncyBreadcrumbLabel: 'Information'
-                },
-                resolve: {
-                    ticket: 'kfticket'
-                }
-            });
-            $stateProvider.state('layout.delete', {
-                url: '/delete',
-                templateUrl: 'layout/delete/delete.html',
-                controller: 'layout-delete',
-                data: {
-                    ncyBreadcrumbLabel: 'Slet'
-                }
-            });
+            
 
             $stateProvider.state('organization.maps', {
                 url: '/maps',
@@ -421,6 +363,65 @@
                     ncyBreadcrumbLabel: 'Mobile'
                 }
             });
+            
+            $stateProvider.state('database.emailtemplate', {
+                url: '/emailtemplate',
+                templateUrl: 'database/emailtemplate/emailtemplate.html',
+                controller: 'database-emailtemplate',
+                data: {
+                    ncyBreadcrumbLabel: 'Emailtemplate'
+                }
+            });
+            $stateProvider.state('database.emailtemplate.list', {
+                url: '/list',
+                templateUrl: 'database/emailtemplate/list/list.html',
+                controller: 'emailtemplate-list',
+                data: {
+                    ncyBreadcrumbLabel: 'Liste'
+                }
+            });
+            $stateProvider.state('database.emailtemplate.create', {
+                url: '/create',
+                templateUrl: 'database/emailtemplate/create/create.html',
+                controller: 'emailtemplate-create',
+                data: {
+                    ncyBreadcrumbLabel: 'Opret'
+                }
+            });
+            $stateProvider.state('emailtemplate', {
+                url: '/organizations/:organization/databases/:database/emailtemplate/:emailtemplate',
+                templateUrl: 'emailtemplate/emailtemplate.html',
+                controller: 'emailtemplate',
+                data: {
+                    ncyBreadcrumbLabel: '{{emailtemplate.name}}',
+                    ncyBreadcrumbParent: 'database.emailtemplate'
+                },
+                resolve: {
+                    profile: function (auth) {
+                        return auth.authorize();
+                    },
+                    emailtemplate: function ($http, $stateParams, $q) {
+                        return $http.get('/api/emailtemplate/' + $stateParams.emailtemplate);
+                    }
+                }
+            });
+            $stateProvider.state('emailtemplate.info', {
+                url: '/info',
+                templateUrl: 'emailtemplate/info/info.html',
+                controller: 'emailtemplate-info',
+                data: {
+                    ncyBreadcrumbLabel: 'Information'
+                }
+            });
+            $stateProvider.state('emailtemplate.delete', {
+                url: '/delete',
+                templateUrl: 'emailtemplate/delete/delete.html',
+                controller: 'emailtemplate-delete',
+                data: {
+                    ncyBreadcrumbLabel: 'Slet'
+                }
+            });
+            
             $stateProvider.state('database.data', {
                 url: '/data',
                 templateUrl: 'database/data/data.html',

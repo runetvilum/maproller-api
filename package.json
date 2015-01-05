@@ -21,6 +21,7 @@
     "ejs": "^1.0.0",
     "email-templates": "^1.1.2",
     "express": "^4.9.8",
+    "follow": "^0.11.4",
     "image-type": "^1.0.0",
     "jsonfile": "^2.0.0",
     "minimist": "^1.1.0",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-couch": "^1.4.0",
-    "grunt-contrib-copy": "^0.7.0"
+    "grunt-contrib-copy": "^0.7.0",
+    "grunt-preen": "^1.0.0"
   }
 }

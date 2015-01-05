@@ -17,7 +17,7 @@ module.exports = function (grunt) {
             },
             admin: {
                 files: {
-                    'tmp/admin.json': ['dist/admin/organization', 'dist/admin/templates']
+                    'tmp/admin.json': ['dist/admin/organization', 'dist/admin/templates', 'dist/admin/database']
                 }
             }
         },
@@ -83,6 +83,7 @@ module.exports = function (grunt) {
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-couch');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-preen');
 
     // Default task(s).
     grunt.registerTask('default', ['copy', 'couch-compile', 'couch-push', 'couch-security']);

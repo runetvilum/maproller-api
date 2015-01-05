@@ -91,15 +91,13 @@
             req.pipe(request.del(url)).pipe(res);
         }
     });
+
     app.all('/couchdb*', function (req, res) {
         res.set('Access-Control-Allow-Credentials', 'true');
         res.set('Access-Control-Allow-Origin', 'http://localhost:8100');
         res.set('Access-Control-Allow-Methods', 'GET, PUT, POST, HEAD, DELETE');
         res.set('Access-Control-Allow-Headers', 'accept, authorization, content-type, origin, referer');
         var url = "http://localhost:5984/" + req.url.substring(9);
-        console.log(url);
-        //console.log(inspect(req,{colors:true}));
-        //var url = 'http://admin:rutv2327@localhost:5984/admin/' + req.params.id + '/logo.png';
         if (req.method === 'PUT') {
             req.pipe(request.put(url)).pipe(res);
         } else if (req.method === 'POST') {
@@ -1536,15 +1534,28 @@ app.get('/api/compact/:id', function (req, res) {
                         message: 'Du har ikke rettigheder til at slette databasen.'
                     }));
                 }
-                db_admin.destroy(database._id, database._rev, function (err, body) {
+                db_admin.view('database', 'emailtemplate', {
+                    key: req.params.id
+                }, function (err, emailtemplates) {
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    nano.db.destroy('db-' + database._id, function (err, body) {
+                    if (emailtemplates.rows.length > 0) {
+                        return res.status(401).json({
+                            ok: false,
+                            message: 'Der findes ' + emailtemplates.rows.length + ' emailtemplates på databasen. Du kan ikke slette databasen før alle emailtemplates er slettet.'
+                        });
+                    }
+                    db_admin.destroy(database._id, database._rev, function (err, body) {
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
                         }
-                        res.json(body);
+                        nano.db.destroy('db-' + database._id, function (err, body) {
+                            if (err) {
+                                return res.status(err.status_code || 500).send(err);
+                            }
+                            res.json(body);
+                        });
                     });
                 });
             });
@@ -2846,8 +2857,8 @@ app.get('/api/compact/:id', function (req, res) {
     });
 
 
-    //Hent alle layouts for en organisation
-    app.get('/api/layouts/:organization', function (req, res) {
+    //Hent alle emailtemplates for en database
+    app.get('/api/:database/emailtemplate', function (req, res) {
         var couchdb = require('nano')({
             cookie: req.headers.cookie,
             url: url_5986
@@ -2862,29 +2873,127 @@ app.get('/api/compact/:id', function (req, res) {
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
+            db_admin.get(req.params.database, function (err, database) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                if (user.roles.indexOf("sys") === -1 && user.roles.indexOf("admin_" + req.params.organization) === -1) {
+                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database._id) === -1) {
                     return res.status(401).send(JSON.stringify({
                         ok: false,
-                        message: 'Du har ikke rettigheder til at se databaser for denne organisation.'
+                        message: 'Du har ikke rettigheder til at se emailtemplates for denne organisation.'
                     }));
                 }
-                db_admin.view('organization', 'layouts', {
-                    keys: [req.params.organization]
+                db_admin.view('database', 'emailtemplate', {
+                    reduce: false,
+                    startkey: [database._id, ""],
+                    endkey: [database._id, {}]
                 }, function (err, body) {
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    res.end(JSON.stringify(body));
+                    res.json(body);
                 });
             });
         });
     });
-    //Slet layout
-    app["delete"]('/api/layout/:id', function (req, res) {
+    //Hent emailtemplate
+    app.get('/api/emailtemplate/:id', function (req, res) {
+        var couchdb = require('nano')({
+            cookie: req.headers.cookie,
+            url: url_5986
+        });
+        couchdb.session(function (err, session, headers) {
+            if (!session.userCtx.name) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Brugernavn og password er påkrævet.'
+                }));
+            }
+            if (headers && headers['set-cookie']) {
+                res.set('set-cookie', headers['set-cookie']);
+            }
+
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.params.organization) === -1) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Du har ikke rettigheder til at se emailtemplates for denne organisation.'
+                }));
+            }
+            db_admin.get(req.params.id, function (err, body) {
+                if (err) {
+                    return res.status(err.status_code || 500).send(err);
+                }
+                var sti = "/mnt/gluster/emailtemplates",
+                    sti2 = sti + '/' + req.params.id;
+                fs.readFile(sti2 + "/html.ejs", 'utf8', function (err, data) {
+                    if (err) {
+                        return res.status(err.status_code || 500).send(err);
+                    }
+                    body.html = data;
+                    fs.readFile(sti2 + "/text.ejs", 'utf8', function (err, data) {
+                        if (err) {
+                            return res.status(err.status_code || 500).send(err);
+                        }
+                        body.text = data;
+                        fs.readFile(sti2 + "/style.css", 'utf8', function (err, data) {
+                            if (err) {
+                                return res.status(err.status_code || 500).send(err);
+                            }
+                            body.css = data;
+                            emailTemplates(sti, function (err, template) {
+                                if (err) {
+                                    return res.status(err.status_code || 500).send(err);
+                                }
+                                var d = nano.db.use('db-' + body.database);
+                                d.list({
+                                    limit: 10
+                                }, function (err, data) {
+                                    if (err) {
+                                        return res.status(err.status_code || 500).send(err);
+                                    }
+
+                                    var i, doc;
+                                    for (i = 0; i < data.rows.length; i++) {
+                                        doc = data.rows[i];
+                                        if (doc.id.substring(0, 7) !== '_design') {
+                                            break;
+                                        }
+                                    }
+                                    if (doc) {
+                                        d.get(doc.id, function (err, data) {
+                                            template(req.params.id, {
+                                                doc: data
+                                            }, function (err, html, text) {
+                                                res.json({
+                                                    doc: body,
+                                                    html: html,
+                                                    text: text,
+                                                    error: err
+                                                });
+                                            });
+                                        });
+                                    } else {
+                                        template(req.params.id, {
+                                            doc: null
+                                        }, function (err, html, text) {
+                                            res.json({
+                                                doc: body,
+                                                html: html,
+                                                text: text,
+                                                error: err
+                                            });
+                                        });
+                                    }
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+    //Slet emailtemplate
+    app["delete"]('/api/emailtemplate/:id', function (req, res) {
 
         var couchdb = require('nano')({
             cookie: req.headers.cookie,
@@ -2900,38 +3009,45 @@ app.get('/api/compact/:id', function (req, res) {
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db_admin.get(req.params.id, function (err, layout) {
+
+            db_admin.get(req.params.id, function (err, emailtemplate) {
+
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
+
+                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + emailtemplate.organization) === -1) {
+                    return res.status(401).send(JSON.stringify({
+                        ok: false,
+                        message: 'Du har ikke rettigheder til at slette emailtempltes for denne organisation.'
+                    }));
+                }
+                db_admin.destroy(emailtemplate._id, emailtemplate._rev, function (err, body) {
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    if (user.roles.indexOf("sys") === -1 && user.roles.indexOf("admin_" + layout.organization) === -1) {
-                        return res.status(401).send(JSON.stringify({
-                            ok: false,
-                            message: 'Du har ikke rettigheder til at slette apps for denne organisation.'
-                        }));
-                    }
-                    db_admin.destroy(layout._id, layout._rev, function (err, body) {
-                        if (err) {
-                            return res.status(err.status_code || 500).send(err);
-                        }
-                        res.json(body);
+                    var sti = "/mnt/gluster/emailtemplates/" + req.params.id;
+                    fs.unlink(sti + "/html.ejs", function (err) {
+                        fs.unlink(sti + "/text.ejs", function (err) {
+                            fs.unlink(sti + "/style.css", function (err) {
+                                fs.rmdir(sti, function (err) {
+                                    res.json(body);
+                                });
+                            });
+                        });
                     });
                 });
             });
         });
     });
 
-    //Opdater layout
-    app.put('/api/layout', function (req, res) {
-        if (!req.body || !req.body.name || !req.body.organization) {
-            return res.status(400).send(JSON.stringify({
+    //Opdater emailtemplate
+    app.put('/api/emailtemplate', function (req, res) {
+        if (!req.body || !req.body.name || !req.body.database || !req.body.action || !req.body.html || !req.body.text || !req.body.css || !req.body._rev || !req.body._id) {
+            return res.status(400).json({
                 ok: false,
-                message: 'Navn og organisation er påkrævet.'
-            }));
+                message: '_id, _rev, name, action, html, text, css og database er påkrævet.'
+            });
         }
         var couchdb = require('nano')({
             cookie: req.headers.cookie,
@@ -2947,32 +3063,95 @@ app.get('/api/compact/:id', function (req, res) {
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, body) {
+            db_admin.get(req.body.database, function (err, database) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                if (body.roles.indexOf("sys") === -1 && body.roles.indexOf("admin_" + req.body.organization) === -1) {
+                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
                     return res.status(401).send(JSON.stringify({
                         ok: false,
-                        message: 'Du har ikke rettigheder til at oprette databaser.'
+                        message: 'Du har ikke rettigheder til at opdatere emailtemplates.'
                     }));
                 }
                 db_admin.insert(req.body, req.body._id, function (err, body) {
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    res.json(body);
+                    req.body._rev = body.rev;
+                    var sti = "/mnt/gluster/emailtemplates",
+                        sti2 = sti + '/' + body.id;
+
+                    fs.writeFile(sti2 + "/html.ejs", req.body.html, function (err, result) {
+                        if (err) {
+                            return res.status(err.status_code || 500).send(err);
+                        }
+                        fs.writeFile(sti2 + "/text.ejs", req.body.text, function (err, result) {
+                            if (err) {
+                                return res.status(err.status_code || 500).send(err);
+                            }
+                            fs.writeFile(sti2 + "/style.css", req.body.css, function (err, result) {
+
+                                emailTemplates(sti, function (err, template) {
+                                    if (err) {
+                                        return res.status(err.status_code || 500).send(err);
+                                    }
+                                    var d = nano.db.use('db-' + req.body.database);
+                                    d.list({
+                                        limit: 10
+                                    }, function (err, data) {
+                                        if (err) {
+                                            return res.status(err.status_code || 500).send(err);
+                                        }
+
+                                        var i, doc;
+                                        for (i = 0; i < data.rows.length; i++) {
+                                            doc = data.rows[i];
+                                            if (doc.id.substring(0, 7) !== '_design') {
+                                                break;
+                                            }
+                                        }
+                                        if (doc) {
+                                            d.get(doc.id, function (err, data) {
+                                                template(req.body._id, {
+                                                    doc: data
+                                                }, function (err, html, text) {
+                                                    res.json({
+                                                        doc: req.body,
+                                                        html: html,
+                                                        text: text,
+                                                        error: err
+                                                    });
+                                                });
+                                            });
+                                        } else {
+                                            template(req.body._id, {
+                                                doc: null
+                                            }, function (err, html, text) {
+                                                res.json({
+                                                    doc: req.body,
+                                                    html: html,
+                                                    text: text,
+                                                    error: err
+                                                });
+                                            });
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
     });
-    //Opret layout
-    app.post('/api/layouts', function (req, res) {
-        if (!req.body || !req.body.name || !req.body.organization) {
-            return res.status(400).send(JSON.stringify({
+
+    //Opret emailtemplate
+    app.post('/api/:database/emailtemplate', function (req, res) {
+        if (!req.body || !req.body.name || !req.body.action) {
+            return res.status(400).json({
                 ok: false,
-                message: 'Navn og organisation er påkrævet.'
-            }));
+                message: 'name og action er påkrævet.'
+            });
         }
         var couchdb = require('nano')({
             cookie: req.headers.cookie,
@@ -2980,36 +3159,52 @@ app.get('/api/compact/:id', function (req, res) {
         });
         couchdb.session(function (err, session, headers) {
             if (!session.userCtx.name) {
-                return res.status(401).send(JSON.stringify({
+                return res.status(401).json({
                     ok: false,
                     message: 'Brugernavn og password er påkrævet.'
-                }));
+                });
             }
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, body) {
+
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.params.organization) === -1) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Du har ikke rettigheder til at oprette en emailtemplate.'
+                }));
+            }
+            db_admin.insert({
+                name: req.body.name,
+                database: req.params.database,
+                action: req.body.action,
+                type: 'emailtemplate'
+            }, function (err, body) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                if (body.roles.indexOf("sys") === -1 && body.roles.indexOf("admin_" + req.body.organization) === -1) {
-                    return res.status(401).send(JSON.stringify({
-                        ok: false,
-                        message: 'Du har ikke rettigheder til at oprette databaser.'
-                    }));
-                }
-                db_admin.insert({
-                    name: req.body.name,
-                    organization: req.body.organization,
-                    type: 'layout'
-                }, function (err, body) {
-                    if (err) {
-                        return res.status(err.status_code || 500).send(err);
-                    }
-                    res.json(body);
+                var sti = "/mnt/gluster/emailtemplates/" + body.id;
+                fs.mkdir(sti, function (err, result) {
+                    fs.writeFile(sti + "/html.ejs", "", function (err, result) {
+                        if (err) {
+                            return res.status(err.status_code || 500).send(err);
+                        }
+                        fs.writeFile(sti + "/text.ejs", "", function (err, result) {
+                            if (err) {
+                                return res.status(err.status_code || 500).send(err);
+                            }
+                            fs.writeFile(sti + "/style.css", "", function (err, result) {
+                                if (err) {
+                                    return res.status(err.status_code || 500).send(err);
+                                }
+                                res.json(body);
+                            });
+                        });
+                    });
                 });
             });
         });
+
     });
     //Hent alle kort for en organisation
     app.get('/api/maps/:organization', function (req, res) {
@@ -3658,41 +3853,7 @@ app.get('/api/compact/:id', function (req, res) {
             });
         });
     });
-    //Henter alle apps i en organization
-    app.get('/api/layout/:id', function (req, res) {
-        var couchdb = require('nano')({
-            cookie: req.headers.cookie,
-            url: url_5986
-        });
-        couchdb.session(function (err, session, headers) {
-            if (!session.userCtx.name) {
-                return res.status(401).send(JSON.stringify({
-                    ok: false,
-                    message: 'Brugernavn og password er påkrævet.'
-                }));
-            }
-            if (headers && headers['set-cookie']) {
-                res.set('set-cookie', headers['set-cookie']);
-            }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
-                if (err) {
-                    return res.status(err.status_code || 500).send(err);
-                }
-                if (user.roles.indexOf("sys") === -1 && user.roles.indexOf("admin_" + req.params.organization) === -1) {
-                    return res.status(401).send(JSON.stringify({
-                        ok: false,
-                        message: 'Du har ikke rettigheder til at se apps for denne organisation.'
-                    }));
-                }
-                db_admin.get(req.params.id, function (err, body) {
-                    if (err) {
-                        return res.status(err.status_code || 500).send(err);
-                    }
-                    res.end(JSON.stringify(body));
-                });
-            });
-        });
-    });
+
     app.listen(4000);
     console.log('Listening on port 4000');
 }());

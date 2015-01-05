@@ -1,0 +1,36 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Opret emailtemplate</h3>
+    </div>
+    <div class="panel-body">
+        <form novalidate class="form-horizontal" role="form" name="myform" ng-submit="submit(myform)">
+            <div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && !myform.name.$pristine, 'has-success': myform.name.$valid && !myform.name.$pristine}">
+                <label for="name" class="col-sm-2 control-label">Navn</label>
+                <div class="col-sm-10">
+                    <input name="name" ng-model="doc.name" type="text" class="form-control" id="name" placeholder="Navn" required>
+                    <span ng-show="myform.name.$valid && !myform.name.$pristine" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    <span ng-show="myform.name.$error.required && !myform.name.$pristine" class="help-block">Navn er påkrævet!</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="action" class="col-sm-2 control-label">Action</label>
+                <div class="col-sm-10">
+                    <select class="form-control" ng-model="doc.action" ng-options="key.value as key.name for key in actions">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-success">Opret</button>
+                </div>
+            </div>
+        </form>
+        <div class="alert alert-danger" role="alert" ng-show="error">
+            <p><strong>Advarsel:</strong> Der er sket en fejl ved oprettelsen.</p>
+            <p>{{error}}</p>
+        </div>
+        <div class="alert alert-success" role="alert" ng-show="success">
+            <p><strong>OK:</strong> Oprettet.</p>
+        </div>
+    </div>
+</div>
