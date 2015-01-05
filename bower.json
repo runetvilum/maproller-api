@@ -1,88 +1,93 @@
 {
-  "name": "maproller.org",
-  "version": "0.0.1",
-  "authors": [
+    "name": "maproller.org",
+    "version": "0.0.1",
+    "authors": [
     "Rune Tvilum <rune@addin.dk>"
   ],
-  "description": "Administration dashboard for maproller.org",
-  "main": "index.html",
-  "license": "MIT",
-  "homepage": "http://maproller.org",
-  "private": true,
-  "ignore": [
+    "description": "Administration dashboard for maproller.org",
+    "main": "index.html",
+    "license": "MIT",
+    "homepage": "http://maproller.org",
+    "private": true,
+    "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "test",
     "tests"
   ],
-  "dependencies": {
-    "angular-bootstrap": "~0.11.0",
-    "bootstrap": "~3.2.0",
-    "fontawesome": "~4.2.0",
-    "angular-ui-router": "~0.2.11",
-    "ng-file-upload": "~1.6.5",
-    "angular-md5": "~0.1.7",
-    "angular-breadcrumb": "~0.2.3",
-    "ng-file-upload-shim": "~1.6.5",
-    "angular-cookies": "~1.3.8",
-    "angular-sanitize": "~1.3.8",
-    "angular": "~1.3.8",
-    "angular-ui-sortable": "~0.13.1",
-    "tv4": "~1.1.4"
-  },
-  "preen": {
-    "angular": [
+    "dependencies": {
+        "angular-bootstrap": "~0.11.0",
+        "bootstrap": "~3.2.0",
+        "fontawesome": "~4.2.0",
+        "angular-ui-router": "~0.2.11",
+        "ng-file-upload": "~1.6.5",
+        "angular-md5": "~0.1.7",
+        "angular-breadcrumb": "~0.2.3",
+        "ng-file-upload-shim": "~1.6.5",
+        "angular-cookies": "~1.3.8",
+        "angular-sanitize": "~1.3.8",
+        "angular": "~1.3.8",
+        "angular-ui-sortable": "~0.13.1",
+        "tv4": "~1.1.4",
+        "leaflet": "~0.7.3"
+    },
+    "preen": {
+        "angular": [
       "angular.min.js",
       "angular.min.js.map"
     ],
-    "angular-bootstrap": [
+        "angular-bootstrap": [
       "ui-bootstrap-tpls.min.js"
     ],
-    "angular-breadcrumb": [
+        "angular-breadcrumb": [
       "dist/angular-breadcrumb.min.js"
     ],
-    "angular-cookies": [
+        "angular-cookies": [
       "angular-cookies.min.js",
       "angular-cookies.min.js.map"
     ],
-    "angular-md5": [
+        "angular-md5": [
       "angular-md5.min.js",
       "angular-md5.min.js.map"
     ],
-    "angular-sanitize": [
+        "angular-sanitize": [
       "angular-sanitize.min.js",
       "angular-sanitize.min.js.map"
     ],
-    "angular-ui-router": [
+        "angular-ui-router": [
       "release/angular-ui-router.min.js"
     ],
-    "angular-ui-sortable": [
+        "angular-ui-sortable": [
       "sortable.min.js"
     ],
-    "bootstrap": [
+        "bootstrap": [
       "dist/css/bootstrap.min.css",
       "dist/css/bootstrap.min.css.map",
       "dist/fonts/*"
     ],
-    "fontawesome": [
+        "fontawesome": [
       "css/font-awesome.min.css",
       "fonts/*"
     ],
-    "jquery": [
+        "jquery": [
       "dist/jquery.min.*"
     ],
-    "jquery-ui": [
+        "jquery-ui": [
       "jquery-ui.min.js"
     ],
-    "ng-file-upload": [
+        "ng-file-upload": [
       "angular-file-upload-shim.min.js",
       "angular-file-upload.min.js",
       "FileAPI.min.js",
       "*.swf"
     ],
-    "tv4": [
+        "tv4": [
       "tv4.js"
+    ],
+        "leaflet": [
+      "dist/leaflet.*",
+      "dist/images/*"
     ]
-  }
+    }
 }
