@@ -31,9 +31,9 @@ var inspect = require('util').inspect,
                 databases[id] = feed;
                 if (!error) {
                     feed.pause();
-                    console.log(inspect(change, {
+                    /*console.log(inspect(change, {
                         colors: true
-                    }));
+                    }));*/
                     if (change.deleted) {
                         emailoptions.key = [id, "delete"];
                     } else {
@@ -129,9 +129,7 @@ if (argv.config) {
                                 message: 'Du har ikke rettigheder til at oprette databaser.'
                             });
                         }
-                        
                         if (!databases.hasOwnProperty(req.params.id)) {
-                            console.log(req.params.id);
                             followDatabase(req.params.id, template);
                         }
                         res.end();
