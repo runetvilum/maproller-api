@@ -11,21 +11,26 @@
                         organization: $stateParams.organization
                     }).
                     success(function (data, status, headers, config) {
-                        console.log(data);
-                        $scope.success = true;
-                        $scope.name = null;
-                        form.name.$pristine = true;
-                        $state.go('organization.databases.list', {
-                            organization: $stateParams.organization
+                        $http.put('/follow/'+data.id).
+                        success(function (data, status, headers, config) {
+                            $scope.success = true;
+                            $scope.name = null;
+                  
+                            $state.go('organization.databases.list', {
+                                organization: $stateParams.organization
+                            });
+                        }).
+                        error(function (data, status, headers, config) {
+                            $scope.error = data;
+                            console.log(data);
                         });
+                        
                     }).
                     error(function (data, status, headers, config) {
                         $scope.error = data;
                         console.log(data);
                     });
-                } else {
-                    form.name.$pristine = false;
-                }
+                } 
             };
         }]);
 })(this, this.angular, this.console);

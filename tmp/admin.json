@@ -35,13 +35,13 @@
     },
     {
       "_id": "_design/database",
+      "language": "javascript",
       "views": {
         "emailtemplate": {
           "map": "function (doc) {\n    if (doc.type && doc.type === 'emailtemplate') {\n        emit([doc.database, doc.action], doc.name);\n    }\n}",
           "reduce": "function (keys, values, rereduce) {\n    if (rereduce) {\n        return sum(values);\n    } else {\n        return values.length;\n    }\n}"
         }
-      },
-      "language": "javascript"
+      }
     }
   ]
 }

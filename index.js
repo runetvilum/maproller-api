@@ -79,6 +79,16 @@
             req.pipe(request.get(url)).pipe(res);
         }
     });
+    app.use('/follow', function (req, res) {
+
+        var url = "http://localhost:4001/follow" + req.url;
+        console.log(url);
+        if (req.method === 'PUT') {
+            req.pipe(request.put(url)).pipe(res);
+        } else if (req.method === 'DELETE') {
+            req.pipe(request.del(url)).pipe(res);
+        }
+    });
     app.all('/es*', function (req, res) {
         var url = "http://127.0.0.1:9200/" + req.url.substring(4);
         if (req.method === 'PUT') {
@@ -1535,7 +1545,9 @@ app.get('/api/compact/:id', function (req, res) {
                     }));
                 }
                 db_admin.view('database', 'emailtemplate', {
-                    key: req.params.id
+                    reduce: false,
+                    startkey: [req.params.id, ""],
+                    endkey: [req.params.id, {}]
                 }, function (err, emailtemplates) {
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
