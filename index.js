@@ -1411,7 +1411,7 @@ app.get('/api/compact/:id', function (req, res) {
                             return res.status(err.status_code || 500).send(err);
                         }
                         request.put({
-                            uri: "http://email/follow/" + body.id
+                            uri: "http://email:4001/follow/" + body.id
                         }, function (err, response, body4) {
                             if (err) {
                                 return res.status(err.status_code || 500).send(err);
@@ -1560,7 +1560,7 @@ app.get('/api/compact/:id', function (req, res) {
                         });
                     }
                     request.del({
-                        uri: "http://email/follow/" + req.params.id
+                        uri: "http://email:4001/follow/" + req.params.id
                     }, function (err, response, body) {
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
