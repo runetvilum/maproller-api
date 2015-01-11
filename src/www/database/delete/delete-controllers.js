@@ -4,22 +4,15 @@
         function ($scope, $state, $http, $stateParams) {
             $scope.error = null;
             $scope.delete = function () {
-                $http.delete('/follow/' + $stateParams.database).
+                $http.delete('/api/database/' + $stateParams.database).
                 success(function (data, status, headers, config) {
-                    $http.delete('/api/database/' + $stateParams.database).
-                    success(function (data, status, headers, config) {
-                        $state.go('organization.databases.list', {
-                            organization: $stateParams.organization
-                        });
-                    }).
-                    error(function (data, status, headers, config) {
-                        $scope.error = data;
+                    $state.go('organization.databases.list', {
+                        organization: $stateParams.organization
                     });
                 }).
                 error(function (data, status, headers, config) {
                     $scope.error = data;
                 });
-
             };
         }
     ]);
