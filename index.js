@@ -589,25 +589,22 @@
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
+
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.params.organization) === -1) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Du har ikke rettigheder til at se brugere for denne organisation.'
+                }));
+            }
+            db.view('users', 'role', {
+                key: req.params.organization
+            }, function (err, body) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                if (user.roles.indexOf("sys") === -1 && user.roles.indexOf("admin_" + req.params.organization) === -1) {
-                    return res.status(401).send(JSON.stringify({
-                        ok: false,
-                        message: 'Du har ikke rettigheder til at se brugere for denne organisation.'
-                    }));
-                }
-                db.view('users', 'role', {
-                    key: req.params.organization
-                }, function (err, body) {
-                    if (err) {
-                        return res.status(err.status_code || 500).send(err);
-                    }
-                    res.end(JSON.stringify(body));
-                });
+                res.end(JSON.stringify(body));
             });
+
         });
     });
 
@@ -643,23 +640,20 @@
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
+
+            db.get('org.couchdb.user:' + req.params.id, function (err, body) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                db.get('org.couchdb.user:' + req.params.id, function (err, body) {
-                    if (err) {
-                        return res.status(err.status_code || 500).send(err);
-                    }
-                    if (user.roles.indexOf("sys") === -1 && checkAdmin(user.roles, body.roles)) {
-                        return res.status(401).send(JSON.stringify({
-                            ok: false,
-                            message: 'Du har ikke rettigheder til at se brugere for denne organisation.'
-                        }));
-                    }
-                    res.end(JSON.stringify(body));
-                });
+                if (session.userCtx.roles.indexOf("sys") === -1 && !checkAdmin(session.userCtx.roles, body.roles)) {
+                    return res.status(401).send(JSON.stringify({
+                        ok: false,
+                        message: 'Du har ikke rettigheder til at se brugere for denne organisation.'
+                    }));
+                }
+                res.json(body);
             });
+
         });
     });
     //Opret bruger
