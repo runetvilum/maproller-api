@@ -3731,7 +3731,7 @@ app.get('/api/compact/:id', function (req, res) {
     });
 
     //Opret ny mbtile kort
-    app.post('/api/mbtiles', function (req, res) {
+    app.post('/api/:organization/mbtiles', function (req, res) {
 
         var couchdb = require('nano')({
             cookie: req.headers.cookie,
@@ -3747,51 +3747,51 @@ app.get('/api/compact/:id', function (req, res) {
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, user) {
-                if (err) {
-                    return res.status(err.status_code || 500).send(err);
-                }
-                if (user.roles.indexOf("sys") === -1 && user.roles.indexOf("admin_" + req.body.organization) === -1) {
-                    return res.status(401).send(JSON.stringify({
-                        ok: false,
-                        message: 'Du har ikke rettigheder til at oprette kort.'
-                    }));
-                }
-                if (!(req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0)) {
-                    return res.status(400).json({
-                        ok: false,
-                        message: 'Fil er påkrævet.'
-                    });
-                }
-
-                var busboy = new Busboy({
-                        headers: req.headers
-                    }),
-                    name,
-                    id = uuid.v1(),
-                    //var saveTo = path.join(os.tmpDir(), id);
-                    saveTo = '/mnt/gluster/tiles/' + id + '.mbtiles',
-                    doc = {
-                        type: 'map',
-                        mapType: 'mbtiles'
-                    };
-                busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated) {
-                    doc[fieldname] = val;
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.params.organization) === -1) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Du har ikke rettigheder til at oprette kort.'
+                }));
+            }
+            if (!(req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0)) {
+                return res.status(400).json({
+                    ok: false,
+                    message: 'Fil er påkrævet.'
                 });
-                busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-                    file.pipe(fs.createWriteStream(saveTo));
-                });
-                busboy.on('finish', function () {
+            }
 
-                    fs.stat(saveTo, function (err, stats) {
-                        doc.size = stats.size;
+            var busboy = new Busboy({
+                    headers: req.headers
+                }),
+                name,
+                id = uuid.v1(),
+                //var saveTo = path.join(os.tmpDir(), id);
+                saveTo = '/mnt/gluster/tiles/' + id + '.mbtiles',
+                doc = {
+                    type: 'map',
+                    mapType: 'mbtiles'
+                };
+            busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated) {
+                doc[fieldname] = val;
+            });
+            busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+                file.pipe(fs.createWriteStream(saveTo));
+            });
+            busboy.on('finish', function () {
+                fs.stat(saveTo, function (err, stats) {
+                    doc.size = stats.size;
+                    doc.organization = req.params.organization;
 
-                        var mbtilesDB = new sqlite3.Database(saveTo, sqlite3.OPEN_READONLY, function (err) {
-                            if (err) {
-                                return res.status(err.status_code || 500).send(err);
+                    var mbtilesDB = new sqlite3.Database(saveTo, sqlite3.OPEN_READONLY, function (err) {
+                        if (err) {
+                            return res.status(err.status_code || 500).send(err);
+                        }
+                        mbtilesDB.all("select count(*) as c from tiles", function (err, rows) {
+                            if (rows.length === 1) {
+                                doc.count = rows[0].c;
                             }
-                            mbtilesDB.all("select * from metadata", function (err, rows) {
-                                /*if (err) {
+                            /*mbtilesDB.all("select * from metadata", function (err, rows) {
+                            if (err) {
                                 console.log("metadata: " + err);
                             } else {
                                 for (var i = 0; i < rows.length; i++) {
@@ -3799,24 +3799,25 @@ app.get('/api/compact/:id', function (req, res) {
                                     doc[row.name] = row.value;
                                 }
                             }*/
-                                mbtilesDB.each("select * from tiles limit 1", function (err, row) {
+                            mbtilesDB.each("select * from tiles limit 1", function (err, row) {
+                                if (err) {
+                                    return res.status(err.status_code || 500).send(err);
+                                }
+                                var buf = new Buffer(row.tile_data),
+                                    imgtype = imageType(buf);
+                                doc.format = imgtype;
+                                db_admin.insert(doc, id, function (err, body) {
                                     if (err) {
                                         return res.status(err.status_code || 500).send(err);
                                     }
-                                    var buf = new Buffer(row.tile_data),
-                                        imgtype = imageType(buf);
-                                    doc.format = imgtype;
-                                    db_admin.insert(doc, id, function (err, body) {
-                                        if (err) {
-                                            return res.status(err.status_code || 500).send(err);
-                                        }
-                                        res.json({
-                                            id: body.id,
-                                            rev: body.rev,
-                                            format: doc.format,
-                                            size: doc.size
-                                        });
-                                        /*var db_id = 'db-' + body.id;
+                                    res.json({
+                                        id: body.id,
+                                        rev: body.rev,
+                                        format: doc.format,
+                                        size: doc.size,
+                                        count: doc.count
+                                    });
+                                    /*var db_id = 'db-' + body.id;
                                 nano.db.create(db_id, function (err, body2) {
                                     if (err) {
                                         return res.status(err.status_code || 500).send(err);
@@ -3854,15 +3855,13 @@ app.get('/api/compact/:id', function (req, res) {
                                         });
                                     });
                                 });*/
-                                    });
                                 });
                             });
                         });
                     });
-
                 });
-                req.pipe(busboy);
             });
+            req.pipe(busboy);
         });
     });
 

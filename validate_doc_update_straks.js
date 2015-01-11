@@ -44,54 +44,58 @@ function (newDoc, oldDoc, userCtx, secObj) {
             return isInside;
         }
 
+        function testgeometry(feature) {
+            var j, k, point;
+            switch (newDoc.geometry.type) {
+            case 'Point':
+                if (!inside(newDoc.geometry.coordinates, feature)) {
+                    return false;
+                }
+                break;
+            case 'LineString':
+                for (j = 0; j < newDoc.geometry.coordinates.length; j++) {
+                    point = newDoc.geometry.coordinates[j];
+                    if (!inside(point, feature)) {
+                        return false;
+                    }
+                }
+                break;
+            case 'Polygon':
+                for (j = 0; j < newDoc.geometry.coordinates.length; j++) {
+                    var linestring = newDoc.geometry.coordinates[j];
+                    for (k = 0; k < linestring.length; k++) {
+                        point = linestring[k];
+                        if (!inside(point, feature)) {
+                            return false;
+                        }
+
+                    }
+                    break;
+                }
+            }
+            return true;
+        }
+
+
         if (newDoc.geometry) {
-            var i, j, k, point;
+            var i, l, point;
             for (i = 0; i < straks.length; i++) {
                 var item = straks[i];
                 if (item.inside) {
-                    switch (newDoc.geomtry.type) {
-                    case 'Point':
-                        if (!inside(newDoc.geometry.coordinates, item.geojson)) {
-                            throw ({
-                                forbidden: {
-                                    error: "Indberetning er ikke indenfor det godkendte område!"
-                                }
-                            });
-                        }
-                        break;
-                    case 'LineString':
-                        for (j = 0; j < newDoc.geometry.coordinates.length; j++) {
-                            point = newDoc.geometry.coordinates[j];
-                            if (!inside(point, item.geojson)) {
-                                throw ({
-                                    forbidden: {
-                                        error: "Indberetning er ikke indenfor det godkendte område!"
-                                    }
-                                });
-                            }
-
-                        }
-                        break;
-                    case 'Polygon':
-                        for (j = 0; j < newDoc.geometry.coordinates.length; j++) {
-                            var linestring = newDoc.geometry.coordinates[j];
-                            for (k = 0; k < linestring.length; k++) {
-                                point = linestring[k];
-                                if (!inside(point, item.geojson)) {
-                                    throw ({
-                                        forbidden: {
-                                            error: "Indberetning er ikke indenfor det godkendte område!"
-                                        }
-                                    });
-                                }
-
-                            }
-                            break;
+                    for (l = 0; l < item.geojson.features.length; l += 1) {
+                        var feature = item.geojson.features[l];
+                        if (testgeometry(feature)) {
+                            return true;
                         }
                     }
                 }
             }
         }
+        throw ({
+            forbidden: {
+                error: "Indberetning er ikke indenfor det godkendte område!"
+            }
+        });
     }
     return;
 }

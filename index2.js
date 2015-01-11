@@ -98,7 +98,7 @@ if (argv.config) {
     config = jf.readFileSync(argv.config);
     transport = nodemailer.createTransport(config.transport);
     nano = require('nano')({
-        url: 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@localhost:' + config.couchdb.port5984
+        url: 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@' + config.couchdb.host
     });
     db_admin = nano.db.use("admin");
     sti = "/mnt/gluster/emailtemplates";

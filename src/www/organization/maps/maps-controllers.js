@@ -1,4 +1,4 @@
-(function (window, angular, console) {
+(function (window, angular, console, L) {
     'use strict';
     angular.module('myApp.controllers').controller('organization-maps', ['$scope', '$rootScope', '$http', '$stateParams', 'md5', '$upload', '$location',
         function ($scope, $rootScope, $http, $stateParams, md5, $upload, $location) {
@@ -103,7 +103,7 @@
                             $scope.fileSuccess = false;
                         } else {
                             $scope.upload = $upload.upload({
-                                url: '/api/mbtiles', //upload.php script, node.js route, or servlet url
+                                url: '/api/' + $stateParams.organization + '/mbtiles', //upload.php script, node.js route, or servlet url
                                 data: $scope.map,
                                 file: files[0],
                             }).progress(function (evt) {
@@ -113,6 +113,7 @@
                                 $scope.map._rev = data.rev;
                                 $scope.map._id = data.id;
                                 $scope.map.size = data.size;
+                                $scope.map.count = data.count;
                                 $scope.map.format = data.format;
                                 $scope.maps.push($scope.map);
                                 $scope.select($scope.maps.length - 1);
@@ -140,4 +141,4 @@
 
 
         }]);
-})(this, this.angular, this.console);
+})(this, this.angular, this.console, this.L);
