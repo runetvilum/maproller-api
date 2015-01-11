@@ -98,7 +98,7 @@ if (argv.config) {
     config = jf.readFileSync(argv.config);
     transport = nodemailer.createTransport(config.transport);
     nano = require('nano')({
-        url: 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@' + config.couchdb.host
+        url: 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port5984
     });
     db_admin = nano.db.use("admin");
     sti = "/mnt/gluster/emailtemplates";
@@ -107,7 +107,7 @@ if (argv.config) {
             app.put('/follow/:id', function (req, res) {
                 var couchdb = require('nano')({
                     cookie: req.headers.cookie,
-                    url: "http://localhost:" + config.couchdb.port5986
+                    url: "http://" + config.couchdb.host + ':' + config.couchdb.port5986
                 });
                 couchdb.session(function (err, session, headers) {
                     if (!session.userCtx.name) {
@@ -139,7 +139,7 @@ if (argv.config) {
             app["delete"]('/follow/:id', function (req, res) {
                 var couchdb = require('nano')({
                     cookie: req.headers.cookie,
-                    url: "http://localhost:" + config.couchdb.port5986
+                    url: "http://" + config.couchdb.host + ':' + config.couchdb.port5986
                 });
                 couchdb.session(function (err, session, headers) {
                     if (!session.userCtx.name) {
