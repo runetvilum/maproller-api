@@ -2889,7 +2889,7 @@ app.get('/api/compact/:id', function (req, res) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database._id) === -1) {
+                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
                     return res.status(401).send(JSON.stringify({
                         ok: false,
                         message: 'Du har ikke rettigheder til at se emailtemplates for denne organisation.'
@@ -2924,57 +2924,73 @@ app.get('/api/compact/:id', function (req, res) {
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-
-            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.params.organization) === -1) {
-                return res.status(401).send(JSON.stringify({
-                    ok: false,
-                    message: 'Du har ikke rettigheder til at se emailtemplates for denne organisation.'
-                }));
-            }
             db_admin.get(req.params.id, function (err, body) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                var sti = "/mnt/gluster/emailtemplates",
-                    sti2 = sti + '/' + req.params.id;
-                fs.readFile(sti2 + "/html.ejs", 'utf8', function (err, data) {
+                db_admin.get(body.database, function (err, database) {
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    body.html = data;
-                    fs.readFile(sti2 + "/text.ejs", 'utf8', function (err, data) {
+                    if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
+                        return res.status(401).send(JSON.stringify({
+                            ok: false,
+                            message: 'Du har ikke rettigheder til at se emailtemplates for denne organisation.'
+                        }));
+                    }
+
+                    var sti = "/mnt/gluster/emailtemplates",
+                        sti2 = sti + '/' + req.params.id;
+                    fs.readFile(sti2 + "/html.ejs", 'utf8', function (err, data) {
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
                         }
-                        body.text = data;
-                        fs.readFile(sti2 + "/style.css", 'utf8', function (err, data) {
+                        body.html = data;
+                        fs.readFile(sti2 + "/text.ejs", 'utf8', function (err, data) {
                             if (err) {
                                 return res.status(err.status_code || 500).send(err);
                             }
-                            body.css = data;
-                            emailTemplates(sti, function (err, template) {
+                            body.text = data;
+                            fs.readFile(sti2 + "/style.css", 'utf8', function (err, data) {
                                 if (err) {
                                     return res.status(err.status_code || 500).send(err);
                                 }
-                                var d = nano.db.use('db-' + body.database);
-                                d.list({
-                                    limit: 10
-                                }, function (err, data) {
+                                body.css = data;
+                                emailTemplates(sti, function (err, template) {
                                     if (err) {
                                         return res.status(err.status_code || 500).send(err);
                                     }
-
-                                    var i, doc;
-                                    for (i = 0; i < data.rows.length; i++) {
-                                        doc = data.rows[i];
-                                        if (doc.id.substring(0, 7) !== '_design') {
-                                            break;
+                                    var d = nano.db.use('db-' + body.database);
+                                    d.list({
+                                        limit: 10
+                                    }, function (err, data) {
+                                        if (err) {
+                                            return res.status(err.status_code || 500).send(err);
                                         }
-                                    }
-                                    if (doc) {
-                                        d.get(doc.id, function (err, data) {
+
+                                        var i, doc;
+                                        for (i = 0; i < data.rows.length; i++) {
+                                            doc = data.rows[i];
+                                            if (doc.id.substring(0, 7) !== '_design') {
+                                                break;
+                                            }
+                                        }
+                                        if (doc) {
+                                            d.get(doc.id, function (err, data) {
+                                                template(req.params.id, {
+                                                    doc: data
+                                                }, function (err, html, text) {
+                                                    res.json({
+                                                        doc: body,
+                                                        html: html,
+                                                        text: text,
+                                                        error: err
+                                                    });
+                                                });
+                                            });
+                                        } else {
                                             template(req.params.id, {
-                                                doc: data
+                                                doc: null
                                             }, function (err, html, text) {
                                                 res.json({
                                                     doc: body,
@@ -2983,19 +2999,8 @@ app.get('/api/compact/:id', function (req, res) {
                                                     error: err
                                                 });
                                             });
-                                        });
-                                    } else {
-                                        template(req.params.id, {
-                                            doc: null
-                                        }, function (err, html, text) {
-                                            res.json({
-                                                doc: body,
-                                                html: html,
-                                                text: text,
-                                                error: err
-                                            });
-                                        });
-                                    }
+                                        }
+                                    });
                                 });
                             });
                         });
@@ -3023,27 +3028,30 @@ app.get('/api/compact/:id', function (req, res) {
             }
 
             db_admin.get(req.params.id, function (err, emailtemplate) {
-
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-
-                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + emailtemplate.organization) === -1) {
-                    return res.status(401).send(JSON.stringify({
-                        ok: false,
-                        message: 'Du har ikke rettigheder til at slette emailtempltes for denne organisation.'
-                    }));
-                }
-                db_admin.destroy(emailtemplate._id, emailtemplate._rev, function (err, body) {
+                db_admin.get(emailtemplate.database, function (err, database) {
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    var sti = "/mnt/gluster/emailtemplates/" + req.params.id;
-                    fs.unlink(sti + "/html.ejs", function (err) {
-                        fs.unlink(sti + "/text.ejs", function (err) {
-                            fs.unlink(sti + "/style.css", function (err) {
-                                fs.rmdir(sti, function (err) {
-                                    res.json(body);
+                    if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
+                        return res.status(401).send(JSON.stringify({
+                            ok: false,
+                            message: 'Du har ikke rettigheder til at slette emailtempltes for denne organisation.'
+                        }));
+                    }
+                    db_admin.destroy(emailtemplate._id, emailtemplate._rev, function (err, body) {
+                        if (err) {
+                            return res.status(err.status_code || 500).send(err);
+                        }
+                        var sti = "/mnt/gluster/emailtemplates/" + req.params.id;
+                        fs.unlink(sti + "/html.ejs", function (err) {
+                            fs.unlink(sti + "/text.ejs", function (err) {
+                                fs.unlink(sti + "/style.css", function (err) {
+                                    fs.rmdir(sti, function (err) {
+                                        res.json(body);
+                                    });
                                 });
                             });
                         });
@@ -3179,44 +3187,47 @@ app.get('/api/compact/:id', function (req, res) {
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-
-            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.params.organization) === -1) {
-                return res.status(401).send(JSON.stringify({
-                    ok: false,
-                    message: 'Du har ikke rettigheder til at oprette en emailtemplate.'
-                }));
-            }
-            db_admin.insert({
-                name: req.body.name,
-                database: req.params.database,
-                action: req.body.action,
-                type: 'emailtemplate'
-            }, function (err, body) {
+            db_admin.get(req.params.database, function (err, database) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                var sti = "/mnt/gluster/emailtemplates/" + body.id;
-                fs.mkdir(sti, function (err, result) {
-                    fs.writeFile(sti + "/html.ejs", "", function (err, result) {
-                        if (err) {
-                            return res.status(err.status_code || 500).send(err);
-                        }
-                        fs.writeFile(sti + "/text.ejs", "", function (err, result) {
+                if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
+                    return res.status(401).send(JSON.stringify({
+                        ok: false,
+                        message: 'Du har ikke rettigheder til at oprette en emailtemplate.'
+                    }));
+                }
+                db_admin.insert({
+                    name: req.body.name,
+                    database: req.params.database,
+                    action: req.body.action,
+                    type: 'emailtemplate'
+                }, function (err, body) {
+                    if (err) {
+                        return res.status(err.status_code || 500).send(err);
+                    }
+                    var sti = "/mnt/gluster/emailtemplates/" + body.id;
+                    fs.mkdir(sti, function (err, result) {
+                        fs.writeFile(sti + "/html.ejs", "", function (err, result) {
                             if (err) {
                                 return res.status(err.status_code || 500).send(err);
                             }
-                            fs.writeFile(sti + "/style.css", "", function (err, result) {
+                            fs.writeFile(sti + "/text.ejs", "", function (err, result) {
                                 if (err) {
                                     return res.status(err.status_code || 500).send(err);
                                 }
-                                res.json(body);
+                                fs.writeFile(sti + "/style.css", "", function (err, result) {
+                                    if (err) {
+                                        return res.status(err.status_code || 500).send(err);
+                                    }
+                                    res.json(body);
+                                });
                             });
                         });
                     });
                 });
             });
         });
-
     });
     //Hent alle kort for en organisation
     app.get('/api/maps/:organization', function (req, res) {
