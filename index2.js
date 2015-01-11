@@ -105,69 +105,17 @@ if (argv.config) {
     emailTemplates(sti, function (err, template) {
         if (!err) {
             app.put('/follow/:id', function (req, res) {
-                var couchdb = require('nano')({
-                    cookie: req.headers.cookie,
-                    url: "http://" + config.couchdb.host + ':' + config.couchdb.port5986
-                });
-                couchdb.session(function (err, session, headers) {
-                    if (!session.userCtx.name) {
-                        return res.status(401).send(JSON.stringify({
-                            ok: false,
-                            message: 'Brugernavn og password er påkrævet.'
-                        }));
-                    }
-                    if (headers && headers['set-cookie']) {
-                        res.set('set-cookie', headers['set-cookie']);
-                    }
-                    db_admin.get(req.params.id, function (err, database) {
-                        if (err) {
-                            return res.status(err.status_code || 500).send(err);
-                        }
-                        if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
-                            return res.status(401).json({
-                                ok: false,
-                                message: 'Du har ikke rettigheder til at oprette databaser.'
-                            });
-                        }
-                        if (!databases.hasOwnProperty(req.params.id)) {
-                            followDatabase(req.params.id, template);
-                        }
-                        res.end();
-                    });
-                });
+                if (!databases.hasOwnProperty(req.params.id)) {
+                    followDatabase(req.params.id, template);
+                }
+                res.end();
             });
             app["delete"]('/follow/:id', function (req, res) {
-                var couchdb = require('nano')({
-                    cookie: req.headers.cookie,
-                    url: "http://" + config.couchdb.host + ':' + config.couchdb.port5986
-                });
-                couchdb.session(function (err, session, headers) {
-                    if (!session.userCtx.name) {
-                        return res.status(401).send(JSON.stringify({
-                            ok: false,
-                            message: 'Brugernavn og password er påkrævet.'
-                        }));
-                    }
-                    if (headers && headers['set-cookie']) {
-                        res.set('set-cookie', headers['set-cookie']);
-                    }
-                    db_admin.get(req.params.id, function (err, database) {
-                        if (err) {
-                            return res.status(err.status_code || 500).send(err);
-                        }
-                        if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
-                            return res.status(401).json({
-                                ok: false,
-                                message: 'Du har ikke rettigheder til at oprette databaser.'
-                            });
-                        }
-                        if (databases.hasOwnProperty(req.params.id)) {
-                            databases[req.params.id].stop();
-                            delete databases[req.params.id];
-                        }
-                        res.end();
-                    });
-                });
+                if (databases.hasOwnProperty(req.params.id)) {
+                    databases[req.params.id].stop();
+                    delete databases[req.params.id];
+                }
+                res.end();
             });
             app.listen(4001);
             console.log('Listening on port 4001');

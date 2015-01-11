@@ -1410,7 +1410,14 @@ app.get('/api/compact/:id', function (req, res) {
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
                         }
-                        res.end(JSON.stringify(body));
+                        request.put({
+                            uri: "http://email/follow/" + body.id
+                        }, function (err, response, body4) {
+                            if (err) {
+                                return res.status(err.status_code || 500).send(err);
+                            }
+                            res.json(body);
+                        });
                     });
                 });
             });
@@ -1552,15 +1559,22 @@ app.get('/api/compact/:id', function (req, res) {
                             message: 'Der findes ' + emailtemplates.rows.length + ' emailtemplates på databasen. Du kan ikke slette databasen før alle emailtemplates er slettet.'
                         });
                     }
-                    db_admin.destroy(database._id, database._rev, function (err, body) {
+                    request.del({
+                        uri: "http://email/follow/" + req.params.id
+                    }, function (err, response, body) {
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
                         }
-                        nano.db.destroy('db-' + database._id, function (err, body) {
+                        db_admin.destroy(database._id, database._rev, function (err, body) {
                             if (err) {
                                 return res.status(err.status_code || 500).send(err);
                             }
-                            res.json(body);
+                            nano.db.destroy('db-' + database._id, function (err, body) {
+                                if (err) {
+                                    return res.status(err.status_code || 500).send(err);
+                                }
+                                res.json(body);
+                            });
                         });
                     });
                 });

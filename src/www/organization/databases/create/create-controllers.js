@@ -11,26 +11,17 @@
                         organization: $stateParams.organization
                     }).
                     success(function (data, status, headers, config) {
-                        $http.put('/follow/'+data.id).
-                        success(function (data, status, headers, config) {
-                            $scope.success = true;
-                            $scope.name = null;
-                  
-                            $state.go('organization.databases.list', {
-                                organization: $stateParams.organization
-                            });
-                        }).
-                        error(function (data, status, headers, config) {
-                            $scope.error = data;
-                            console.log(data);
+                        $scope.success = true;
+                        $scope.name = null;
+                        $state.go('organization.databases.list', {
+                            organization: $stateParams.organization
                         });
-                        
                     }).
                     error(function (data, status, headers, config) {
                         $scope.error = data;
                         console.log(data);
                     });
-                } 
+                }
             };
         }]);
 })(this, this.angular, this.console);
