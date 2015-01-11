@@ -96,6 +96,8 @@ var inspect = require('util').inspect,
     };
 if (argv.config) {
     config = jf.readFileSync(argv.config);
+    console.log(config);
+    console.log('http://' + config.couchdb.user + ':' + config.couchdb.password + '@' + config.couchdb.host);
     transport = nodemailer.createTransport(config.transport);
     nano = require('nano')({
         url: 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@' + config.couchdb.host
