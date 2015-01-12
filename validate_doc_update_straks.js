@@ -78,9 +78,9 @@ function (newDoc, oldDoc, userCtx, secObj) {
 
 
         if (newDoc.geometry) {
-            var i, l, point;
-            for (i = 0; i < straks.length; i++) {
-                var item = straks[i];
+            var key, l, point;
+            for (key in straks) {
+                var item = straks[key];
                 if (item.inside) {
                     for (l = 0; l < item.geojson.features.length; l += 1) {
                         var feature = item.geojson.features[l];

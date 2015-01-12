@@ -5,24 +5,31 @@
             var map,
                 selectedLayer;
 
-            $scope.data = [];
+            $scope.data = {};
             $scope.mapCreated = function (mapvar) {
                 map = mapvar;
                 L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?').addTo(map);
                 $http.get('/api/' + $stateParams.database + '/straks').
                 success(function (data, status, headers, config) {
                     $scope.data = data;
-                    if (data.length > 0) {
-                        $scope.selectedIndex = 0;
-                        selectedLayer = L.geoJson(data[0].geojson).addTo(map);
+                    var key;
+                    for (key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            $scope.selectedIndex = key;
+                            break;
+                        }
+                    }
+                    if (key) {
+                        $scope.straks = data[key];
+                        selectedLayer = L.geoJson(data[key].geojson).addTo(map);
                         map.fitBounds(selectedLayer.getBounds());
+
                     } else {
                         $scope.new();
                     }
                 }).
                 error(function (data, status, headers, config) {
                     $scope.error = data;
-
                     $scope.new();
                 });
             };
@@ -38,21 +45,29 @@
             };
 
             $scope.new = function () {
-                $scope.success = null;
-                $scope.error = null;
-                $scope.straks = {
-                    name: '',
-                    link: '',
-                    description: '',
-                    inside: true,
-                    database: $stateParams.database,
-                    geojson: {}
-                };
-                if (map.hasLayer(selectedLayer)) {
-                    map.removeLayer(selectedLayer);
-                }
-                $scope.data.push($scope.straks);
-                $scope.selectedIndex = $scope.data.length - 1;
+                $http.get('/couchdb/_uuids').
+                success(function (data, status, headers, config) {
+                    var uuid = data.uuids[0];
+                    $scope.success = null;
+                    $scope.error = null;
+                    $scope.straks = {
+                        name: '',
+                        link: '',
+                        description: '',
+                        inside: true,
+                        database: $stateParams.database,
+                        geojson: {}
+                    };
+                    if (map.hasLayer(selectedLayer)) {
+                        map.removeLayer(selectedLayer);
+                    }
+                    $scope.data[uuid] = $scope.straks;
+                    $scope.selectedIndex = uuid;
+
+                }).
+                error(function (data, status, headers, config) {
+                    $scope.error = data;
+                });
 
             };
 
@@ -88,7 +103,7 @@
                 }
             };
             $scope.delete = function () {
-                $scope.data.splice($scope.selectedIndex, 1);
+                delete $scope.data[$scope.selectedIndex];
                 $scope.selectedIndex = null;
             };
             $scope.deleteAll = function () {
