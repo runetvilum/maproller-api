@@ -152,7 +152,9 @@
         }
     }));
 
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({
+        limit: '100mb'
+    }));
     /*app.use('/api/upload', busboy({
     immediate: true
 }));*/
@@ -504,7 +506,7 @@
                         message: 'Du har ikke rettigheder til at slette organisationer.'
                     }));
                 }
-                db_admin.view('organization', 'schemas', {
+                db_admin.view('organization', 'databases', {
                     key: req.params.id
                 }, function (err, schemas) {
                     if (err) {
