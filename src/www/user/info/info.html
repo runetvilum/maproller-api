@@ -32,6 +32,15 @@
                     </select>
                 </div>
             </div>
+            <div class="form-group" ng-show="profile.user.roles.indexOf('sys')!==-1">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" ng-model="user.sys" ng-change="changeSys()">System administrator
+                        </label>
+                    </div>
+                </div>
+            </div>
         </form>
         <div class="alert alert-danger alert-dismissible" role="alert" ng-show="error">
             <button type="button" class="close" ng-click="error=null"><span aria-hidden="true">&times;</span><span class="sr-only">Luk</span>

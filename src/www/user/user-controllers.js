@@ -1,7 +1,7 @@
 (function (window, angular, console) {
     'use strict';
-    angular.module('myApp.controllers').controller('user', ['$scope', 'md5', '$http', '$stateParams',
-        function ($scope, md5, $http, $stateParams) {
+    angular.module('myApp.controllers').controller('user', ['$scope', '$rootScope', 'md5', '$http', '$stateParams',
+        function ($scope, $rootScope, md5, $http, $stateParams) {
             
             $http.get('/api/user/' + $stateParams.user).
             success(function (data, status, headers, config) {
@@ -11,7 +11,9 @@
                 } else {
                     data.role = 'user_' + $stateParams.organization;
                 }
+                
                 $scope.user = data;
+                $scope.user.sys = data.roles.indexOf('sys') !== -1;
                 $scope.$watch('user.role', function (newValue, oldValue) {
                     if (newValue !== oldValue) {
                         $scope.error = null;

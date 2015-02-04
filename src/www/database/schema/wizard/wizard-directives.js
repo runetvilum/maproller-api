@@ -47,7 +47,8 @@
                     if (angular.isDefined($scope.schema.additionalProperties)) {
                         return $scope.schema.additionalProperties;
                     }
-                    return true;
+                    $scope.schema.additionalProperties = false;
+                    return false;
                 };
                 $scope.schemaType = function (newValue) {
                     if (angular.isDefined(newValue)) {
@@ -87,7 +88,7 @@
                 };
                 $scope.changeType = function () {
                     var type = angular.isArray($scope.schema.type) ? $scope.schema.type[this.$index] : $scope.schema.type;
-                    if($scope.schema.default){
+                    if ($scope.schema.default) {
                         delete $scope.schema.default;
                     }
                     switch (this.type) {

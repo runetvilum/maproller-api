@@ -416,7 +416,7 @@
                 res.set('set-cookie', headers['set-cookie']);
             }
 
-            if (session.userCtx.roles.indexOf("sys") === -1) {
+            if (session.userCtx.roles.indexOf("sys") === -1 && session.userCtx.roles.indexOf("admin_" + req.params.id) === -1) {
                 return res.status(401).send(JSON.stringify({
                     ok: false,
                     message: 'Du har ikke rettigheder til at rette organisationer.'
@@ -746,7 +746,7 @@
                                 }
                                 template('verify', {
                                     user: body,
-                                    url: 'http://data.kosgis.dk/#/verify/' + code
+                                    url: 'http://geo.kosgis.dk/#/verify/' + code
                                     //url: 'http://localhost:3000/#/verify/' + code
                                 }, function (err, html, text) {
                                     if (err) {
@@ -858,38 +858,86 @@
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            db.get('org.couchdb.user:' + session.userCtx.name, function (err, body) {
+
+            db.get(req.body._id, function (err, user) {
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                db.get(req.body._id, function (err, user) {
+                var organization = req.body.role.replace('user_', '').replace('admin_', ''),
+                    admin_role = user.roles.indexOf("admin_" + organization),
+                    user_role = user.roles.indexOf("user_" + organization);
+                if (session.userCtx.roles.indexOf("sys") === -1 && (session.userCtx.roles.indexOf("admin_" + organization) === -1 || (admin_role === -1 && user_role === -1))) {
+                    return res.status(401).send(JSON.stringify({
+                        ok: false,
+                        message: 'Du har ikke rettigheder til at opdatere brugeren.'
+                    }));
+                }
+                if (admin_role !== -1) {
+                    user.roles.splice(admin_role, 1);
+                }
+                if (user_role !== -1) {
+                    user.roles.splice(user_role, 1);
+                }
+                user.roles.push(req.body.role);
+                db.insert(user, user._id, function (err, body) {
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    var organization = req.body.role.replace('user_', '').replace('admin_', ''),
-                        admin_role = user.roles.indexOf("admin_" + organization),
-                        user_role = user.roles.indexOf("user_" + organization);
-                    if (body.roles.indexOf("sys") === -1 && (body.roles.indexOf("admin_" + organization) === -1 || (admin_role === -1 && user_role === -1))) {
-                        return res.status(401).send(JSON.stringify({
-                            ok: false,
-                            message: 'Du har ikke rettigheder til at opdatere brugeren.'
-                        }));
-                    }
-                    if (admin_role !== -1) {
-                        user.roles.splice(admin_role, 1);
-                    }
-                    if (user_role !== -1) {
-                        user.roles.splice(user_role, 1);
-                    }
-                    user.roles.push(req.body.role);
-                    db.insert(user, user._id, function (err, body) {
-                        if (err) {
-                            return res.status(err.status_code || 500).send(err);
-                        }
-                        res.end(JSON.stringify(body));
-                    });
+                    res.end(JSON.stringify(body));
                 });
             });
+
+        });
+    });
+    app.put('/api/sysuser', function (req, res) {
+        if (!req.body || !req.body._id || typeof (req.body.sys) === 'undefined') {
+            return res.status(400).send(JSON.stringify({
+                ok: false,
+                message: 'id og sys er påkrævet.'
+            }));
+        }
+        var couchdb = require('nano')({
+            cookie: req.headers.cookie,
+            url: url_5986
+        });
+        couchdb.session(function (err, session, headers) {
+            if (!session.userCtx.name) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Brugernavn og password er påkrævet.'
+                }));
+            }
+            if (headers && headers['set-cookie']) {
+                res.set('set-cookie', headers['set-cookie']);
+            }
+            if (session.userCtx.roles.indexOf('sys') === -1) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Du har ikke rettigheder til at tildele system administrator rettigheder.'
+                }));
+            }
+            db.get(req.body._id, function (err, user) {
+                if (err) {
+                    return res.status(err.status_code || 500).send(err);
+                }
+                var sys_role = user.roles.indexOf("sys");
+                if (req.body.sys) {
+                    if (sys_role === -1) {
+                        user.roles.push("sys");
+                    }
+                } else {
+                    if (sys_role !== -1) {
+                        user.roles.splice(sys_role, 1);
+                    }
+                }
+                db.insert(user, user._id, function (err, body) {
+                    if (err) {
+                        return res.status(err.status_code || 500).send(err);
+                    }
+                    res.end(JSON.stringify(body));
+                });
+            });
+
         });
     });
     //endregion

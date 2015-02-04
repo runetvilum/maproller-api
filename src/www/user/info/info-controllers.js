@@ -9,7 +9,16 @@
                 value: 'admin_' + $stateParams.organization,
                 name: 'Administrator'
                     }];
-
+            $scope.changeSys = function () {
+                $http.put('/api/sysuser', $scope.user).
+                success(function (data, status, headers, config) {
+                    console.log(data);
+                    $scope.success = true;
+                }).
+                error(function (data, status, headers, config) {
+                    $scope.error = data;
+                });
+            }
 
         }
     ]);
