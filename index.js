@@ -19,7 +19,7 @@
         bodyParser = require('body-parser'),
         //var busboy = require('connect-busboy');
         Busboy = require('busboy'),
-
+        geojsonvt = require('geojson-vt'),
         //var cookieParser = require('cookie-parser');
         uuid = require('uuid'),
         inspect = require('util').inspect,
@@ -36,7 +36,72 @@
         nano,
         transport,
         checkAdmin,
-        schemaPostPut;
+        schemaPostPut,
+        sinh = function sinh(x) {
+            return (Math.exp(x) - Math.exp(-x)) / 2;
+        },
+        transformPoint = function (p, z2, tx, ty, extent) {
+            var x = (p[0] / extent + tx), //Math.round(extent * (p[0] * z2 - tx)),
+                y = (p[1] / extent + ty), //Math.round(extent * (p[1] * z2 - ty));
+                lon = 360 * x / z2 - 180,
+                lat = 180 / Math.PI * Math.atan(sinh(Math.PI * (1 - 2 * y / z2)));
+            return [lon, lat];
+
+            /*y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
+        var sin = Math.sin(p[1] * Math.PI / 180),
+        x = (p[0] / 360 + 0.5),
+        
+
+        return [x, y];*/
+        },
+        addFeature = function (feature, tilePoint) {
+
+            var geom = feature.geometry,
+                type = feature.type,
+                geojson = {
+                    coordinates: []
+                },
+                i,
+                j,
+                ring,
+                transformedRing,
+                p,
+                z2 = 1 << tilePoint.z,
+                tx = tilePoint.x,
+                ty = tilePoint.y,
+                extent = 4096;
+
+            if (type === 1) {
+                geojson.type = "Point";
+                for (i = 0; i < geom.length; i++) {
+                    geojson.coordinates.push(transformPoint(geom[i], z2, tx, ty, extent));
+
+                }
+
+            } else {
+                if (type === 2) {
+                    geojson.type = "LineString";
+                } else if (type === 3) {
+                    geojson.type = "Polygon";
+                }
+                // simplify and transform projected coordinates for tile geometry
+                for (i = 0; i < geom.length; i++) {
+                    ring = geom[i];
+
+                    transformedRing = [];
+
+                    for (j = 0; j < ring.length; j++) {
+                        p = ring[j];
+                        transformedRing.push(transformPoint(p, z2, tx, ty, extent));
+                    }
+
+                    geojson.coordinates.push(transformedRing);
+                }
+            }
+
+
+            return geojson;
+        };
 
 
     if (argv.config) {
@@ -2556,6 +2621,107 @@ app.get('/api/compact/:id', function (req, res) {
             });
         });
     });
+    //Create geojson tiles
+    app.put('/api/rfsconfig/:db/:id', function (req, res) {
+        var couchdb = require('nano')({
+            cookie: req.headers.cookie,
+            url: url_5986
+        });
+        couchdb.session(function (err, session, headers) {
+            if (!session.userCtx.name) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Brugernavn og password er påkrævet.'
+                }));
+            }
+            if (headers && headers['set-cookie']) {
+                res.set('set-cookie', headers['set-cookie']);
+            }
+            var db = couchdb.db.use(req.params.db),
+                i,
+                j,
+                overlay,
+                options,
+                tileIndex,
+                tile,
+                tiledata,
+                geojson,
+                feature,
+                tilePoint,
+                isTiled = false;
+            for (i = 0; i < req.body.map.overlays.length; i += 1) {
+                overlay = req.body.map.overlays[i];
+                if (overlay.type === 'geojson') {
+                    req.body._attachments = req.body._attachments || {};
+                    options = {
+                        maxZoom: 18,
+                        baseZoom: 18
+                    };
+                    if (overlay.maxZoom) {
+                        options.maxZoom = overlay.maxZoom;
+                        options.baseZoom = overlay.maxZoom;
+                    }
+                    if (overlay.geojson) {
+                        for (tile in req.body._attachments) {
+                            if (req.body._attachments.hasOwnProperty(tile) && tile.indexOf(overlay.id) !== -1) {
+                                delete req.body._attachments[tile];
+                            }
+                        }
+                        req.body._attachments[overlay.id + '.geojson'] = {
+                            content_type: 'application/json',
+                            data: new Buffer(JSON.stringify(overlay.geojson)).toString('base64')
+                        };
+                        /*if (overlay.tile) {
+                            tileIndex = geojsonvt(overlay.geojson, options);
+                            for (tile in tileIndex.tiles) {
+                                if (tileIndex.tiles.hasOwnProperty(tile)) {
+                                    req.body._attachments[overlay.id + '/' + tile] = {
+                                        content_type: 'application/json',
+                                        data: new Buffer(JSON.stringify(tileIndex.tiles[tile])).toString('base64')
+                                    };
+                                }
+                            }
+                        }*/
+                        delete overlay.geojson;
+                    }
+                }
+            }
+            db.insert(req.body, req.body._id, function (err, body) {
+                if (err) {
+                    return res.status(err.status_code || 500).send(err);
+                }
+                res.json(body);
+            });
+        });
+    });
+    /*tiledata = tileIndex.tiles[tile];
+                            tilePoint = {
+                                x: tiledata.x,
+                                y: tiledata.y,
+                                z: tiledata.z
+                            };
+                            geojson = {
+                                "type": "FeatureCollection",
+                                "crs": {
+                                    "type": "name",
+                                    "properties": {
+                                        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+                                    }
+                                },
+                                "features": []
+                            };
+                            for (j = 0; j < tiledata.features.length; j += 1) {
+                                feature = tiledata.features[j];
+                                geojson.features.push({
+                                    type: "Feature",
+                                    geometry: addFeature(feature, tilePoint),
+                                    properties: feature.tags
+                                });
+                            }
+                            req.body._attachments[overlay.id + '/' + tiledata.z + '/' + tiledata.x + '/' + tiledata.y] = {
+                                content_type: 'application/json',
+                                data: new Buffer(JSON.stringify(geojson)).toString('base64')
+                            };*/
     //opdatere en template
     app.put('/api/template', function (req, res) {
         if (!req.body || !req.body.name || !req.body._id || !req.body._rev) {
