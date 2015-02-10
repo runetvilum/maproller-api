@@ -2637,7 +2637,10 @@ app.get('/api/compact/:id', function (req, res) {
             if (headers && headers['set-cookie']) {
                 res.set('set-cookie', headers['set-cookie']);
             }
-            var db = couchdb.db.use(req.params.db),
+            var db = require('nano')({
+                    cookie: req.headers.cookie,
+                    url: 'http://localhost:' + config.couchdb.port5984 + '/' + req.params.db
+                }),
                 i,
                 j,
                 overlay,
