@@ -2,7 +2,7 @@
     'use strict';
     angular.module('myApp.filters', []).filter('objectpath', function () {
         return function (input, value) {
-            if (typeof (input) !== 'undefined'){
+            if (typeof (input) !== 'undefined') {
                 var path = value.split('/');
                 var item = input.properties;
                 for (var m = 1; m < path.length; m++) {
@@ -17,7 +17,7 @@
         };
     }).filter('valuepath', function () {
         return function (input, value) {
-            if (typeof (input) !== 'undefined'){
+            if (typeof (input) !== 'undefined') {
                 var path = value.split('/');
                 var item = input;
                 for (var m = 1; m < path.length; m++) {
@@ -25,6 +25,9 @@
                     if (item.hasOwnProperty(key)) {
                         item = item[key];
                     }
+                }
+                if (typeof (item) === 'object') {
+                    return null;
                 }
                 return item;
             }
