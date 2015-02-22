@@ -172,11 +172,15 @@
                         <input type="number" class="form-control" id="minProperties" ng-model="schema.minProperties" ng-change="$emit('validate')">
                     </div>
                     <div class="form-group">
-                        <div class="checkbox">
+                        <!--div class="checkbox"> 
                             <label>
                                 <input type="checkbox" ng-model="additionalProperties" ng-model-options="{getterSetter:true}">additionalProperties
                             </label>
-                        </div>
+                        </div-->
+                        <label for="additionalProperties">additionalProperties {{additionalProperties}}</label>
+                        <select class="form-control" class="form-control" id="additionalProperties" ng-model="schema.additionalProperties" ng-options="item.value as item.name for item in additionalPropertiesOptions" ng-change="additionalPropertiesChanged()">
+                            <option value="" selected>Skema</option>
+                        </select>
                     </div>
                     <tree name="key" schema="value" property-type="'properties'" parent-schema="schema" ng-repeat="(key,value) in schema.properties">
                     </tree>

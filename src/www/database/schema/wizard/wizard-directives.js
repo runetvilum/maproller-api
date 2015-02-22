@@ -32,23 +32,23 @@
                 };
             },
             controller: function ($scope) {
-
+                $scope.additionalPropertiesOptions = [{
+                    name: "Ja",
+                    value: true
+                }, {
+                    name: "Nej",
+                    value: false
+                }];
                 $scope.key = $scope.name;
                 $scope.slet = function () {
                     delete $scope.$parent.$parent.schema.properties[this.name];
                 };
 
-                $scope.additionalProperties = function (newValue) {
-                    if (angular.isDefined(newValue)) {
-                        $scope.schema.additionalProperties = newValue;
-                        $scope.$emit('validate');
-                        return $scope.schema.additionalProperties;
+                $scope.additionalPropertiesChanged = function () {
+                    if ($scope.schema.additionalProperties === null) {
+                        delete $scope.schema.additionalProperties;
                     }
-                    if (angular.isDefined($scope.schema.additionalProperties)) {
-                        return $scope.schema.additionalProperties;
-                    }
-                    $scope.schema.additionalProperties = false;
-                    return false;
+                    $scope.$emit('validate');
                 };
                 $scope.schemaType = function (newValue) {
                     if (angular.isDefined(newValue)) {
