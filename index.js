@@ -812,7 +812,7 @@
                                 template('verify', {
                                     user: body,
                                     url: 'http://geo.kosgis.dk/#/verify/' + code
-                                    //url: 'http://localhost:3000/#/verify/' + code
+                                        //url: 'http://localhost:3000/#/verify/' + code
                                 }, function (err, html, text) {
                                     if (err) {
                                         return res.status(err.status_code || 500).send(err);
@@ -1852,7 +1852,7 @@ app.get('/api/compact/:id', function (req, res) {
                     }));
                 }
                 if (!(req.headers['content-type'] &&
-                    req.headers['content-type'].indexOf('multipart/form-data') === 0 && req.method === 'POST')) {
+                        req.headers['content-type'].indexOf('multipart/form-data') === 0 && req.method === 'POST')) {
                     return res.status(400).send(JSON.stringify({
                         ok: false,
                         message: 'Fil er påkrævet.'
@@ -1874,7 +1874,9 @@ app.get('/api/compact/:id', function (req, res) {
                             var d,
                                 key,
                                 json,
-                                schema;
+                                schema,
+                                i,
+                                doc;
                             try {
                                 json = JSON.parse(buffer);
                             } catch (ex) {
@@ -2048,20 +2050,29 @@ app.get('/api/compact/:id', function (req, res) {
                                 }
                             };
                             if (json.features && json.features.length > 0) {
-                                for (key in json.features[0].properties) {
-                                    if (json.features[0].properties.hasOwnProperty(key)) {
-                                        if (!schema.properties.properties.properties.hasOwnProperty(key)) {
-                                            schema.properties.properties.properties[key] = {
-                                                "type": typeof key
-                                            };
+                                for (i = 0; i < json.features.length; i++) {
+                                    doc = json.features[i];
+                                    //doc._id = uuid.v1();
+                                    for (key in doc.properties) {
+                                        if (doc.properties.hasOwnProperty(key)) {
+                                            if (doc.properties[key] !== null) {
+                                                schema.properties.properties.properties[key] = {
+                                                    "type": typeof doc.properties[key]
+                                                };
+                                            } else {
+                                                delete doc.properties[key];
+                                            }
                                         }
                                     }
                                 }
-
                                 d = nano.db.use('db-' + req.params.database);
                                 d.bulk({
                                     docs: json.features
                                 }, function (err, body) {
+                                    /*console.log(inspect(body, {
+                                        colors: true,
+                                        depth: null
+                                    }));*/
                                     if (err) {
                                         return res.status(err.status_code || 500).send(err);
                                     }
