@@ -2077,7 +2077,14 @@ app.get('/api/compact/:id', function (req, res) {
                                         return res.status(err.status_code || 500).send(err);
                                     }
                                     req.body.schema = schema;
-                                    schemaPostPut(req, res);
+
+                                    d.get("_design/schema", function (err, doc) {
+                                        if (err) {
+                                            schemaPostPut(req, res);
+                                        } else {
+                                            res.json(body);
+                                        }
+                                    });
                                 });
                             }
                         });
