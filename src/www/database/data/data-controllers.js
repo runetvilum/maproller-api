@@ -19,26 +19,56 @@
                 console.log(data);
                 $scope.error = data;
             });
-            
+
             $scope.keys = ["/"];
             var buildKeys = function (node, parent) {
-                
+
                 for (var key in node) {
                     if (node[key].properties) {
-                        $scope.keys.push(parent+key+'/');
-                        buildKeys(node[key].properties,  parent +key +'/' );
+                        $scope.keys.push(parent + key + '/');
+                        buildKeys(node[key].properties, parent + key + '/');
 
-                    } /*else {
-                        $scope.keys.push(parent+'/'+key);
-                    }*/
+                    }
+                    /*else {
+                                            $scope.keys.push(parent+'/'+key);
+                                        }*/
                 }
             };
+
+            var makeFormSchema = function (node, schema) {
+                var properties,
+                    key,
+                    localnode,
+                    i;
+                for (key in node) {
+                    localnode = node[key];
+                    if (key === 'oneOf') {
+                        schema.properties = schema.properties || {};
+                        for (i = 0; i < localnode.length; i++) {
+                            makeFormSchema(localnode[i].properties, schema.properties);
+                        }
+                    } else if (key === 'enum') {
+                        schema.enum = schema.enum || [];
+                        for (i = 0; i < localnode.length; i++) {
+                            if (schema.enum.indexOf(localnode[i]) === -1)
+                                schema.enum.push(localnode[i]);
+                        }
+                    } else if (Object.prototype.toString.call(localnode) === '[object Object]') {
+                        schema[key] = schema[key] || {};
+                        makeFormSchema(localnode, schema[key]);
+                    } else {
+                        schema[key] = localnode;
+                    }
+                }
+            };
+
             $http.get('/couchdb/db-' + $stateParams.database + '/_design/schema')
 
             .success(function (data, status, headers, config) {
                 $scope.missingSchema = false;
-                $scope.schema = data.schema;
-                buildKeys(data.schema.properties,"/");
+                $scope.schema = {};
+                makeFormSchema($scope.schema, data.schema);
+                buildKeys(data.schema.properties, "/");
             })
 
             .error(function (data, status, headers, config) {
