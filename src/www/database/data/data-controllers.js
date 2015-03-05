@@ -68,7 +68,7 @@
                 $scope.missingSchema = false;
                 $scope.schema = {};
                 makeFormSchema(data.schema, $scope.schema);
-                buildKeys(data.schema.properties, "/");
+                buildKeys($scope.schema.properties, "/");
             })
 
             .error(function (data, status, headers, config) {
