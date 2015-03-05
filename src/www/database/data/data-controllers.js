@@ -12,7 +12,7 @@
             $scope.sort = "/";
             $http.get('/couchdb/db-' + $stateParams.database + '/_all_docs?include_docs=true').
             success(function (data, status, headers, config) {
-                console.log(data);
+                //console.log(data);
                 $scope.rows = data.rows;
             }).
             error(function (data, status, headers, config) {
@@ -67,7 +67,7 @@
             .success(function (data, status, headers, config) {
                 $scope.missingSchema = false;
                 $scope.schema = {};
-                makeFormSchema($scope.schema, data.schema);
+                makeFormSchema(data.schema, $scope.schema);
                 buildKeys(data.schema.properties, "/");
             })
 
