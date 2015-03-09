@@ -64,6 +64,7 @@ function insert(doc, configuration, secdoc, dbOrganization, organization) {
                                                 content_type: configuration.doc._attachments[key].content_type,
                                                 data: data
                                             };
+                                            callback();
                                         });
                                     });
                                 }
