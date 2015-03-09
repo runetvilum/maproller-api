@@ -132,7 +132,7 @@ if (argv.config) {
                                                         data: data
                                                     }
                                                 };
-                                                insert(doc, configuration, secdoc, organization);
+                                                insert(doc, configuration, secdoc, dbOrganization, organization);
                                             });
 
                                         } else {
