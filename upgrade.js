@@ -70,7 +70,6 @@ function insert(doc, configuration, secdoc, dbOrganization, organization) {
                                 }
                             }
                             async.parallel(tasks, function () {
-                                console.log(doc);
                                 dbConfiguration.insert(doc, configuration.id, function (err, body) {
                                     if (err) {
                                         console.log("error insert doc: " + configuration.id);
