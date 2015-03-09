@@ -62,7 +62,7 @@ function insert(doc, configuration, secdoc, dbOrganization, organization) {
                                         dbApp.attachment.get(configuration.doc._id, key, function (err, data) {
                                             doc._attachments[key] = {
                                                 content_type: configuration.doc._attachments[key].content_type,
-                                                data: data
+                                                data: data.toString('base64')
                                             };
                                             callback();
                                         });
@@ -150,7 +150,7 @@ if (argv.config) {
                                                 doc._attachments = {
                                                     logo: {
                                                         content_type: configuration.doc._attachments.logo.content_type,
-                                                        data: data
+                                                        data: data.toString('base64')
                                                     }
                                                 };
                                                 insert(doc, configuration, secdoc, dbOrganization, organization);
