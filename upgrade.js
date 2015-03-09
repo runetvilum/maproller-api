@@ -125,7 +125,7 @@ if (argv.config) {
                                             doc._rev = configdoc._rev;
                                         }
                                         if (configuration.doc._attachments && configuration.doc._attachments.logo) {
-                                            dbOrganization.attachment.get(configuration.id, 'logo', function (err, data) {
+                                            dbOrganization.attachment.get(configuration.doc._id, 'logo', function (err, data) {
                                                 doc._attachments = {
                                                     logo: {
                                                         content_type: configuration.doc._attachments.logo.content_type,
@@ -133,6 +133,7 @@ if (argv.config) {
                                                     }
                                                 };
                                                 console.log(doc);
+                                                console.log(err);
                                                 insert(doc, configuration, secdoc, dbOrganization, organization);
                                             });
 
