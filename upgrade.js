@@ -132,6 +132,7 @@ if (argv.config) {
                                                         data: data
                                                     }
                                                 };
+                                                console.log(doc);
                                                 insert(doc, configuration, secdoc, dbOrganization, organization);
                                             });
 
