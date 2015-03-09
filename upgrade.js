@@ -47,7 +47,7 @@ if (argv.config) {
                         dbOrganization.insert(secdoc, '_design/security', function (err, body) {
                             if (err) {
                                 console.log("error validate_doc_update organization " + organization.id);
-                                console.log(err);
+                                //console.log(err);
                             }
                             dbApp.view('config', 'configuration', {
                                 key: organization.id,
@@ -73,9 +73,9 @@ if (argv.config) {
                                         dbOrganization.insert(doc, configuration.id, function (err, doc) {
                                             if (!err) {
                                                 console.log("insert organization configuration: " + configuration.id);
-
                                             } else {
                                                 console.log("error insert organization configuration: " + configuration.id);
+                                                console.log(err);
                                             }
                                             nano.db.create('db-' + configuration.id, function (err, body) {
                                                 if (!err) {
