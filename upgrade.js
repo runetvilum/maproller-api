@@ -63,6 +63,7 @@ if (argv.config) {
                                             doc._rev = configdoc._rev;
                                         }
                                         if (configuration.doc._attachments && configuration.doc._attachments.logo) {
+                                            
                                             doc._attachments = {
                                                 logo: {
                                                     content_type: configuration.doc._attachments.logo.content_type,
@@ -70,12 +71,12 @@ if (argv.config) {
                                                 }
                                             };
                                         }
+                                        console.log(doc);
                                         dbOrganization.insert(doc, configuration.id, function (err, doc) {
                                             if (!err) {
                                                 console.log("insert organization configuration: " + configuration.id);
                                             } else {
                                                 console.log("error insert organization configuration: " + configuration.id);
-                                                console.log(err);
                                             }
                                             nano.db.create('db-' + configuration.id, function (err, body) {
                                                 if (!err) {
