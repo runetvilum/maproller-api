@@ -47,6 +47,7 @@ if (argv.config) {
                         dbOrganization.insert(secdoc, '_design/security', function (err, body) {
                             if (err) {
                                 console.log("error validate_doc_update organization " + organization.id);
+                                console.log(err);
                             }
                             dbApp.view('config', 'configuration', {
                                 key: organization.id,
