@@ -1,6 +1,7 @@
 /*global require, console,process*/
 var argv = require('minimist')(process.argv.slice(2)),
     jf = require('jsonfile'),
+    async = require('async'),
     config,
     dbApp,
     nano,
@@ -54,22 +55,41 @@ function insert(doc, configuration, secdoc, dbOrganization, organization) {
                         }
                         if (configuration.doc._attachments) {
                             doc._attachments = {};
+                            var tasks = [];
                             for (var key in configuration.doc._attachments) {
                                 if (key.indexOf('.geojson')) {
-                                    doc._attachments[key] = {
-                                        content_type: configuration.doc._attachments[key].content_type,
-                                        data: configuration.doc._attachments[key].data
-                                    };
+                                    tasks.push(function (callback) {
+                                        dbApp.attachment.get(configuration.doc._id, key, function (err, data) {
+                                            doc._attachments[key] = {
+                                                content_type: configuration.doc._attachments[key].content_type,
+                                                data: data
+                                            };
+                                        });
+                                    });
                                 }
                             }
+                            async.parallel(tasks, function () {
+                                console.log(doc);
+                                dbConfiguration.insert(doc, configuration.id, function (err, body) {
+                                    if (err) {
+                                        console.log("error insert doc: " + configuration.id);
+                                    } else {
+                                        console.log("insert doc: " + configuration.id);
+                                    }
+
+                                });
+                            });
+
+                        } else {
+                            dbConfiguration.insert(doc, configuration.id, function (err, body) {
+                                if (err) {
+                                    console.log("error insert doc: " + configuration.id);
+                                } else {
+                                    console.log("insert doc: " + configuration.id);
+                                }
+
+                            });
                         }
-                        dbConfiguration.insert(doc, configuration.id, function (err, body) {
-                            if (err) {
-                                console.log("error insert doc: " + configuration.id);
-                            } else {
-                                console.log("insert doc: " + configuration.id);
-                            }
-                        });
                     });
                 });
             });
@@ -132,8 +152,6 @@ if (argv.config) {
                                                         data: data
                                                     }
                                                 };
-                                                console.log(doc);
-                                                console.log(err);
                                                 insert(doc, configuration, secdoc, dbOrganization, organization);
                                             });
 
