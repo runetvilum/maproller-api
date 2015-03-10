@@ -218,10 +218,10 @@ if (argv.config) {
                                                                             dbConfiguration.insert(rolesdoc, "_security", function (err, body) {
                                                                                 dbConfiguration.insert(secdoc, '_design/security', function (err, body) {
                                                                                     if (err) {
-                                                                                        console.log("error validate_doc_update configuration " + organization.id);
+                                                                                        console.log("error validate_doc_update " + id3);
                                                                                     }
                                                                                     if (err) {
-                                                                                        console.log("error validate_doc_update configuration " + organization.id);
+                                                                                        console.log("error validate_doc_update " + id3);
                                                                                     }
                                                                                     dbConfiguration.get(configuration._id, function (err, body) {
                                                                                         var doc = {
