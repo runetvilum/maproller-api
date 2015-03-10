@@ -108,65 +108,166 @@ if (argv.config) {
         }
     });
     dbApp = nano.use(config.app);
-    dbApp.view('config', 'organization', {
-        include_docs: true
-    }, function (err, body) {
+    var id = config.app + '-organizations';
+    nano.db.create(id, function (err, body) {
         if (!err) {
-            body.rows.forEach(function (organization) {
-                var id = config.app + '-' + organization.id;
-                nano.db.create(id, function (err, body) {
+            console.log("create " + id);
+        } else {
+            console.log("error create " + id);
+        }
+        var dbOrganizations = nano.db.use(id);
+        dbOrganizations.insert(rolesdoc, "_security", function (err, body) {
+            var secdoc = {
+                validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_'+newDoc._id) !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
+            };
+            dbOrganizations.insert(secdoc, '_design/security', function (err, body) {
+                if (err) {
+                    console.log("error validate_doc_update organizations");
+                    //console.log(err);
+                }
+                dbApp.view('config', 'organization', function (err, body) {
                     if (!err) {
-                        console.log("create " + id);
-                    } else {
-                        console.log("error create " + id);
-                    }
-                    var dbOrganization = nano.db.use(id);
-                    dbOrganization.insert(rolesdoc, "_security", function (err, body) {
-
-                        var secdoc = {
-                            validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_" + organization.id + "') !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
-                        };
-                        dbOrganization.insert(secdoc, '_design/security', function (err, body) {
-                            if (err) {
-                                console.log("error validate_doc_update organization " + organization.id);
-                                //console.log(err);
-                            }
-                            dbApp.view('config', 'configuration', {
-                                key: organization.id,
-                                include_docs: true,
+                        body.rows.forEach(function (row) {
+                            dbApp.get(row.id, {
                                 attachments: true
-                            }, function (err, body) {
-                                body.rows.forEach(function (configuration) {
-                                    dbOrganization.get(configuration.id, function (err, configdoc) {
-                                        var doc = {
-                                            name: configuration.doc.name
-                                        };
-                                        if (!err) {
-                                            doc._rev = configdoc._rev;
+                            }, function (err, organization) {
+                                var doc = {
+                                    name: organization.name,
+                                    hidden: organization.hidden || false
+                                };
+                                if (organization._attachments && organization._attachments.logo) {
+                                    doc._attachments = {
+                                        logo: {
+                                            content_type: organization._attachments.logo.content_type,
+                                            data: organization._attachments.logo.data
                                         }
-                                        if (configuration.doc._attachments && configuration.doc._attachments.logo) {
-                                            dbApp.attachment.get(configuration.doc._id, 'logo', function (err, data) {
-                                                doc._attachments = {
-                                                    logo: {
-                                                        content_type: configuration.doc._attachments.logo.content_type,
-                                                        data: data.toString('base64')
-                                                    }
-                                                };
-                                                insert(doc, configuration, secdoc, dbOrganization, organization);
-                                            });
-
+                                    };
+                                }
+                                dbOrganizations.get(organization._id, function (err, body) {
+                                    if (!err) {
+                                        doc._rev = body._rev;
+                                    }
+                                    dbOrganizations.insert(doc, organization._id, function (err, body) {
+                                        if (err) {
+                                            console.log("error insert organization: " + organization._id);
                                         } else {
-                                            insert(doc, configuration, secdoc, dbOrganization, organization);
+                                            console.log("insert organization: " + organization._id);
                                         }
 
+                                        var id2 = config.app + '-' + organization._id;
+                                        nano.db.create(id2, function (err, body) {
+                                            if (!err) {
+                                                console.log("create " + id2);
+                                            } else {
+                                                console.log("error create " + id2);
+                                            }
+                                            var dbOrganization = nano.db.use(id2);
+                                            dbOrganization.insert(rolesdoc, "_security", function (err, body) {
+                                                secdoc = {
+                                                    validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_" + organization._id + "') !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
+                                                };
+                                                dbOrganization.insert(secdoc, '_design/security', function (err, body) {
+                                                    if (err) {
+                                                        console.log("error validate_doc_update organization " + organization._id);
+                                                    }
+                                                    dbApp.view('config', 'configuration', {
+                                                        key: organization._id
+                                                    }, function (err, body) {
+                                                        body.rows.forEach(function (row) {
+                                                            dbApp.get(row.id, {
+                                                                attachments: true
+                                                            }, function (err, configuration) {
+                                                                dbOrganization.get(configuration._id, function (err, body) {
+                                                                    var doc = {
+                                                                        name: configuration.name,
+                                                                        hidden: configuration.hidden || false
+                                                                    };
+                                                                    if (!err) {
+                                                                        doc._rev = body._rev;
+                                                                    }
+                                                                    if (configuration._attachments && configuration._attachments.logo) {
+                                                                        doc._attachments = {
+                                                                            logo: {
+                                                                                content_type: configuration._attachments.logo.content_type,
+                                                                                data: configuration._attachments.logo.data
+                                                                            }
+                                                                        };
+                                                                    }
+                                                                    dbOrganization.insert(doc, configuration._id, function (err, body) {
+                                                                        if (err) {
+                                                                            console.log("error insert configuration: " + configuration._id);
+                                                                        } else {
+                                                                            console.log("insert configuration: " + configuration._id);
+                                                                        }
+                                                                        nano.db.create('db-' + configuration._id, function (err, body) {
+                                                                            if (!err) {
+                                                                                console.log('create db-' + configuration._id);
+                                                                            } else {
+                                                                                console.log('error create db-' + configuration._id);
+                                                                            }
+                                                                            var dbConfiguration = nano.db.use('db-' + configuration._id);
+                                                                            dbConfiguration.insert(rolesdoc, "_security", function (err, body) {
+                                                                                dbConfiguration.insert(secdoc, '_design/security', function (err, body) {
+                                                                                    if (err) {
+                                                                                        console.log("error validate_doc_update configuration " + organization.id);
+                                                                                    }
+                                                                                    if (err) {
+                                                                                        console.log("error validate_doc_update configuration " + organization.id);
+                                                                                    }
+                                                                                    dbConfiguration.get(configuration._id, function (err, body) {
+                                                                                        var doc = {
+                                                                                            map: configuration.map,
+                                                                                            widgets: configuration.widgets || []
+                                                                                        };
+                                                                                        if (doc.widgets) {
+                                                                                            for (var i = 0; i < doc.widgets.length; i++) {
+                                                                                                if (doc.widgets[i].id === 'indberetninger') {
+                                                                                                    doc.widgets[i].description = configuration.instruction;
+                                                                                                    break;
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                        if (!err) {
+                                                                                            doc._rev = body._rev;
+                                                                                        }
+                                                                                        if (configuration._attachments) {
+                                                                                            doc._attachments = {};
+                                                                                            for (var key in configuration._attachments) {
+                                                                                                if (key.indexOf('.geojson')) {
+                                                                                                    doc._attachments[key] = {
+                                                                                                        content_type: configuration._attachments[key].content_type,
+                                                                                                        data: configuration._attachments[key].data
+                                                                                                    };
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                        dbConfiguration.insert(doc, configuration._id, function (err, body) {
+                                                                                            if (err) {
+                                                                                                console.log("error insert doc: " + configuration._id);
+                                                                                            } else {
+                                                                                                console.log("insert doc: " + configuration._id);
+                                                                                            }
+                                                                                        });
+                                                                                    });
+                                                                                });
+                                                                            });
+                                                                        });
+                                                                    });
+                                                                });
+                                                            });
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
                                     });
                                 });
                             });
                         });
-                    });
+                    }
                 });
             });
-        }
+        });
     });
 } else {
     console.log("Du skal angive config fil, f.eks.:  --config=config.json");
