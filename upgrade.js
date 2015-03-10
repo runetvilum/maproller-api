@@ -200,28 +200,29 @@ if (argv.config) {
                                                                             console.log("insert configuration: " + configuration._id);
                                                                         }
                                                                         var id3 = config.app + '-' + organization._id + '-' + configuration._id;
-                                                                        nano.db.destroy('db-' + configuration._id, function (err, body) {
+                                                                        var id4 = 'db-' + configuration._id;
+                                                                        nano.db.destroy(id3, function (err, body) {
                                                                             if (!err) {
-                                                                                console.log('destroy db-' + configuration._id);
+                                                                                console.log('destroy ' + id3);
                                                                             } else {
-                                                                                console.log('error destroy db-' + configuration._id);
+                                                                                console.log('error destroy ' + id3);
                                                                             }
 
                                                                         });
-                                                                        nano.db.create(id3, function (err, body) {
+                                                                        nano.db.create(id4, function (err, body) {
                                                                             if (!err) {
-                                                                                console.log('create ' + id3);
+                                                                                console.log('create ' + id4);
                                                                             } else {
-                                                                                console.log('error create ' + id3);
+                                                                                console.log('error create ' + id4);
                                                                             }
-                                                                            var dbConfiguration = nano.db.use(id3);
+                                                                            var dbConfiguration = nano.db.use(id4);
                                                                             dbConfiguration.insert(rolesdoc, "_security", function (err, body) {
                                                                                 dbConfiguration.insert(secdoc, '_design/security', function (err, body) {
                                                                                     if (err) {
-                                                                                        console.log("error validate_doc_update " + id3);
+                                                                                        console.log("error validate_doc_update " + id4);
                                                                                     }
                                                                                     if (err) {
-                                                                                        console.log("error validate_doc_update " + id3);
+                                                                                        console.log("error validate_doc_update " + id4);
                                                                                     }
                                                                                     dbConfiguration.get(configuration._id, function (err, body) {
                                                                                         var doc = {
