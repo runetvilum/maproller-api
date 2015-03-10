@@ -199,13 +199,22 @@ if (argv.config) {
                                                                         } else {
                                                                             console.log("insert configuration: " + configuration._id);
                                                                         }
-                                                                        nano.db.create('db-' + configuration._id, function (err, body) {
+                                                                        var id3 = config.app + '-' + organization._id + '-' + configuration._id;
+                                                                        nano.db.destroy('db-' + configuration._id, function (err, body) {
                                                                             if (!err) {
-                                                                                console.log('create db-' + configuration._id);
+                                                                                console.log('destroy db-' + configuration._id);
                                                                             } else {
-                                                                                console.log('error create db-' + configuration._id);
+                                                                                console.log('error destroy db-' + configuration._id);
                                                                             }
-                                                                            var dbConfiguration = nano.db.use('db-' + configuration._id);
+
+                                                                        });
+                                                                        nano.db.create(id3, function (err, body) {
+                                                                            if (!err) {
+                                                                                console.log('create ' + id3);
+                                                                            } else {
+                                                                                console.log('error create ' + id3);
+                                                                            }
+                                                                            var dbConfiguration = nano.db.use(id3);
                                                                             dbConfiguration.insert(rolesdoc, "_security", function (err, body) {
                                                                                 dbConfiguration.insert(secdoc, '_design/security', function (err, body) {
                                                                                     if (err) {
