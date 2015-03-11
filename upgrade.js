@@ -162,7 +162,17 @@ if (argv.config) {
                                                 console.log("error create " + id2);
                                             }
                                             var dbOrganization = nano.db.use(id2);
-                                            dbOrganization.insert(rolesdoc, "_security", function (err, body) {
+                                            var security = {
+                                                admins: {
+                                                    names: [],
+                                                    roles: ["_admin", "sys", "admin_" + organization._id]
+                                                },
+                                                members: {
+                                                    names: [],
+                                                    roles: []
+                                                }
+                                            };
+                                            dbOrganization.insert(security, "_security", function (err, body) {
                                                 secdoc = {
                                                     validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_" + organization._id + "') !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
                                                 };
@@ -216,7 +226,7 @@ if (argv.config) {
                                                                                 console.log('error create ' + id4);
                                                                             }
                                                                             var dbConfiguration = nano.db.use(id4);
-                                                                            dbConfiguration.insert(rolesdoc, "_security", function (err, body) {
+                                                                            dbConfiguration.insert(security, "_security", function (err, body) {
                                                                                 dbConfiguration.insert(secdoc, '_design/security', function (err, body) {
                                                                                     if (err) {
                                                                                         console.log("error validate_doc_update " + id4);
