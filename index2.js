@@ -48,7 +48,7 @@ var inspect = require('util').inspect,
                         db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
                             data.rows.forEach(function (row) {
                                 if (row.doc.users) {
-                                    row.doc.users.forEach(function (user) {
+                                    for (var key in row.doc.user) {
                                         template(row.id, {
                                             doc: doc
                                         }, function (err, html, text) {
@@ -57,7 +57,7 @@ var inspect = require('util').inspect,
                                             } else {
                                                 transport.sendMail({
                                                     from: config.transport.auth.user,
-                                                    to: user.substring(17),
+                                                    to: key,
                                                     subject: row.doc.name,
                                                     html: html,
                                                     text: text
@@ -68,7 +68,28 @@ var inspect = require('util').inspect,
                                                 });
                                             }
                                         });
-                                    });
+                                    }
+                                    /*for (var key in row.doc.userfields) {
+                                        template(row.id, {
+                                            doc: doc
+                                        }, function (err, html, text) {
+                                            if (err) {
+                                                console.log(err);
+                                            } else {
+                                                transport.sendMail({
+                                                    from: config.transport.auth.user,
+                                                    to: key,
+                                                    subject: row.doc.name,
+                                                    html: html,
+                                                    text: text
+                                                }, function (err, responseStatus) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }*/
                                 }
                             });
                             db.get('_local/follow_since', function (err, doc) {

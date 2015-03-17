@@ -1,0 +1,33 @@
+<div class="panel panel-primary" ng-init="isCollapsed=true">
+    <div class="panel-heading">
+        <a style="color:white" class="pull-right" ng-click="removeUser(key)"><i class="fa fa-close"></i></a>
+        <h3 class="panel-title"><a style="color:white" ng-click="isCollapsed=!isCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isCollapsed,'fa-plus-square-o':isCollapsed}"></i></a> {{key}} {{allusers[key]}}</h3>
+    </div>
+    <div class="panel-body" collapse="isCollapsed">
+        <div class="form-group">
+            <label for="schema">Liste felter</label>
+            <select class="form-control" id="schema" name="schema" ng-model="schemafield" ng-options="r for r in keys" ng-change="addRule(r)">
+                <option value="" selected>-- Vælg --</option>
+            </select>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Felt</th>
+                    <th>Værdi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="(key2, value2) in user.rules">
+                    <td><a ng-click="removeRule(key2)"><i class="fa fa-close"></i></a>
+                    </td>
+                    <td>{{key2}}</td>
+                    <td>
+                        <input type="text" class="form-control" ng-model="user.rules[key2]">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -21,21 +21,6 @@
                             </select>
                         </div>
                     </div>
-
-
-
-                    <div class="form-group">
-                        <label for="users" class="col-sm-2 control-label">Personer</label>
-                        <div class="col-sm-10">
-                            <select class="form-control" id="users" name="users" ng-model="user" ng-options="key as value.name for (key,value) in users" ng-change="addListField()">
-                                <option value="" selected>-- Vælg --</option>
-                            </select>
-                            <ul class="list-group">
-                                <li class="list-group-item" ng-repeat="item in emailtemplate.users"><a style="color:inherit" class="pull-right" ng-click="removeListField(item)"><i class="fa fa-close"></i></a>{{allusers[item].name}}</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
                     <div class="form-group">
                         <label for="html" class="col-sm-2 control-label">HTML</label>
                         <div class="col-sm-10">
@@ -86,6 +71,41 @@
             </div>
             <div class="panel-body">
                 <div ng-bind-html="text"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><a ng-click="isListeCollapsed=!isListeCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isListeCollapsed,'fa-plus-square-o':isListeCollapsed}"></i></a> Email felter</h3>
+            </div>
+            <div class="panel-body" collapse="isListeCollapsed">
+                <div class="form-group">
+                    <label for="schema">Felter</label>
+                    <select class="form-control" id="schema" name="schema" ng-model="userfield" ng-options="r for r in keys" ng-change="addUserfield(r)">
+                        <option value="" selected>-- Vælg --</option>
+                    </select>
+                </div>
+                <emailuser ng-repeat="(key, value) in emailtemplate.userfields" user="emailtemplate.userfields[key]" key="key" allusers="allusers" remove-user="removeUserfield(key)"></emailuser>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><a style="" ng-click="isFormCollapsed=!isFormCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isFormCollapsed,'fa-plus-square-o':isFormCollapsed}"></i></a> Personer</h3>
+            </div>
+            <div class="panel-body" collapse="isFormCollapsed">
+                <div class="form-group">
+                    <label for="users">Personer</label>
+                    <select class="form-control" id="users" name="users" ng-model="user" ng-options="key as key + ' ' + value for (key,value) in users" ng-change="addUser()">
+                        <option value="" selected>-- Vælg --</option>
+                    </select>
+                    <emailuser ng-repeat="(key, value) in emailtemplate.users" user="emailtemplate.users[key]" key="key" allusers="allusers" remove-user="removeUser(key)"></emailuser>
+                </div>
             </div>
         </div>
     </div>
