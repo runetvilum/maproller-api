@@ -13,6 +13,10 @@
                 value: 'delete'
             }];
             $scope.emailtemplate.users = $scope.emailtemplate.users || {};
+            if (Object.prototype.toString.call($scope.emailtemplate.users) === '[object Array]') {
+                $scope.emailtemplate.users = {};
+            }
+
             $scope.emailtemplate.userfields = $scope.emailtemplate.userfields || {};
             $scope.addUser = function () {
                 $scope.emailtemplate.users[$scope.user] = {
