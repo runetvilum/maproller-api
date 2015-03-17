@@ -104,8 +104,9 @@
                     <select class="form-control" id="users" name="users" ng-model="user" ng-options="key as key + ' ' + value for (key,value) in users" ng-change="addUser()">
                         <option value="" selected>-- Vælg --</option>
                     </select>
-                    <emailuser ng-repeat="(key, value) in emailtemplate.users" user="emailtemplate.users[key]" key="key" allusers="allusers" remove-user="removeUser(key)"></emailuser>
                 </div>
+                <emailuser ng-repeat="(key, value) in emailtemplate.users" user="emailtemplate.users[key]" key="key" allusers="allusers" remove-user="removeUser(key)"></emailuser>
+
             </div>
         </div>
     </div>

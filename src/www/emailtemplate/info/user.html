@@ -24,7 +24,12 @@
                     </td>
                     <td>{{key2}}</td>
                     <td>
-                        <input type="text" class="form-control" ng-model="user.rules[key2]">
+                        <input type="text" class="form-control" ng-model="user.rules[key2]" ng-if="ruletype[key2].type==='string' && !ruletype[key2].enum">
+                        <input type="number" class="form-control" ng-model="user.rules[key2]" ng-if="ruletype[key2].type==='number' || ruletype[key2].type==='integer'">
+                        <select class="form-control" ng-model="user.rules[key2]" ng-options="item for item in ruletype[key2].enum" ng-if="ruletype[key2].enum"></select>
+                        <div ng-if="ruletype[key2].type==='boolean'">
+                            <input type="checkbox" ng-model="user.rules[key2]"> {{user.rules[key2]}}
+                        </div>
                     </td>
                 </tr>
             </tbody>

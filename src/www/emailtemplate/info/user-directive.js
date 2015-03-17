@@ -15,7 +15,7 @@
             templateUrl: 'emailtemplate/info/user.html',
             controller: function ($scope) {
                 $scope.schemafield = null;
-
+                $scope.ruletype = {};
                 $scope.addRule = function (key) {
                     $scope.user.rules[this.schemafield] = "";
                     var i = $scope.keys.indexOf(this.schemafield);
@@ -29,16 +29,18 @@
                     $scope.$emit('validate');
                 };
                 $scope.keys = [];
-                /*var buildKeys = function (node, parent) {
-
-                    for (var key in node) {
-                        if (node[key].properties) {
-                            $scope.keys.push(parent + key + '/');
-                            buildKeys(node[key].properties, parent + key + '/');
-
+                var schemapath = function (input, doc) {
+                    var path = input.split('/');
+                    var item = doc;
+                    var key;
+                    for (var m = 1; m < path.length; m++) {
+                        key = path[m];
+                        if (item.properties && item.properties.hasOwnProperty(key)) {
+                            item = item.properties[key];
                         }
                     }
-                };*/
+                    return item;
+                };
                 var buildKeys = function (node, parent) {
                     for (var key in node) {
                         var localnode = node[key];
@@ -48,6 +50,7 @@
                             buildKeys(localnode.oneOf[0].properties, parent + '/' + key);
                         } else {
                             $scope.keys.push(parent + '/' + key);
+                            $scope.ruletype[parent + '/' + key] = localnode;
                         }
                     }
                 };

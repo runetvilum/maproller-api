@@ -14,6 +14,55 @@ var inspect = require('util').inspect,
     config,
     db_admin,
     sti,
+    valuepath = function (input, doc) {
+        var path = input.split('/'),
+            item = doc,
+            m,
+            key;
+        for (m = 1; m < path.length; m += 1) {
+            key = path[m];
+            if (item.hasOwnProperty(key)) {
+                item = item[key];
+            } else {
+                return null;
+            }
+
+        }
+        console.log(item);
+        return item;
+    },
+    testrules = function (rules, doc) {
+        var key,
+            rule;
+        for (key in rules) {
+            if (rules.hasOwnProperty(key)) {
+                rule = rules[key];
+                if (rule !== valuepath(key, doc)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    },
+    sendmail = function (email, row) {
+        return function (err, html, text) {
+            if (err) {
+                console.log(err);
+            } else {
+                transport.sendMail({
+                    from: config.transport.auth.user,
+                    to: email,
+                    subject: row.doc.name,
+                    html: html,
+                    text: text
+                }, function (err, responseStatus) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            }
+        };
+    },
     followDatabase = function (id, template) {
         var db = nano.db.use('db-' + id),
             options = {};
@@ -47,49 +96,33 @@ var inspect = require('util').inspect,
                     db.get(change.id, function (err, doc) {
                         db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
                             data.rows.forEach(function (row) {
+                                var key, ok, item, email;
                                 if (row.doc.users) {
-                                    for (var key in row.doc.user) {
-                                        template(row.id, {
-                                            doc: doc
-                                        }, function (err, html, text) {
-                                            if (err) {
-                                                console.log(err);
-                                            } else {
-                                                transport.sendMail({
-                                                    from: config.transport.auth.user,
-                                                    to: key,
-                                                    subject: row.doc.name,
-                                                    html: html,
-                                                    text: text
-                                                }, function (err, responseStatus) {
-                                                    if (err) {
-                                                        console.log(err);
-                                                    }
-                                                });
+                                    for (key in row.doc.users) {
+                                        if (row.doc.users.hasOwnProperty(key)) {
+                                            item = row.doc.users[key];
+                                            ok = testrules(item.rules, doc);
+                                            if (ok) {
+                                                template(row.id, {
+                                                    doc: doc
+                                                }, sendmail(key, row));
                                             }
-                                        });
+                                        }
                                     }
-                                    /*for (var key in row.doc.userfields) {
-                                        template(row.id, {
-                                            doc: doc
-                                        }, function (err, html, text) {
-                                            if (err) {
-                                                console.log(err);
-                                            } else {
-                                                transport.sendMail({
-                                                    from: config.transport.auth.user,
-                                                    to: key,
-                                                    subject: row.doc.name,
-                                                    html: html,
-                                                    text: text
-                                                }, function (err, responseStatus) {
-                                                    if (err) {
-                                                        console.log(err);
-                                                    }
-                                                });
+                                }
+                                if (row.doc.userfields) {
+                                    for (key in row.doc.userfields) {
+                                        if (row.doc.userfields.hasOwnProperty(key)) {
+                                            email = valuepath(key, doc);
+                                            item = row.doc.userfields[key];
+                                            ok = testrules(item.rules, doc);
+                                            if (ok && email) {
+                                                template(row.id, {
+                                                    doc: doc
+                                                }, sendmail(email, doc));
                                             }
-                                        });
-                                    }*/
+                                        }
+                                    }
                                 }
                             });
                             db.get('_local/follow_since', function (err, doc) {
