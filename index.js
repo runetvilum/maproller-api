@@ -2876,7 +2876,7 @@
                 res.cookie('kfticket', str, {
                     maxAge: 86400000
                 });
-                res.send();
+                res.send(str);
             });
         }).on('error', function (e) {
             console.log("Got error: " + e.message);
