@@ -41,7 +41,7 @@
                 }];
                 $scope.key = $scope.name;
                 $scope.slet = function () {
-                    delete $scope.$parent.$parent.schema.properties[this.name];
+                    delete $scope.parentSchema.properties[this.name];
                 };
 
                 $scope.additionalPropertiesChanged = function () {
@@ -235,23 +235,23 @@
                 };
                 $scope.removeProperty = function (name) {
                     if ($scope.propertyType === 'not') {
-                        delete $scope.$parent.$parent.$parent.$parent.schema.not;
+                        delete $scope.parentSchema.not;
                     } else if ($scope.propertyType === 'allOf' || $scope.propertyType === 'anyOf' || $scope.propertyType === 'oneOf') {
-                        $scope.$parent.$parent.$parent.$parent.schema[$scope.propertyType].splice(this.$parent.$parent.$index, 1);
-                        if ($scope.$parent.$parent.$parent.$parent.schema[$scope.propertyType].length === 0) {
-                            delete $scope.$parent.$parent.$parent.$parent.schema.items;
+                        $scope.parentSchema[$scope.propertyType].splice(this.$parent.$parent.$index, 1);
+                        if ($scope.parentSchema[$scope.propertyType].length === 0) {
+                            delete $scope.parentSchema.items;
                         }
                     } else if ($scope.propertyType === 'items') {
-                        if (angular.isArray($scope.$parent.$parent.$parent.$parent.schema.items)) {
-                            $scope.$parent.$parent.$parent.$parent.schema.items.splice(this.$parent.$parent.$index, 1);
-                            if ($scope.$parent.$parent.$parent.$parent.schema.items.length === 1) {
-                                $scope.$parent.$parent.$parent.$parent.schema.items = $scope.$parent.$parent.$parent.$parent.schema.items[0];
+                        if (angular.isArray($scope.parentSchema.items)) {
+                            $scope.parentSchema.items.splice(this.$parent.$parent.$index, 1);
+                            if ($scope.parentSchema.items.length === 1) {
+                                $scope.parentSchema.items = $scope.parentSchema.items[0];
                             }
                         } else {
-                            delete $scope.$parent.$parent.$parent.$parent.schema.items;
+                            delete $scope.parentSchema.items;
                         }
                     } else {
-                        delete $scope.$parent.$parent.$parent.$parent.schema[$scope.propertyType][name];
+                        delete $scope.parentSchema[$scope.propertyType][name];
                     }
                     $scope.$emit('validate');
                 };
@@ -280,7 +280,22 @@
 
                 $scope.changeName = function () {
                     if ($scope.key !== $scope.name) {
-                        $scope.$parent.schema.properties[$scope.key] = $scope.$parent.schema.properties[$scope.name];
+                        $scope.parentSchema[$scope.propertyType][$scope.key] = $scope.parentSchema[$scope.propertyType][$scope.name];
+                        delete $scope.parentSchema[$scope.propertyType][$scope.name];
+
+                        if ($scope.parentSchema.required) {
+                            var index = $scope.parentSchema.required.indexOf($scope.name);
+                            if (index !== -1) {
+                                $scope.parentSchema.required.splice(index, 1);
+                                $scope.parentSchema.required.push($scope.key);
+                            }
+                        }
+                        if ($scope.parentSchema.dependencies && $scope.parentSchema.dependencies.hasOwnProperty($scope.name)) {
+                            $scope.parentSchema.dependencies[$scope.key] = $scope.parentSchema.dependencies[$scope.name];
+                            delete $scope.parentSchema.dependencies[$scope.name];
+                        }
+                        $scope.name = $scope.key;
+                        /*$scope.$parent.schema.properties[$scope.key] = $scope.$parent.schema.properties[$scope.name];
                         delete $scope.$parent.schema.properties[$scope.name];
                         if ($scope.$parent.schema.required) {
                             var index = $scope.$parent.schema.required.indexOf(this.name);
@@ -289,7 +304,7 @@
                                 $scope.$parent.schema.required.push($scope.key);
                             }
                         }
-                        $scope.name = $scope.key;
+                        $scope.name = $scope.key;*/
                         $scope.$emit('validate');
                     }
                 };

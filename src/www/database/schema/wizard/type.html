@@ -123,11 +123,11 @@
 
                 </div>
                 <div class="panel-body" collapse="isArrayCollapsed" ng-if="schema.items|isArray">
-                    <tree name="item.title" schema="item" property-type="'items'" ng-repeat="item in schema.items track by $index">
+                    <tree name="item.title" schema="item" property-type="'items'" parent-schema="schema" ng-repeat="item in schema.items track by $index">
                     </tree>
                 </div>
                 <div class="panel-body" collapse="isArrayCollapsed" ng-if="schema.items && !(schema.items|isArray)">
-                    <tree name="schema.items.title" schema="schema.items" property-type="'items'">
+                    <tree name="schema.items.title" schema="schema.items" property-type="'items'" parent-schema="schema">
                     </tree>
                 </div>
             </div>
@@ -193,7 +193,7 @@
                     <h3 class="panel-title"><a style="" ng-click="isPatternPropertiesCollapsed=!isPatternPropertiesCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isPatternPropertiesCollapsed,'fa-plus-square-o':isPatternPropertiesCollapsed}"></i></a> patternProperties</h3>
                 </div>
                 <div class="panel-body" collapse="isPatternPropertiesCollapsed">
-                    <tree name="key" schema="value" property-type="'patternProperties'" ng-repeat="(key,value) in schema.patternProperties">
+                    <tree name="key" schema="value" property-type="'patternProperties'" parent-schema="schema" ng-repeat="(key,value) in schema.patternProperties">
                     </tree>
                 </div>
             </div>
@@ -206,7 +206,7 @@
                     <h3 class="panel-title"><a style="" ng-click="isDependenciesCollapsed=!isDependenciesCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isDependenciesCollapsed,'fa-plus-square-o':isDependenciesCollapsed}"></i></a> dependencies</h3>
                 </div>
                 <div class="panel-body" collapse="isDependenciesCollapsed">
-                    <tree name="key" schema="value" property-type="'dependencies'" ng-repeat="(key,value) in schema.dependencies">
+                    <tree name="key" schema="value" property-type="'dependencies'" parent-schema="schema" ng-repeat="(key,value) in schema.dependencies">
                     </tree>
                 </div>
             </div>
@@ -218,7 +218,7 @@
                     <h3 class="panel-title"><a style="" ng-click="isAllOfCollapsed=!isAllOfCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isAllOfCollapsed,'fa-plus-square-o':isAllOfCollapsed}"></i></a> allOf</h3>
                 </div>
                 <div class="panel-body" collapse="isAllOfCollapsed">
-                    <tree name="item.$ref||item.title" schema="item" property-type="'allOf'" ng-repeat="item in schema.allOf track by $index">
+                    <tree name="item.$ref||item.title" schema="item" property-type="'allOf'" parent-schema="schema" ng-repeat="item in schema.allOf track by $index">
                     </tree>
                 </div>
             </div>
@@ -229,7 +229,7 @@
                     <h3 class="panel-title"><a style="" ng-click="isAnyOfCollapsed=!isAnyOfCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isAnyOfCollapsed,'fa-plus-square-o':isAnyOfCollapsed}"></i></a> anyOf</h3>
                 </div>
                 <div class="panel-body" collapse="isAnyOfCollapsed">
-                    <tree name="item.$ref||item.title" schema="item" property-type="'anyOf'" ng-repeat="item in schema.anyOf track by $index">
+                    <tree name="item.$ref||item.title" schema="item" property-type="'anyOf'" parent-schema="schema" ng-repeat="item in schema.anyOf track by $index">
                     </tree>
                 </div>
             </div>
@@ -240,7 +240,7 @@
                     <h3 class="panel-title"><a style="" ng-click="isOneOfCollapsed=!isOneOfCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isOneOfCollapsed,'fa-plus-square-o':isOneOfCollapsed}"></i></a> oneOf</h3>
                 </div>
                 <div class="panel-body" collapse="isOneOfCollapsed">
-                    <tree name="item.$ref||item.title" schema="item" property-type="'oneOf'" ng-repeat="item in schema.oneOf track by $index">
+                    <tree name="item.$ref||item.title" schema="item" property-type="'oneOf'" parent-schema="schema" ng-repeat="item in schema.oneOf track by $index">
                     </tree>
                 </div>
             </div>
@@ -251,7 +251,7 @@
                     <h3 class="panel-title"><a style="" ng-click="isNotCollapsed=!isNotCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isNotCollapsed,'fa-plus-square-o':isNotCollapsed}"></i></a> not</h3>
                 </div>
                 <div class="panel-body" collapse="isNotCollapsed">
-                    <tree name="'not'" schema="schema.not" property-type="'not'" ng-if="schema.not">
+                    <tree name="'not'" schema="schema.not" property-type="'not'" parent-schema="schema" ng-if="schema.not">
                     </tree>
                 </div>
             </div>
@@ -262,7 +262,7 @@
                     <h3 class="panel-title"><a style="" ng-click="isDefinitionsCollapsed=!isDefinitionsCollapsed"><i class="fa" ng-class="{'fa-minus-square-o':!isDefinitionsCollapsed,'fa-plus-square-o':isDefinitionsCollapsed}"></i></a> definitions</h3>
                 </div>
                 <div class="panel-body" collapse="isDefinitionsCollapsed">
-                    <tree name="key" schema="value" property-type="'definitions'" ng-repeat="(key,value) in schema.definitions">
+                    <tree name="key" schema="value" property-type="'definitions'" parent-schema="schema" ng-repeat="(key,value) in schema.definitions">
                     </tree>
                 </div>
             </div>
