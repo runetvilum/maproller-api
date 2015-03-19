@@ -37,7 +37,11 @@ var inspect = require('util').inspect,
         for (key in rules) {
             if (rules.hasOwnProperty(key)) {
                 rule = rules[key];
-                if (rule !== valuepath(key, doc)) {
+                if (Object.prototype.toString.call(rule) === '[object Array]') {
+                    if (rule.indexOf(valuepath(key, doc) === -1)) {
+                        return false;
+                    }
+                } else if (rule !== valuepath(key, doc)) {
                     return false;
                 }
             }
