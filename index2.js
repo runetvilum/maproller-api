@@ -28,7 +28,6 @@ var inspect = require('util').inspect,
             }
 
         }
-        console.log(item);
         return item;
     },
     testrules = function (rules, doc) {
@@ -38,7 +37,7 @@ var inspect = require('util').inspect,
             if (rules.hasOwnProperty(key)) {
                 rule = rules[key];
                 if (Object.prototype.toString.call(rule) === '[object Array]') {
-                    if (rule.indexOf(valuepath(key, doc) === -1)) {
+                    if (rule.indexOf(valuepath(key, doc)) === -1) {
                         return false;
                     }
                 } else if (rule !== valuepath(key, doc)) {
