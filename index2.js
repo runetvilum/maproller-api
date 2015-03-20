@@ -48,7 +48,9 @@ var inspect = require('util').inspect,
         return true;
     },
     sendmail = function (email, row) {
+        console.log(row.doc.name);
         return function (err, html, text) {
+            console.log(row.doc.name);
             if (err) {
                 console.log(err);
             } else {
