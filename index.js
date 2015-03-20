@@ -2700,6 +2700,7 @@
                     message: 'Du har ikke rettigheder til at oprette en emailtemplate.'
                 }));
             }
+            console.log("Opret emailtemplate");
             db_admin.insert({
                 name: req.body.name,
                 database: req.params.database,
