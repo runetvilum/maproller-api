@@ -70,8 +70,9 @@ var inspect = require('util').inspect,
     followDatabase = function (id, template) {
         console.log(id);
         var db = nano.db.use('db-' + id),
+            db2 = nano.db.use('db-' + id),
             options = {};
-        db.get('_local/follow_since', function (err, doc) {
+        db2.get('_local/follow_since', function (err, doc) {
             if (!err) {
                 options.since = doc.since;
             }
@@ -104,7 +105,7 @@ var inspect = require('util').inspect,
                         }
                     }
                     debugger;
-                    db.get(change.id, function (err, doc) {
+                    db2.get(change.id, function (err, doc) {
                         debugger;
                         if (err) {
                             console.log("get");
@@ -151,10 +152,10 @@ var inspect = require('util').inspect,
                                             }
                                         }
                                     });
-                                    db.get('_local/follow_since', function (err, doc) {
+                                    db2.get('_local/follow_since', function (err, doc) {
                                         doc = doc || {};
                                         doc.since = change.seq;
-                                        db.insert(doc, '_local/follow_since', function (err, body) {
+                                        db2.insert(doc, '_local/follow_since', function (err, body) {
                                             feed.resume();
                                         });
                                     });
