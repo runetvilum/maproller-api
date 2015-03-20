@@ -103,6 +103,7 @@ var inspect = require('util').inspect,
                             console.log('updated: ' + change.id);
                         }
                     }
+                    debugger;
                     db.get(change.id, function (err, doc) {
                         debugger;
                         if (err) {
