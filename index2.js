@@ -47,10 +47,9 @@ var inspect = require('util').inspect,
         }
         return true;
     },
-    sendmail = function (email, row) {
-        console.log(row.doc.name);
+    sendmail = function (email, subject) {
+        console.log(subject);
         return function (err, html, text) {
-            console.log(row.doc.name);
             if (err) {
                 console.log(err);
             } else {
@@ -58,7 +57,7 @@ var inspect = require('util').inspect,
                 transport.sendMail({
                     from: config.transport.auth.user,
                     to: email,
-                    subject: row.doc.name,
+                    subject: subject,
                     html: html,
                     text: text
                 }, function (err, responseStatus) {
@@ -106,24 +105,18 @@ var inspect = require('util').inspect,
                             console.log('updated: ' + change.id);
                         }
                     }
-                    debugger;
                     db2.get(change.id, function (err, doc) {
-                        debugger;
                         if (err) {
                             console.log("get");
                             console.log(err);
                         } else {
                             db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
-                                debugger;
                                 if (err) {
                                     console.log("view");
                                     console.log(err);
                                 } else {
                                     console.log("count: " + data.rows.length);
                                     data.rows.forEach(function (row) {
-                                        debugger;
-                                        console.log("row: " + row.id);
-                                        console.log(row);
                                         var key, ok, item, email;
                                         if (row.doc.users) {
                                             for (key in row.doc.users) {
@@ -134,7 +127,7 @@ var inspect = require('util').inspect,
                                                         console.log("template: " + doc._id);
                                                         template(row.id, {
                                                             doc: doc
-                                                        }, sendmail(key, row));
+                                                        }, sendmail(key, row.doc.name));
                                                     }
                                                 }
                                             }
@@ -149,7 +142,7 @@ var inspect = require('util').inspect,
                                                         console.log("template: " + doc._id);
                                                         template(row.id, {
                                                             doc: doc
-                                                        }, sendmail(email, doc));
+                                                        }, sendmail(email, row.doc.name));
                                                     }
                                                 }
                                             }
