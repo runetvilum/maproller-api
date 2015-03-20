@@ -173,7 +173,7 @@ var inspect = require('util').inspect,
         }
 
         function cookie(req, res, next) {
-            console.log("cookie");
+            console.log(req.headers.cookie);
             var couchdb = require('nano')({
                 cookie: req.headers.cookie,
                 url: url_5986
