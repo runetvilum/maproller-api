@@ -48,12 +48,10 @@ var inspect = require('util').inspect,
         return true;
     },
     sendmail = function (email, subject) {
-        console.log(subject);
         return function (err, html, text) {
             if (err) {
                 console.log(err);
             } else {
-                console.log("sendmail: " + email);
                 transport.sendMail({
                     from: config.transport.auth.user,
                     to: email,
@@ -69,7 +67,6 @@ var inspect = require('util').inspect,
         };
     },
     followDatabase = function (id, template) {
-        console.log(id);
         var db = nano.db.use('db-' + id),
             db2 = nano.db.use('db-' + id),
             options = {};
@@ -93,16 +90,16 @@ var inspect = require('util').inspect,
                         colors: true
                     }));*/
                     if (change.deleted) {
-                        console.log('deleted: ' + change.id);
+                        //console.log('deleted: ' + change.id);
                         emailoptions.key = [id, "delete"];
                     } else {
                         rev = change.changes[0].rev.split('-');
                         if (rev[0] === '1') {
                             emailoptions.key = [id, "create"];
-                            console.log('created: ' + change.id);
+                            //console.log('created: ' + change.id);
                         } else {
                             emailoptions.key = [id, "update"];
-                            console.log('updated: ' + change.id);
+                            //console.log('updated: ' + change.id);
                         }
                     }
                     db2.get(change.id, function (err, doc) {
@@ -115,7 +112,6 @@ var inspect = require('util').inspect,
                                     console.log("view");
                                     console.log(err);
                                 } else {
-                                    console.log("count: " + data.rows.length);
                                     data.rows.forEach(function (row) {
                                         var key, ok, item, email;
                                         if (row.doc.users) {
@@ -124,7 +120,6 @@ var inspect = require('util').inspect,
                                                     item = row.doc.users[key];
                                                     ok = testrules(item.rules, doc);
                                                     if (ok) {
-                                                        console.log("template: " + doc._id);
                                                         template(row.id, {
                                                             doc: doc
                                                         }, sendmail(key, row.doc.name));
@@ -139,7 +134,6 @@ var inspect = require('util').inspect,
                                                     item = row.doc.userfields[key];
                                                     ok = testrules(item.rules, doc);
                                                     if (ok && email) {
-                                                        console.log("template: " + doc._id);
                                                         template(row.id, {
                                                             doc: doc
                                                         }, sendmail(email, row.doc.name));
@@ -194,9 +188,9 @@ if (argv.config) {
             }, function (err, body) {
                 body.rows.forEach(function (row) {
                     var id = row.key[0];
-                    if (id === "7329765f31b7939dc2b457f483107688") {
+                    //if (id === "7329765f31b7939dc2b457f483107688") {
                         followDatabase(id, template);
-                    }
+                    //}
                 });
             });
         }
