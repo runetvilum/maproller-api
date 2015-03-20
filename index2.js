@@ -58,6 +58,7 @@ var inspect = require('util').inspect,
             if (err) {
                 console.log(err);
             } else {
+                console.log('sendmail: ' + email + ' ' + subject);
                 transport.sendMail({
                     from: config.transport.auth.user,
                     to: email,
@@ -95,16 +96,16 @@ var inspect = require('util').inspect,
                         colors: true
                     }));*/
                     if (change.deleted) {
-                        //console.log('deleted: ' + change.id);
+                        console.log('deleted: ' + change.id);
                         emailoptions.key = [id, "delete"];
                     } else {
                         rev = change.changes[0].rev.split('-');
                         if (rev[0] === '1') {
                             emailoptions.key = [id, "create"];
-                            //console.log('created: ' + change.id);
+                            console.log('created: ' + change.id);
                         } else {
                             emailoptions.key = [id, "update"];
-                            //console.log('updated: ' + change.id);
+                            console.log('updated: ' + change.id);
                         }
                     }
                     db.get(change.id, function (err, doc) {
