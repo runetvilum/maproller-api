@@ -173,7 +173,6 @@ var inspect = require('util').inspect,
         }
 
         function cookie(req, res, next) {
-            console.log(req.headers.cookie);
             var couchdb = require('nano')({
                 cookie: req.headers.cookie,
                 url: url_5986
@@ -217,7 +216,7 @@ var inspect = require('util').inspect,
 if (argv.config) {
     config = jf.readFileSync(argv.config);
     transport = nodemailer.createTransport(config.transport);
-    url_5986 = "http://localhost:" + config.couchdb.port5986;
+    url_5986 = "http://" + config.couchdb.host + ":" + config.couchdb.port5986;
     nano = require('nano')({
         url: 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port5984,
         "requestDefaults": {
