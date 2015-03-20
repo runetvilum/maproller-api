@@ -2713,25 +2713,19 @@
                     return res.status(err.status_code || 500).send(err);
                 }
                 var sti = "/mnt/gluster/emailtemplates/" + body.id;
-                console.log(body);
                 fs.mkdir(sti, function (err, result) {
-                    console.log(err);
-                    console.log(result);
                     fs.writeFile(sti + "/html.ejs", "", function (err, result) {
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
                         }
-                        console.log("html");
                         fs.writeFile(sti + "/text.ejs", "", function (err, result) {
                             if (err) {
                                 return res.status(err.status_code || 500).send(err);
                             }
-                            console.log("text");
                             fs.writeFile(sti + "/style.css", "", function (err, result) {
                                 if (err) {
                                     return res.status(err.status_code || 500).send(err);
                                 }
-                                console.log("style");
                                 res.json(body);
                             });
                         });

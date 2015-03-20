@@ -180,7 +180,9 @@ if (argv.config) {
                 if (!databases.hasOwnProperty(req.params.id)) {
                     followDatabase(req.params.id, template);
                 }
-                res.end();
+                res.json({
+                    ok: true
+                });
             });
             app["delete"]('/follow/:id', function (req, res) {
                 if (databases.hasOwnProperty(req.params.id)) {

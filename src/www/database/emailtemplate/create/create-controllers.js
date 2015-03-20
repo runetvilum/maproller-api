@@ -23,7 +23,7 @@
                     success(function (data, status, headers, config) {
                         $http.put('/follow/' + $stateParams.database).
                         success(function (data, status, headers, config) {
-                            $scope.success = true;
+                            $scope.success = data;
                             $scope.name = null;
                             $state.go('database.emailtemplate.list', {
                                 organization: $stateParams.organization
@@ -31,12 +31,10 @@
                         }).
                         error(function (data, status, headers, config) {
                             $scope.error = data;
-                            console.log(data);
                         });
                     }).
                     error(function (data, status, headers, config) {
                         $scope.error = data;
-                        console.log(data);
                     });
                 }
             };
