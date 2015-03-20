@@ -68,6 +68,7 @@ var inspect = require('util').inspect,
         };
     },
     followDatabase = function (id, template) {
+        console.log(id);
         var db = nano.db.use('db-' + id),
             options = {};
         db.get('_local/follow_since', function (err, doc) {
@@ -75,14 +76,16 @@ var inspect = require('util').inspect,
                 options.since = doc.since;
             }
             db.follow(options, function (error, change) {
-                var feed = this,
-                    emailoptions = {
-                        reduce: false,
-                        include_docs: true
-                    },
-                    rev;
-                databases[id] = feed;
-                if (!error) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    var feed = this,
+                        emailoptions = {
+                            reduce: false,
+                            include_docs: true
+                        },
+                        rev;
+                    databases[id] = feed;
                     feed.pause();
                     /*console.log(inspect(change, {
                         colors: true
