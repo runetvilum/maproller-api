@@ -74,94 +74,106 @@ var inspect = require('util').inspect,
         };
     },
     followDatabase = function (id, template) {
-        var db = nano.db.use('db-' + id),
-            options = {};
-        db.get('_local/follow_since', function (err, doc) {
+        nano.db.get('db-' + id, function (err, body) {
             if (!err) {
-                options.since = doc.since;
-            }
-            db.follow(options, function (error, change) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    var feed = this,
-                        emailoptions = {
-                            reduce: false,
-                            include_docs: true
-                        },
-                        rev;
-                    console.log(id);
-                    databases[id] = feed;
-                    feed.pause();
-                    /*console.log(inspect(change, {
-                        colors: true
-                    }));*/
-                    if (change.deleted) {
-                        console.log('deleted: ' + change.id);
-                        emailoptions.key = [id, "delete"];
-                    } else {
-                        rev = change.changes[0].rev.split('-');
-                        if (rev[0] === '1') {
-                            emailoptions.key = [id, "create"];
-                            console.log('created: ' + change.id);
-                        } else {
-                            emailoptions.key = [id, "update"];
-                            console.log('updated: ' + change.id);
-                        }
+                var db = nano.db.use('db-' + id);
+                db.get('_local/follow_since', function (err, doc) {
+                    var feed,
+                        options = {};
+                    if (!err) {
+                        options.since = doc.since;
                     }
-                    db.get(change.id, function (err, doc) {
-                        if (err) {
-                            console.log("get");
-                            console.log(err);
+                    feed = db.follow(options);
+                    databases[id].feed = feed;
+                    feed.on('change', function (change) {
+                        var emailoptions = {
+                                reduce: false,
+                                include_docs: true
+                            },
+                            rev;
+                        feed.pause();
+                        if (change.deleted) {
+                            console.log('deleted: ' + change.id);
+                            emailoptions.key = [id, "delete"];
                         } else {
-                            db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
-                                if (err) {
-                                    console.log("view");
-                                    console.log(err);
-                                } else {
-                                    data.rows.forEach(function (row) {
-                                        var key, ok, item, email;
-                                        if (row.doc.users) {
-                                            for (key in row.doc.users) {
-                                                if (row.doc.users.hasOwnProperty(key)) {
-                                                    item = row.doc.users[key];
-                                                    ok = testrules(item.rules, doc);
-                                                    if (ok) {
-                                                        template(row.id, {
-                                                            doc: doc
-                                                        }, sendmail(key, row.doc.name));
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        if (row.doc.userfields) {
-                                            for (key in row.doc.userfields) {
-                                                if (row.doc.userfields.hasOwnProperty(key)) {
-                                                    email = valuepath(key, doc);
-                                                    item = row.doc.userfields[key];
-                                                    ok = testrules(item.rules, doc);
-                                                    if (ok && email) {
-                                                        template(row.id, {
-                                                            doc: doc
-                                                        }, sendmail(email, row.doc.name));
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-                                    db.get('_local/follow_since', function (err, doc) {
-                                        doc = doc || {};
-                                        doc.since = change.seq;
-                                        db.insert(doc, '_local/follow_since', function (err, body) {
-                                            feed.resume();
-                                        });
-                                    });
-                                }
-                            });
+                            rev = change.changes[0].rev.split('-');
+                            if (rev[0] === '1') {
+                                emailoptions.key = [id, "create"];
+                                console.log('created: ' + change.id);
+                            } else {
+                                emailoptions.key = [id, "update"];
+                                console.log('updated: ' + change.id);
+                            }
                         }
+                        db.get(change.id, function (err, doc) {
+                            if (err) {
+                                console.log("get");
+                                console.log(err);
+                            } else {
+                                db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
+                                    if (err) {
+                                        console.log("view");
+                                        console.log(err);
+                                    } else {
+                                        data.rows.forEach(function (row) {
+                                            var key, ok, item, email;
+                                            if (row.doc.users) {
+                                                for (key in row.doc.users) {
+                                                    if (row.doc.users.hasOwnProperty(key)) {
+                                                        item = row.doc.users[key];
+                                                        ok = testrules(item.rules, doc);
+                                                        if (ok) {
+                                                            template(row.id, {
+                                                                doc: doc
+                                                            }, sendmail(key, row.doc.name));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (row.doc.userfields) {
+                                                for (key in row.doc.userfields) {
+                                                    if (row.doc.userfields.hasOwnProperty(key)) {
+                                                        email = valuepath(key, doc);
+                                                        item = row.doc.userfields[key];
+                                                        ok = testrules(item.rules, doc);
+                                                        if (ok && email) {
+                                                            template(row.id, {
+                                                                doc: doc
+                                                            }, sendmail(email, row.doc.name));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        });
+                                        db.get('_local/follow_since', function (err, doc) {
+                                            doc = doc || {};
+                                            doc.since = change.seq;
+                                            db.insert(doc, '_local/follow_since', function (err, body) {
+                                                feed.resume();
+                                            });
+                                        });
+                                    }
+                                });
+                            }
+                        });
+
                     });
-                }
-            });
+                    console.log("follow: " + id);
+                    feed.follow();
+                });
+            }
+        });
+    },
+    stopFollow = function (id) {
+        db_admin.view('database', 'emailtemplate', {
+            startkey: [id, ""],
+            endkey: [id, {}]
+        }, function (err, body) {
+            if (!err && body.rows.length === 0 && databases[id].feed) {
+                databases[id].feed.stop();
+                console.log("delete: " + id);
+                delete databases[id];
+            }
         });
     };
 if (argv.config) {
@@ -179,25 +191,17 @@ if (argv.config) {
         if (!err) {
             app.put('/follow/:id', function (req, res) {
                 if (!databases.hasOwnProperty(req.params.id)) {
-                    console.log("follow: " + req.params.id);
-                    followDatabase(req.params.id, template);
+                    databases[req.params.id] = {};
+                    process.nextTick(function () {
+                        followDatabase(req.params.id, template);
+                    });
                 }
                 res.end();
             });
             app["delete"]('/follow/:id', function (req, res) {
                 if (databases.hasOwnProperty(req.params.id)) {
-                    db_admin.view('database', 'emailtemplate', {
-                        startkey: [req.params.id, ""],
-                        endkey: [req.params.id, {}]
-                    }, function (err, body) {
-                        if (err) {
-                            return res.status(err.status_code || 500).send(err);
-                        }
-                        if (body.rows.length === 0) {
-                            databases[req.params.id].stop();
-                            console.log("delete: " + req.params.id);
-                            delete databases[req.params.id];
-                        }
+                    process.nextTick(function () {
+                        stopFollow(req.params.id);
                     });
                 }
                 res.end();
@@ -210,8 +214,11 @@ if (argv.config) {
             }, function (err, body) {
                 body.rows.forEach(function (row) {
                     var id = row.key[0];
+                    databases[id] = {};
                     //if (id === "7329765f31b7939dc2b457f483107688") {
-                    followDatabase(id, template);
+                    process.nextTick(function () {
+                        followDatabase(id, template);
+                    });
                     //}
                 });
             });
