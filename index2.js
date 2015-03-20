@@ -10,6 +10,7 @@ var inspect = require('util').inspect,
     nodemailer = require('nodemailer'),
     argv = require('minimist')(process.argv.slice(2)),
     jf = require('jsonfile'),
+    cors = require('cors'),
     databases = {},
     nano,
     transport,
@@ -172,6 +173,7 @@ var inspect = require('util').inspect,
         }
 
         function cookie(req, res, next) {
+            console.log("cookie");
             var couchdb = require('nano')({
                 cookie: req.headers.cookie,
                 url: url_5986
@@ -224,6 +226,12 @@ if (argv.config) {
     });
     db_admin = nano.db.use("admin");
     sti = "/mnt/gluster/emailtemplates";
+    app.use(cors({
+        credentials: true,
+        origin: function (origin, callback) {
+            callback(null, true);
+        }
+    }));
     emailTemplates(sti, function (err, template) {
         if (!err) {
             app.put('/follow/:id', auth, function (req, res) {
