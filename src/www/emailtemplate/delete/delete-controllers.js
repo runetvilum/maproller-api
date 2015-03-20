@@ -7,11 +7,14 @@
                 $scope.success = null;
                 $scope.error = null;
                 $http['delete']('/api/emailtemplate/' + $stateParams.emailtemplate).success(function (data, status, headers, config) {
-                    console.log(data);
-                    $scope.success = data;
-                    $state.go('database.emailtemplate.list', {
-                        organization: $stateParams.organization,
-                        database: $stateParams.database
+                    $http['delete']('/follow/' + $stateParams.database).success(function (data, status, headers, config) {
+                        $scope.success = data;
+                        $state.go('database.emailtemplate.list', {
+                            organization: $stateParams.organization,
+                            database: $stateParams.database
+                        });
+                    }).error(function (data, status, headers, config) {
+                        $scope.error = data;
                     });
                 }).error(function (data, status, headers, config) {
                     console.log(data);
