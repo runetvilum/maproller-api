@@ -2577,7 +2577,7 @@
                             fs.unlink(sti + "/style.css", function (err) {
                                 fs.rmdir(sti, function (err) {
                                     request.del({
-                                        uri: "http://email:4001/follow/" + req.params.database
+                                        uri: "http://email:4001/follow/" + emailtemplate.database
                                     }, function (err, response, body4) {
                                         if (err) {
                                             return res.status(err.status_code || 500).send(err);

@@ -21,16 +21,10 @@
                 if (form.$valid) {
                     $http.post('/api/' + $stateParams.database + '/emailtemplate', $scope.doc).
                     success(function (data, status, headers, config) {
-                        $http.put('/follow/' + $stateParams.database).
-                        success(function (data, status, headers, config) {
-                            $scope.success = data;
-                            $scope.name = null;
-                            $state.go('database.emailtemplate.list', {
-                                organization: $stateParams.organization
-                            });
-                        }).
-                        error(function (data, status, headers, config) {
-                            $scope.error = data;
+                        $scope.success = data;
+                        $scope.name = null;
+                        $state.go('database.emailtemplate.list', {
+                            organization: $stateParams.organization
                         });
                     }).
                     error(function (data, status, headers, config) {
