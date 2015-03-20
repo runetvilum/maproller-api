@@ -102,8 +102,11 @@ var inspect = require('util').inspect,
                     }
                     db.get(change.id, function (err, doc) {
                         db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
+
                             if (!err) {
+
                                 data.rows.forEach(function (row) {
+                                    console.log("row: " + row.id);
                                     var key, ok, item, email;
                                     if (row.doc.users) {
                                         for (key in row.doc.users) {
