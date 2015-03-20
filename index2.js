@@ -104,52 +104,59 @@ var inspect = require('util').inspect,
                         }
                     }
                     db.get(change.id, function (err, doc) {
-                        db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
-
-                            if (!err) {
-
-                                data.rows.forEach(function (row) {
-                                    console.log("row: " + row.id);
-                                    var key, ok, item, email;
-                                    if (row.doc.users) {
-                                        for (key in row.doc.users) {
-                                            if (row.doc.users.hasOwnProperty(key)) {
-                                                item = row.doc.users[key];
-                                                ok = testrules(item.rules, doc);
-                                                if (ok) {
-                                                    console.log("template: " + doc._id);
-                                                    template(row.id, {
-                                                        doc: doc
-                                                    }, sendmail(key, row));
+                        if (err) {
+                            console.log("get");
+                            console.log(err);
+                        } else {
+                            db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
+                                if (err) {
+                                    console.log("view");
+                                    console.log(err);
+                                } else {
+                                    console.log("count: " + data.rows.length);
+                                    data.rows.forEach(function (row) {
+                                        console.log("row: " + row.id);
+                                        var key, ok, item, email;
+                                        if (row.doc.users) {
+                                            for (key in row.doc.users) {
+                                                if (row.doc.users.hasOwnProperty(key)) {
+                                                    item = row.doc.users[key];
+                                                    ok = testrules(item.rules, doc);
+                                                    if (ok) {
+                                                        console.log("template: " + doc._id);
+                                                        template(row.id, {
+                                                            doc: doc
+                                                        }, sendmail(key, row));
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                    if (row.doc.userfields) {
-                                        for (key in row.doc.userfields) {
-                                            if (row.doc.userfields.hasOwnProperty(key)) {
-                                                email = valuepath(key, doc);
-                                                item = row.doc.userfields[key];
-                                                ok = testrules(item.rules, doc);
-                                                if (ok && email) {
-                                                    console.log("template: " + doc._id);
-                                                    template(row.id, {
-                                                        doc: doc
-                                                    }, sendmail(email, doc));
+                                        if (row.doc.userfields) {
+                                            for (key in row.doc.userfields) {
+                                                if (row.doc.userfields.hasOwnProperty(key)) {
+                                                    email = valuepath(key, doc);
+                                                    item = row.doc.userfields[key];
+                                                    ok = testrules(item.rules, doc);
+                                                    if (ok && email) {
+                                                        console.log("template: " + doc._id);
+                                                        template(row.id, {
+                                                            doc: doc
+                                                        }, sendmail(email, doc));
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                });
-                                db.get('_local/follow_since', function (err, doc) {
-                                    doc = doc || {};
-                                    doc.since = change.seq;
-                                    db.insert(doc, '_local/follow_since', function (err, body) {
-                                        feed.resume();
                                     });
-                                });
-                            }
-                        });
+                                    db.get('_local/follow_since', function (err, doc) {
+                                        doc = doc || {};
+                                        doc.since = change.seq;
+                                        db.insert(doc, '_local/follow_since', function (err, body) {
+                                            feed.resume();
+                                        });
+                                    });
+                                }
+                            });
+                        }
                     });
                 }
             });
