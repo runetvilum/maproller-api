@@ -198,7 +198,9 @@ if (argv.config) {
             }, function (err, body) {
                 body.rows.forEach(function (row) {
                     var id = row.key[0];
-                    followDatabase(id, template);
+                    if (id === "7329765f31b7939dc2b457f483107688") {
+                        followDatabase(id, template);
+                    }
                 });
             });
         }
