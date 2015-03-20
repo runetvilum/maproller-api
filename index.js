@@ -1864,7 +1864,7 @@
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                res.end(JSON.stringify(body));
+                res.json(body);
             });
         });
     });
@@ -2707,6 +2707,8 @@
                 type: 'emailtemplate'
             }, function (err, body) {
                 if (err) {
+                    console.log("Opret emailtemplate");
+                    console.log(err);
                     return res.status(err.status_code || 500).send(err);
                 }
                 var sti = "/mnt/gluster/emailtemplates/" + body.id;
