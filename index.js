@@ -1260,14 +1260,7 @@
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    request.put({
-                        uri: "http://email:4001/follow/" + body.id
-                    }, function (err, response, body4) {
-                        if (err) {
-                            return res.status(err.status_code || 500).send(err);
-                        }
-                        res.json(body);
-                    });
+                    res.json(body3);
                 });
             });
         });
@@ -2583,7 +2576,14 @@
                         fs.unlink(sti + "/text.ejs", function (err) {
                             fs.unlink(sti + "/style.css", function (err) {
                                 fs.rmdir(sti, function (err) {
-                                    res.json(body);
+                                    request.del({
+                                        uri: "http://email:4001/follow/" + req.params.database
+                                    }, function (err, response, body4) {
+                                        if (err) {
+                                            return res.status(err.status_code || 500).send(err);
+                                        }
+                                        res.end();
+                                    });
                                 });
                             });
                         });
@@ -2726,7 +2726,14 @@
                                 if (err) {
                                     return res.status(err.status_code || 500).send(err);
                                 }
-                                res.json(body);
+                                request.put({
+                                    uri: "http://email:4001/follow/" + req.params.database
+                                }, function (err, response, body4) {
+                                    if (err) {
+                                        return res.status(err.status_code || 500).send(err);
+                                    }
+                                    res.end();
+                                });
                             });
                         });
                     });
