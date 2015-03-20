@@ -121,6 +121,7 @@ var inspect = require('util').inspect,
                                     data.rows.forEach(function (row) {
                                         debugger;
                                         console.log("row: " + row.id);
+                                        console.log(row);
                                         var key, ok, item, email;
                                         if (row.doc.users) {
                                             for (key in row.doc.users) {
