@@ -104,17 +104,20 @@ var inspect = require('util').inspect,
                         }
                     }
                     db.get(change.id, function (err, doc) {
+                        debugger;
                         if (err) {
                             console.log("get");
                             console.log(err);
                         } else {
                             db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
+                                debugger;
                                 if (err) {
                                     console.log("view");
                                     console.log(err);
                                 } else {
                                     console.log("count: " + data.rows.length);
                                     data.rows.forEach(function (row) {
+                                        debugger;
                                         console.log("row: " + row.id);
                                         var key, ok, item, email;
                                         if (row.doc.users) {
