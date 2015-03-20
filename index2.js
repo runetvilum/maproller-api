@@ -52,6 +52,7 @@ var inspect = require('util').inspect,
             if (err) {
                 console.log(err);
             } else {
+                console.log("sendmail: " + email);
                 transport.sendMail({
                     from: config.transport.auth.user,
                     to: email,
@@ -87,13 +88,16 @@ var inspect = require('util').inspect,
                         colors: true
                     }));*/
                     if (change.deleted) {
+                        console.log('deleted: ' + change.id);
                         emailoptions.key = [id, "delete"];
                     } else {
                         rev = change.changes[0].rev.split('-');
                         if (rev[0] === '1') {
                             emailoptions.key = [id, "create"];
+                            console.log('created: ' + change.id);
                         } else {
                             emailoptions.key = [id, "update"];
+                            console.log('updated: ' + change.id);
                         }
                     }
                     db.get(change.id, function (err, doc) {
@@ -107,6 +111,7 @@ var inspect = require('util').inspect,
                                                 item = row.doc.users[key];
                                                 ok = testrules(item.rules, doc);
                                                 if (ok) {
+                                                    console.log("template: " + doc._id);
                                                     template(row.id, {
                                                         doc: doc
                                                     }, sendmail(key, row));
@@ -121,6 +126,7 @@ var inspect = require('util').inspect,
                                                 item = row.doc.userfields[key];
                                                 ok = testrules(item.rules, doc);
                                                 if (ok && email) {
+                                                    console.log("template: " + doc._id);
                                                     template(row.id, {
                                                         doc: doc
                                                     }, sendmail(email, doc));
