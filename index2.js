@@ -3,6 +3,7 @@
 
 var inspect = require('util').inspect,
     express = require('express'),
+    agentkeepalive = require('agentkeepalive'),
     app = express(),
     emailTemplates = require('email-templates'),
     nodemailer = require('nodemailer'),
@@ -14,6 +15,11 @@ var inspect = require('util').inspect,
     config,
     db_admin,
     sti,
+    myagent = new agentkeepalive({
+        maxSockets: 50,
+        maxKeepAliveRequests: 0,
+        maxKeepAliveTime: 30000
+    }),
     valuepath = function (input, doc) {
         var path = input.split('/'),
             item = doc,
@@ -68,9 +74,8 @@ var inspect = require('util').inspect,
     },
     followDatabase = function (id, template) {
         var db = nano.db.use('db-' + id),
-            db2 = nano.db.use('db-' + id),
             options = {};
-        db2.get('_local/follow_since', function (err, doc) {
+        db.get('_local/follow_since', function (err, doc) {
             if (!err) {
                 options.since = doc.since;
             }
@@ -102,7 +107,7 @@ var inspect = require('util').inspect,
                             //console.log('updated: ' + change.id);
                         }
                     }
-                    db2.get(change.id, function (err, doc) {
+                    db.get(change.id, function (err, doc) {
                         if (err) {
                             console.log("get");
                             console.log(err);
@@ -142,10 +147,10 @@ var inspect = require('util').inspect,
                                             }
                                         }
                                     });
-                                    db2.get('_local/follow_since', function (err, doc) {
+                                    db.get('_local/follow_since', function (err, doc) {
                                         doc = doc || {};
                                         doc.since = change.seq;
-                                        db2.insert(doc, '_local/follow_since', function (err, body) {
+                                        db.insert(doc, '_local/follow_since', function (err, body) {
                                             feed.resume();
                                         });
                                     });
@@ -161,7 +166,10 @@ if (argv.config) {
     config = jf.readFileSync(argv.config);
     transport = nodemailer.createTransport(config.transport);
     nano = require('nano')({
-        url: 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port5984
+        url: 'http://' + config.couchdb.user + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port5984,
+        "requestDefaults": {
+            "agent": myagent
+        }
     });
     db_admin = nano.db.use("admin");
     sti = "/mnt/gluster/emailtemplates";
@@ -189,7 +197,7 @@ if (argv.config) {
                 body.rows.forEach(function (row) {
                     var id = row.key[0];
                     //if (id === "7329765f31b7939dc2b457f483107688") {
-                        followDatabase(id, template);
+                    followDatabase(id, template);
                     //}
                 });
             });
