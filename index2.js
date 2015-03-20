@@ -90,6 +90,7 @@ var inspect = require('util').inspect,
                             include_docs: true
                         },
                         rev;
+                    console.log(id);
                     databases[id] = feed;
                     feed.pause();
                     /*console.log(inspect(change, {
