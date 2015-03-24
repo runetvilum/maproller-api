@@ -1376,9 +1376,9 @@
                 request.del({
                     uri: "http://email:4001/follow/" + req.params.id
                 }, function (err, response, body) {
-                    if (err) {
+                    /*if (err) {
                         return res.status(err.status_code || 500).send(err);
-                    }
+                    }*/
                     db_admin.destroy(database._id, database._rev, function (err, body) {
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
