@@ -67,7 +67,7 @@ var inspect = require('util').inspect,
                     text: text
                 }, function (err, responseStatus) {
                     if (err) {
-                        console.log(err);
+                        //console.log(err);
                     }
                 });
             }
