@@ -2231,34 +2231,7 @@
             if (err) {
                 return res.status(err.status_code || 500).send(err);
             }
-            var id = 'app-' + req.body._id + '-organizations';
-            nano.db.get(id, function (err, body2) {
-                if (err) {
-                    nano.db.create(id, function (err, body3) {
-                        var dbOrganizations = nano.db.use(id);
-                        var rolesdoc = {
-                            admins: {
-                                names: [],
-                                roles: ["_admin", "sys"]
-                            },
-                            members: {
-                                names: [],
-                                roles: []
-                            }
-                        };
-                        dbOrganizations.insert(rolesdoc, "_security", function (err, body4) {
-                            var secdoc = {
-                                validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_'+newDoc._id) !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
-                            };
-                            dbOrganizations.insert(secdoc, '_design/security', function (err, body5) {
-                                res.json(body);
-                            });
-                        });
-                    });
-                } else {
-                    res.json(body);
-                }
-            });
+            res.json(body);
         });
     });
     //Slet en template
