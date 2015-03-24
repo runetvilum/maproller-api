@@ -6,6 +6,7 @@
     var argv = require('minimist')(process.argv.slice(2)),
         jf = require('jsonfile'),
         crypto = require('crypto'),
+        async = require('async'),
         imageType = require('image-type'),
         sqlite3 = require('sqlite3'),
         request = require('request'),
@@ -2032,6 +2033,39 @@
         });
     });
     //Opdater sikkerhed på en template
+
+    var createTemplate = function (req, organization) {
+        return function (callback) {
+            var id2 = 'app-' + req.params.id + '-' + organization;
+            nano.db.get(id2, function (err, body) {
+                if (err) {
+                    nano.db.create(id2, function (err, body) {
+                        var dbOrganization = nano.db.use(id2);
+                        var security = {
+                            admins: {
+                                names: [],
+                                roles: ["_admin", "sys"]
+                            },
+                            members: {
+                                names: [],
+                                roles: []
+                            }
+                        };
+                        dbOrganization.insert(security, "_security", function (err, body) {
+                            var secdoc = {
+                                validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_" + req.params.id + "') !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
+                            };
+                            dbOrganization.insert(secdoc, '_design/security', function (err, body) {
+                                callback();
+                            });
+                        });
+                    });
+                } else {
+                    callback();
+                }
+            });
+        };
+    };
     app.put('/api/template/:id/security', auth, function (req, res) {
         if (!req.body || !req.body.organizations) {
             return res.status(400).json({
@@ -2076,40 +2110,19 @@
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
                         }
-                        var id2 = config.app + '-' + req.params.id;
-                        nano.db.get(id2, function (err, body) {
-                            if (err) {
-                                nano.db.create(id2, function (err, body) {
-                                    var dbOrganization = nano.db.use(id2);
-                                    var security = {
-                                        admins: {
-                                            names: [],
-                                            roles: ["_admin", "sys"]
-                                        },
-                                        members: {
-                                            names: [],
-                                            roles: []
-                                        }
-                                    };
-                                    dbOrganization.insert(security, "_security", function (err, body) {
-                                        var secdoc = {
-                                            validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_" + req.params.id + "') !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
-                                        };
-                                        dbOrganization.insert(secdoc, '_design/security', function (err, body) {
-                                            res.json(body);
-                                        });
-                                    });
-                                });
-                            } else {
-                                res.json(body);
-                            }
+                        var tasks = [];
+                        for (var i = 0; i < req.body.organizations.length; i++) {
+                            tasks.push(createTemplate(req, req.body.organizations[i]));
+                        }
+                        async.parallel(tasks, function () {
+                            res.json(body);
                         });
-
                     });
                 });
             });
         });
     });
+
     //Create geojson tiles
     app.put('/api/rfsconfig/:db/:id', auth, function (req, res) {
         var db = require('nano')({
@@ -2218,7 +2231,34 @@
             if (err) {
                 return res.status(err.status_code || 500).send(err);
             }
-            res.json(body);
+            var id = 'app-' + req.body._id + '-organizations';
+            nano.db.get(id, function (err, body2) {
+                if (err) {
+                    nano.db.create(id, function (err, body3) {
+                        var dbOrganizations = nano.db.use(id);
+                        var rolesdoc = {
+                            admins: {
+                                names: [],
+                                roles: ["_admin", "sys"]
+                            },
+                            members: {
+                                names: [],
+                                roles: []
+                            }
+                        };
+                        dbOrganizations.insert(rolesdoc, "_security", function (err, body4) {
+                            var secdoc = {
+                                validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_'+newDoc._id) !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
+                            };
+                            dbOrganizations.insert(secdoc, '_design/security', function (err, body5) {
+                                res.json(body);
+                            });
+                        });
+                    });
+                } else {
+                    res.json(body);
+                }
+            });
         });
     });
     //Slet en template

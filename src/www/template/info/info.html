@@ -10,18 +10,17 @@
                     <p class="form-control-static">{{template._id}}</p>
                 </div>
             </div>
-            <div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && !myform.name.$pristine, 'has-success': myform.name.$valid && !myform.name.$pristine}">
+            <div class="form-group has-feedback" ng-class="{ 'has-error': myform.name.$error.required && myform.$submitted, 'has-success': myform.name.$valid && !myform.name.$pristine}">
                 <label for="name" class="col-sm-2 control-label">Navn</label>
                 <div class="col-sm-10">
                     <input name="name" ng-model="name" type="text" class="form-control" id="name" placeholder="Navn" required>
-                    <span ng-show="myform.name.$valid && !myform.name.$pristine" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    <span ng-show="myform.name.$valid && myform.$submitted" class="glyphicon glyphicon-ok form-control-feedback"></span>
                     <span ng-show="myform.name.$error.required && !myform.name.$pristine" class="help-block">Navn er påkrævet!</span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <button type="submit" class="btn btn-success">OK</button>
-                    <button type="button" class="btn btn-warning" ng-click="showForm=false;name=template.name;myform.name.$pristine=true;error=null;success=null;">Fortryd</button>
                 </div>
             </div>
         </form>
@@ -30,7 +29,7 @@
             <p>{{error}}</p>
         </div>
         <div class="alert alert-success" role="alert" ng-show="success">
-            <p><strong>OK:</strong> Templaten er rettet.</p>
+            <p>{{success}}</p>
         </div>
     </div>
 </div>

@@ -10,18 +10,14 @@
                     $scope.template.name = $scope.name;
                     $http.put('/api/template', $scope.template).
                     success(function (data, status, headers, config) {
-                        console.log(data);
-                        $scope.success = true;
-                        form.name.$pristine = true;
+                        $scope.template._rev = data.rev;
+                        $scope.success = data;
                     }).
                     error(function (data, status, headers, config) {
-                        console.log(data);
                         $scope.template.name = oldname;
                         $scope.error = data;
                     });
-                } else {
-                    form.name.$pristine = false;
-                }
+                } 
             };
 
         }]);

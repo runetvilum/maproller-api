@@ -43,7 +43,7 @@
                 controller: 'frontpage'
             });
             $stateProvider.state('home', {
-                url: '#'
+                url: '#',
             });
             /*$stateProvider.state('home', {
                 templateUrl: 'home/home.html',
@@ -53,9 +53,9 @@
                         return auth.authorize();
                     }
                 },
-                data: {
+                ncyBreadcrumb: {
                     icon: 'home',
-                    ncyBreadcrumbLabel: 'Home'
+                    label: 'Home'
                 }
             });
             $stateProvider.state('home.dashboard', {
@@ -74,15 +74,15 @@
                         controller: 'templates-list'
                     }
                 },
-                data: {
-                    ncyBreadcrumbLabel: 'Dashboard'
+                ncyBreadcrumb: {
+                    label: 'Dashboard'
                 }
             });*/
             $stateProvider.state('organizations', {
                 url: '/organizations',
                 templateUrl: 'organizations/organizations.html',
-                data: {
-                    ncyBreadcrumbLabel: 'Organisationer',
+                ncyBreadcrumb: {
+                    label: 'Organisationer',
                 },
                 controller: 'organizations',
                 resolve: {
@@ -95,25 +95,25 @@
                 url: '/list',
                 templateUrl: 'organizations/list/list.html',
                 controller: 'organizations-list',
-                data: {
-                    ncyBreadcrumbLabel: 'Liste'
+                ncyBreadcrumb: {
+                    label: 'Liste'
                 }
             });
             $stateProvider.state('organizations.create', {
                 url: '/create',
                 templateUrl: 'organizations/create/create.html',
                 controller: 'organizations-create',
-                data: {
-                    ncyBreadcrumbLabel: 'Opret'
+                ncyBreadcrumb: {
+                    label: 'Opret'
                 }
             });
             $stateProvider.state('organization', {
                 url: '/organizations/:organization',
                 templateUrl: 'organization/organization.html',
                 controller: 'organization',
-                data: {
-                    ncyBreadcrumbLabel: '{{organization.name}}',
-                    ncyBreadcrumbParent: 'organizations'
+                ncyBreadcrumb: {
+                    label: '{{organization.name}}',
+                    parent: 'organizations'
                 },
                 resolve: {
                     profile: function (auth) {
@@ -126,24 +126,24 @@
                 url: '/info',
                 templateUrl: 'organization/info/info.html',
                 controller: 'organization-info',
-                data: {
-                    ncyBreadcrumbLabel: 'Info'
+                ncyBreadcrumb: {
+                    label: 'Info'
                 }
             });
             $stateProvider.state('organization.delete', {
                 url: '/delete',
                 templateUrl: 'organization/delete/delete.html',
                 controller: 'organization-delete',
-                data: {
-                    ncyBreadcrumbLabel: 'Slet'
+                ncyBreadcrumb: {
+                    label: 'Slet'
                 }
             });
             $stateProvider.state('organization.apps', {
                 url: '/apps',
                 templateUrl: 'organization/apps/apps.html',
                 controller: 'organization-apps',
-                data: {
-                    ncyBreadcrumbLabel: 'Apps'
+                ncyBreadcrumb: {
+                    label: 'Apps'
                 }
             });
 
@@ -151,40 +151,40 @@
                 url: '/databases',
                 templateUrl: 'organization/databases/databases.html',
                 controller: 'organization-databases',
-                data: {
-                    ncyBreadcrumbLabel: 'Databaser'
+                ncyBreadcrumb: {
+                    label: 'Databaser'
                 }
             });
             $stateProvider.state('organization.databases.list', {
                 url: '/list',
                 templateUrl: 'organization/databases/list/list.html',
                 controller: 'databases-list',
-                data: {
-                    ncyBreadcrumbLabel: 'Liste'
+                ncyBreadcrumb: {
+                    label: 'Liste'
                 }
             });
             $stateProvider.state('organization.databases.create', {
                 url: '/create',
                 templateUrl: 'organization/databases/create/create.html',
                 controller: 'databases-create',
-                data: {
-                    ncyBreadcrumbLabel: 'Opret'
+                ncyBreadcrumb: {
+                    label: 'Opret'
                 }
             });
-            
+
 
             $stateProvider.state('organization.maps', {
                 url: '/maps',
                 templateUrl: 'organization/maps/maps.html',
                 controller: 'organization-maps',
-                data: {
-                    ncyBreadcrumbLabel: 'Kort'
+                ncyBreadcrumb: {
+                    label: 'Kort'
                 }
             });
             /*$stateProvider.state('organization.maps.show', {
                 url: '/show',
-                data: {
-                    ncyBreadcrumbLabel: 'Vis'
+                ncyBreadcrumb: {
+                    label: 'Vis'
                 },
                 views: {
                     "edit": {
@@ -214,16 +214,16 @@
                 url: '/list',
                 templateUrl: 'organization/maps/list/list.html',
                 controller: 'maps-list',
-                data: {
-                    ncyBreadcrumbLabel: 'Liste'
+                ncyBreadcrumb: {
+                    label: 'Liste'
                 }
             });
             $stateProvider.state('organization.maps.edit', {
                 url: '/edit',
                 templateUrl: 'organization/maps/edit/edit.html',
                 controller: 'maps-edit',
-                data: {
-                    ncyBreadcrumbLabel: 'Rediger'
+                ncyBreadcrumb: {
+                    label: 'Rediger'
                 },
                 resolve: {
                     ticket: 'kfticket'
@@ -236,8 +236,8 @@
                 url: '/xyz',
                 templateUrl: 'organization/maps/edit/xyz/xyz.html',
                 controller: 'edit-xyz',
-                data: {
-                    ncyBreadcrumbLabel: 'XYZ'
+                ncyBreadcrumb: {
+                    label: 'XYZ'
                 }
             });
 
@@ -245,33 +245,33 @@
                 url: '/wms',
                 templateUrl: 'organization/maps/edit/wms/wms.html',
                 controller: 'edit-wms',
-                data: {
-                    ncyBreadcrumbLabel: 'WMS'
+                ncyBreadcrumb: {
+                    label: 'WMS'
                 }
             });
             $stateProvider.state('organization.maps.edit.mbtiles', {
                 url: '/mbtiles',
                 templateUrl: 'organization/maps/edit/mbtiles/mbtiles.html',
                 controller: 'edit-mbtiles',
-                data: {
-                    ncyBreadcrumbLabel: 'MBTiles'
+                ncyBreadcrumb: {
+                    label: 'MBTiles'
                 }
             });
             $stateProvider.state('organization.maps.edit.geojson', {
                 url: '/geojson',
                 templateUrl: 'organization/maps/edit/geojson/geojson.html',
                 controller: 'edit-geojson',
-                data: {
-                    ncyBreadcrumbLabel: 'GeoJSON'
+                ncyBreadcrumb: {
+                    label: 'GeoJSON'
                 }
             });
             $stateProvider.state('database', {
                 url: '/organizations/:organization/databases/:database',
                 templateUrl: 'database/database.html',
                 controller: 'database',
-                data: {
-                    ncyBreadcrumbLabel: '{{data.database.name}}',
-                    ncyBreadcrumbParent: 'organization.databases'
+                ncyBreadcrumb: {
+                    label: '{{data.database.name}}',
+                    parent: 'organization.databases'
                 },
                 resolve: {
                     profile: function (auth) {
@@ -295,114 +295,114 @@
                 url: '/info',
                 templateUrl: 'database/info/info.html',
                 controller: 'database-info',
-                data: {
-                    ncyBreadcrumbLabel: 'Info'
+                ncyBreadcrumb: {
+                    label: 'Info'
                 }
             });
             $stateProvider.state('database.security', {
                 url: '/security',
                 templateUrl: 'database/security/security.html',
                 controller: 'database-security',
-                data: {
-                    ncyBreadcrumbLabel: 'Sikkerhed'
+                ncyBreadcrumb: {
+                    label: 'Sikkerhed'
                 }
             });
             $stateProvider.state('database.fulltext', {
                 url: '/fulltext',
                 templateUrl: 'database/fulltext/fulltext.html',
                 controller: 'database-fulltext',
-                data: {
-                    ncyBreadcrumbLabel: 'Fulltext index'
+                ncyBreadcrumb: {
+                    label: 'Fulltext index'
                 }
             });
             $stateProvider.state('database.straks', {
                 url: '/straks',
                 templateUrl: 'database/straks/straks.html',
                 controller: 'database-straks',
-                data: {
-                    ncyBreadcrumbLabel: 'Straksafgørelse'
+                ncyBreadcrumb: {
+                    label: 'Straksafgørelse'
                 }
             });
             $stateProvider.state('database.schema', {
                 url: '/schema',
                 templateUrl: 'database/schema/schema.html',
                 controller: 'database-schema',
-                data: {
-                    ncyBreadcrumbLabel: 'Skema'
+                ncyBreadcrumb: {
+                    label: 'Skema'
                 }
             });
             $stateProvider.state('database.schema.wizard', {
                 url: '/wizard',
                 templateUrl: 'database/schema/wizard/wizard.html',
                 controller: 'schema-wizard',
-                data: {
-                    ncyBreadcrumbLabel: 'Wizard'
+                ncyBreadcrumb: {
+                    label: 'Wizard'
                 }
             });
             $stateProvider.state('database.schema.test', {
                 url: '/test',
                 templateUrl: 'database/schema/test/test.html',
                 controller: 'schema-test',
-                data: {
-                    ncyBreadcrumbLabel: 'Test'
+                ncyBreadcrumb: {
+                    label: 'Test'
                 }
             });
             $stateProvider.state('database.schema.text', {
                 url: '/text',
                 templateUrl: 'database/schema/text/text.html',
                 controller: 'schema-text',
-                data: {
-                    ncyBreadcrumbLabel: 'Tekst'
+                ncyBreadcrumb: {
+                    label: 'Tekst'
                 }
             });
             $stateProvider.state('database.schema.desktop', {
                 url: '/desktop',
                 templateUrl: 'database/schema/desktop/desktop.html',
                 controller: 'schema-desktop',
-                data: {
-                    ncyBreadcrumbLabel: 'Desktop'
+                ncyBreadcrumb: {
+                    label: 'Desktop'
                 }
             });
             $stateProvider.state('database.schema.mobile', {
                 url: '/mobile',
                 templateUrl: 'database/schema/mobile/mobile.html',
                 controller: 'schema-mobile',
-                data: {
-                    ncyBreadcrumbLabel: 'Mobile'
+                ncyBreadcrumb: {
+                    label: 'Mobile'
                 }
             });
-            
+
             $stateProvider.state('database.emailtemplate', {
                 url: '/emailtemplate',
                 templateUrl: 'database/emailtemplate/emailtemplate.html',
                 controller: 'database-emailtemplate',
-                data: {
-                    ncyBreadcrumbLabel: 'Emailtemplate'
+                ncyBreadcrumb: {
+                    label: 'Emailtemplate'
                 }
             });
             $stateProvider.state('database.emailtemplate.list', {
                 url: '/list',
                 templateUrl: 'database/emailtemplate/list/list.html',
                 controller: 'emailtemplate-list',
-                data: {
-                    ncyBreadcrumbLabel: 'Liste'
+                ncyBreadcrumb: {
+                    label: 'Liste'
                 }
             });
             $stateProvider.state('database.emailtemplate.create', {
                 url: '/create',
                 templateUrl: 'database/emailtemplate/create/create.html',
                 controller: 'emailtemplate-create',
-                data: {
-                    ncyBreadcrumbLabel: 'Opret'
+                ncyBreadcrumb: {
+                    label: 'Opret'
                 }
             });
             $stateProvider.state('emailtemplate', {
                 url: '/organizations/:organization/databases/:database/emailtemplate/:emailtemplate',
                 templateUrl: 'emailtemplate/emailtemplate.html',
                 controller: 'emailtemplate',
-                data: {
-                    ncyBreadcrumbLabel: '{{emailtemplate.name}}',
-                    ncyBreadcrumbParent: 'database.emailtemplate'
+                ncyBreadcrumb: {
+                    label: '{{emailtemplate.name}}',
+                    parent: 'database.emailtemplate'
                 },
                 resolve: {
                     profile: function (auth) {
@@ -417,74 +417,74 @@
                 url: '/info',
                 templateUrl: 'emailtemplate/info/info.html',
                 controller: 'emailtemplate-info',
-                data: {
-                    ncyBreadcrumbLabel: 'Information'
+                ncyBreadcrumb: {
+                    label: 'Information'
                 }
             });
             $stateProvider.state('emailtemplate.delete', {
                 url: '/delete',
                 templateUrl: 'emailtemplate/delete/delete.html',
                 controller: 'emailtemplate-delete',
-                data: {
-                    ncyBreadcrumbLabel: 'Slet'
+                ncyBreadcrumb: {
+                    label: 'Slet'
                 }
             });
-            
+
             $stateProvider.state('database.data', {
                 url: '/data',
                 templateUrl: 'database/data/data.html',
                 controller: 'database-data',
-                data: {
-                    ncyBreadcrumbLabel: 'Data'
+                ncyBreadcrumb: {
+                    label: 'Data'
                 }
             });
             $stateProvider.state('database.upload', {
                 url: '/upload',
                 templateUrl: 'database/upload/upload.html',
                 controller: 'database-upload',
-                data: {
-                    ncyBreadcrumbLabel: 'Upload'
+                ncyBreadcrumb: {
+                    label: 'Upload'
                 }
             });
             $stateProvider.state('database.delete', {
                 url: '/delete',
                 templateUrl: 'database/delete/delete.html',
                 controller: 'database-delete',
-                data: {
-                    ncyBreadcrumbLabel: 'Slet'
+                ncyBreadcrumb: {
+                    label: 'Slet'
                 }
             });
             $stateProvider.state('organization.users', {
                 url: '/users',
                 templateUrl: 'organization/users/users.html',
                 controller: 'organization-users',
-                data: {
-                    ncyBreadcrumbLabel: 'Brugere'
+                ncyBreadcrumb: {
+                    label: 'Brugere'
                 }
             });
             $stateProvider.state('organization.users.list', {
                 url: '/list',
                 templateUrl: 'organization/users/list/list.html',
                 controller: 'users-list',
-                data: {
-                    ncyBreadcrumbLabel: 'Liste'
+                ncyBreadcrumb: {
+                    label: 'Liste'
                 }
             });
             $stateProvider.state('organization.users.create', {
                 url: '/create',
                 templateUrl: 'organization/users/create/create.html',
                 controller: 'users-create',
-                data: {
-                    ncyBreadcrumbLabel: 'Opret'
+                ncyBreadcrumb: {
+                    label: 'Opret'
                 }
             });
             $stateProvider.state('user', {
                 url: '/organizations/:organization/users/:user',
                 templateUrl: 'user/user.html',
                 controller: 'user',
-                data: {
-                    ncyBreadcrumbLabel: '{{user.name}}',
-                    ncyBreadcrumbParent: 'organization.users'
+                ncyBreadcrumb: {
+                    label: '{{user.name}}',
+                    parent: 'organization.users'
                 },
                 resolve: {
                     profile: function (auth) {
@@ -496,16 +496,16 @@
                 url: '/info',
                 templateUrl: 'user/info/info.html',
                 controller: 'user-info',
-                data: {
-                    ncyBreadcrumbLabel: 'Info'
+                ncyBreadcrumb: {
+                    label: 'Info'
                 }
             });
             $stateProvider.state('user.delete', {
                 url: '/delete',
                 templateUrl: 'user/delete/delete.html',
                 controller: 'user-delete',
-                data: {
-                    ncyBreadcrumbLabel: 'Delete'
+                ncyBreadcrumb: {
+                    label: 'Delete'
                 }
             });
             $stateProvider.state('templates', {
@@ -517,8 +517,8 @@
                         return auth.authorize();
                     }
                 },
-                data: {
-                    ncyBreadcrumbLabel: 'Templates'
+                ncyBreadcrumb: {
+                    label: 'Templates'
                 }
 
             });
@@ -526,16 +526,16 @@
                 url: '/list',
                 templateUrl: 'templates/list/list.html',
                 controller: 'templates-list',
-                data: {
-                    ncyBreadcrumbLabel: 'Liste',
+                ncyBreadcrumb: {
+                    label: 'Liste',
                 }
             });
             $stateProvider.state('templates.create', {
                 url: '/create',
                 templateUrl: 'templates/create/create.html',
                 controller: 'templates-create',
-                data: {
-                    ncyBreadcrumbLabel: 'Opret',
+                ncyBreadcrumb: {
+                    label: 'Opret',
                 }
             });
             $stateProvider.state('template', {
@@ -547,33 +547,33 @@
                         return auth.authorize();
                     }
                 },
-                data: {
-                    ncyBreadcrumbLabel: '{{template.name}}',
-                    ncyBreadcrumbParent: 'templates'
+                ncyBreadcrumb: {
+                    label: '{{template.name}}',
+                    parent: 'templates'
                 }
             });
             $stateProvider.state('template.info', {
                 url: '/info',
                 templateUrl: 'template/info/info.html',
                 controller: 'template-info',
-                data: {
-                    ncyBreadcrumbLabel: 'Info',
+                ncyBreadcrumb: {
+                    label: 'Info',
                 }
             });
             $stateProvider.state('template.security', {
                 url: '/security',
                 templateUrl: 'template/security/security.html',
                 controller: 'template-security',
-                data: {
-                    ncyBreadcrumbLabel: 'Sikkerhed',
+                ncyBreadcrumb: {
+                    label: 'Sikkerhed',
                 }
             });
             $stateProvider.state('template.delete', {
                 url: '/delete',
                 templateUrl: 'template/delete/delete.html',
                 controller: 'template-delete',
-                data: {
-                    ncyBreadcrumbLabel: 'Slet',
+                ncyBreadcrumb: {
+                    label: 'Slet',
                 }
             });
             $stateProvider.state('verify', {
