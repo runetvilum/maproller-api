@@ -695,14 +695,14 @@
                         }
                         template('verify', {
                             user: body,
-                            url: 'http://geo.kosgis.dk/#/verify/' + code
+                            url: config.verify.url + code
                                 //url: 'http://localhost:3000/#/verify/' + code
                         }, function (err, html, text) {
                             if (err) {
                                 return res.status(err.status_code || 500).send(err);
                             }
                             transport.sendMail({
-                                from: 'noreply@kosgis.dk',
+                                from: config.verify.from,
                                 to: req.body.name,
                                 subject: 'Invitation',
                                 html: html,
