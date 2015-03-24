@@ -2076,7 +2076,35 @@
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
                         }
-                        res.json(body);
+                        var id2 = config.app + '-' + req.params.id;
+                        nano.db.get(id2, function (err, body) {
+                            if (err) {
+                                nano.db.create(id2, function (err, body) {
+                                    var dbOrganization = nano.db.use(id2);
+                                    var security = {
+                                        admins: {
+                                            names: [],
+                                            roles: ["_admin", "sys"]
+                                        },
+                                        members: {
+                                            names: [],
+                                            roles: []
+                                        }
+                                    };
+                                    dbOrganization.insert(security, "_security", function (err, body) {
+                                        var secdoc = {
+                                            validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_" + req.params.id + "') !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
+                                        };
+                                        dbOrganization.insert(secdoc, '_design/security', function (err, body) {
+                                            res.json(body);
+                                        });
+                                    });
+                                });
+                            } else {
+                                res.json(body);
+                            }
+                        });
+
                     });
                 });
             });
