@@ -73,13 +73,62 @@ var inspect = require('util').inspect,
             }
         };
     },
+    work = function (emailoptions, doc, template, db, change, feed) {
+        db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
+            if (err) {
+                console.log("view");
+                console.log(err);
+                feed.resume();
+            } else {
+                data.rows.forEach(function (row) {
+                    var key, ok, item, email;
+                    if (row.doc.users) {
+                        for (key in row.doc.users) {
+                            if (row.doc.users.hasOwnProperty(key)) {
+                                item = row.doc.users[key];
+                                ok = testrules(item.rules, doc);
+                                if (ok) {
+                                    template(row.id, {
+                                        doc: doc
+                                    }, sendmail(key, row.doc.name));
+                                }
+                            }
+                        }
+                    }
+                    if (row.doc.userfields) {
+                        for (key in row.doc.userfields) {
+                            if (row.doc.userfields.hasOwnProperty(key)) {
+                                email = valuepath(key, doc);
+                                item = row.doc.userfields[key];
+                                ok = testrules(item.rules, doc);
+                                if (ok && email) {
+                                    template(row.id, {
+                                        doc: doc
+                                    }, sendmail(email, row.doc.name));
+                                }
+                            }
+                        }
+                    }
+                });
+                db.get('_local/follow_since', function (err, doc) {
+                    doc = doc || {};
+                    doc.since = change.seq;
+                    db.insert(doc, '_local/follow_since', function (err, body) {
+                        feed.resume();
+                    });
+                });
+            }
+        });
+    },
     followDatabase = function (id, template) {
         nano.db.get('db-' + id, function (err, body) {
             if (!err) {
                 var db = nano.db.use('db-' + id);
                 db.get('_local/follow_since', function (err, doc) {
                     var feed,
-                        options = {};
+                        options = {
+                            //include_docs: true
+                        };
                     if (!err) {
                         options.since = doc.since;
                     }
@@ -95,6 +144,32 @@ var inspect = require('util').inspect,
                         if (change.deleted) {
                             console.log('deleted: ' + change.id);
                             emailoptions.key = [id, "delete"];
+                            db.get(change.id, {
+                                revs: true,
+                                open_revs: 'all'
+                            }, function (err, data) {
+                                if (err) {
+                                    console.log("Error get");
+                                    console.log(err);
+                                }
+                                if (data && data.length > 0) {
+                                    var revisions = data[0].ok._revisions;
+                                    var rev = revisions.start - 1 + '-' + revisions.ids[1];
+                                    console.log(rev);
+                                    db.get(change.id, {
+                                        rev: rev
+                                    }, function (err, data) {
+                                        if (err) {
+                                            console.log("error get: " + change.id);
+                                            //console.log(err);
+                                        }
+                                        work(emailoptions, doc, template, db, change, feed);
+
+                                    });
+                                } else {
+                                    feed.resume();
+                                }
+                            });
                         } else {
                             rev = change.changes[0].rev.split('-');
                             if (rev[0] === '1') {
@@ -104,59 +179,14 @@ var inspect = require('util').inspect,
                                 emailoptions.key = [id, "update"];
                                 console.log('updated: ' + change.id);
                             }
+                            db.get(change.id, function (err, doc) {
+                                if (err) {
+                                    console.log("error get: " + change.id);
+                                    //console.log(err);
+                                }
+                                work(emailoptions, doc, template, db, change, feed);
+                            });
                         }
-                        db.get(change.id, function (err, doc) {
-                            if (err) {
-                                console.log("get");
-                                //console.log(err);
-                            } else {
-                                db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
-                                    if (err) {
-                                        console.log("view");
-                                        console.log(err);
-                                    } else {
-                                        data.rows.forEach(function (row) {
-                                            var key, ok, item, email;
-                                            if (row.doc.users) {
-                                                for (key in row.doc.users) {
-                                                    if (row.doc.users.hasOwnProperty(key)) {
-                                                        item = row.doc.users[key];
-                                                        ok = testrules(item.rules, doc);
-                                                        if (ok) {
-                                                            template(row.id, {
-                                                                doc: doc
-                                                            }, sendmail(key, row.doc.name));
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            if (row.doc.userfields) {
-                                                for (key in row.doc.userfields) {
-                                                    if (row.doc.userfields.hasOwnProperty(key)) {
-                                                        email = valuepath(key, doc);
-                                                        item = row.doc.userfields[key];
-                                                        ok = testrules(item.rules, doc);
-                                                        if (ok && email) {
-                                                            template(row.id, {
-                                                                doc: doc
-                                                            }, sendmail(email, row.doc.name));
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        });
-                                        db.get('_local/follow_since', function (err, doc) {
-                                            doc = doc || {};
-                                            doc.since = change.seq;
-                                            db.insert(doc, '_local/follow_since', function (err, body) {
-                                                feed.resume();
-                                            });
-                                        });
-                                    }
-                                });
-                            }
-                        });
-
                     });
                     console.log("follow: " + id);
                     feed.follow();

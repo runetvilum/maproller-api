@@ -23,7 +23,6 @@
     "ejs": "^1.0.0",
     "email-templates": "^1.2.1",
     "express": "^4.9.8",
-    "follow": "^0.11.4",
     "geojson-vt": "^1.0.1",
     "image-type": "^1.0.0",
     "jsonfile": "^2.0.0",
