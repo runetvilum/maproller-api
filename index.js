@@ -3319,6 +3319,32 @@
             });
         });
     });
+    app.get('/api/:database/straks/:id', auth, function (req, res) {
+        db_admin.get(req.params.database, function (err, database) {
+            if (err) {
+                return res.status(err.status_code || 500).send(err);
+            }
+            if (req.userCtx.roles.indexOf("sys") === -1 && req.userCtx.roles.indexOf("admin_" + database.organization) === -1) {
+                return res.status(401).send(JSON.stringify({
+                    ok: false,
+                    message: 'Du har ikke rettigheder til at se straksafgørelser.'
+                }));
+            }
+            var db_id = 'db-' + req.params.database,
+                d = nano.db.use(db_id);
+            d.get("_design/straks", function (err, doc) {
+                if (err) {
+                    return res.status(err.status_code || 500).send(err);
+                }
+                var straks = JSON.parse(doc.lib.straks.substring(15));
+                var geojson = {};
+                if (straks.hasOwnProperty(req.params.id)) {
+                    geojson = straks[req.params.id];
+                }
+                res.json(geojson);
+            });
+        });
+    });
     //Opret / opdater straksafgørelser
     app.put('/api/:database/straks', auth, function (req, res) {
         db_admin.get(req.params.database, function (err, database) {
