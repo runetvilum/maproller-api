@@ -399,6 +399,18 @@
             });
         });
     });
+    app.get('/api/session2', function (req, res) {
+        var couchdb = require('nano')({
+            cookie: req.headers.cookie,
+            url: url_5986
+        });
+        couchdb.session(function (err, session, headers) {
+            if (headers && headers['set-cookie']) {
+                res.set('set-cookie', headers['set-cookie']);
+            }
+            res.json(session);
+        });
+    });
     app["delete"]('/api/session', function (req, res) {
         var couchdb = require('nano')({
             cookie: req.headers.cookie,
