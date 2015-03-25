@@ -108,7 +108,7 @@ var inspect = require('util').inspect,
                         db.get(change.id, function (err, doc) {
                             if (err) {
                                 console.log("get");
-                                console.log(err);
+                                //console.log(err);
                             } else {
                                 db_admin.view('database', 'emailtemplate', emailoptions, function (err, data) {
                                     if (err) {
