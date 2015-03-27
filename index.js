@@ -1039,6 +1039,7 @@
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
+
                 res.json(body);
             });
         });
@@ -1273,7 +1274,19 @@
                     if (err) {
                         return res.status(err.status_code || 500).send(err);
                     }
-                    res.json(body3);
+                    d.insert({
+                        language: 'javascript',
+                        views: {
+                            data: {
+                                map: "function(doc){emit(doc._id, null);}"
+                            }
+                        }
+                    }, "_design/views", function (err, body4) {
+                        if (err) {
+                            return res.status(err.status_code || 500).send(err);
+                        }
+                        res.json(body4);
+                    });
                 });
             });
         });
