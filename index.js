@@ -399,6 +399,28 @@
             });
         });
     });
+    app.post('/api/session', function (req, res) {
+        if (!req.body || !req.body.name || !req.body.password) {
+            return res.status(400).send(JSON.stringify({
+                ok: false,
+                message: 'Brugernavn og password er påkrævet.'
+            }));
+        }
+        var couchdb = require('nano')({
+            url: url_5986
+        });
+        couchdb.auth(req.body.name, req.body.password, function (err, body, headers) {
+            if (err) {
+
+                return res.status(err.status_code || 500).send(err);
+            }
+            if (headers && headers['set-cookie']) {
+                res.set('set-cookie', headers['set-cookie']);
+            }
+
+            res.json(body);
+        });
+    });
     app.get('/api/session2', function (req, res) {
         var couchdb = require('nano')({
             cookie: req.headers.cookie,
