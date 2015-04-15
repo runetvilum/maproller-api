@@ -1061,8 +1061,27 @@
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-
-                res.json(body);
+                var db_id = 'db-' + req.params.id;
+                var d = nano.db.use(db_id);
+                d.get("_design/views", function (err, body2) {
+                    if (err) {
+                        d.insert({
+                            language: 'javascript',
+                            views: {
+                                data: {
+                                    map: "function(doc){emit(doc._id, null);}"
+                                }
+                            }
+                        }, "_design/views", function (err, body3) {
+                            if (err) {
+                                return res.status(err.status_code || 500).send(err);
+                            }
+                            res.json(body);
+                        });
+                    } else {
+                        res.json(body);
+                    }
+                })
             });
         });
     });
