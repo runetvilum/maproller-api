@@ -56,6 +56,38 @@
 
             return [x, y];*/
         },
+        createTemplate = function (req, organization) {
+            return function (callback) {
+                var id2 = 'app-' + req.params.id + '-' + organization;
+                nano.db.get(id2, function (err, body) {
+                    if (err) {
+                        nano.db.create(id2, function (err, body) {
+                            var dbOrganization = nano.db.use(id2),
+                                security = {
+                                    admins: {
+                                        names: [],
+                                        roles: ["_admin", "sys"]
+                                    },
+                                    members: {
+                                        names: [],
+                                        roles: []
+                                    }
+                                };
+                            dbOrganization.insert(security, "_security", function (err, body) {
+                                var secdoc = {
+                                    validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_" + req.params.id + "') !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
+                                };
+                                dbOrganization.insert(secdoc, '_design/security', function (err, body) {
+                                    callback();
+                                });
+                            });
+                        });
+                    } else {
+                        callback();
+                    }
+                });
+            };
+        },
         addFeature = function (feature, tilePoint) {
 
             var geom = feature.geometry,
@@ -536,7 +568,6 @@
                     });
                 });
                 busboy.on('finish', function () {
-                    console.log(contentType);
                     db_admin.multipart.insert(doc, [
                         {
                             name: 'logo',
@@ -1061,8 +1092,8 @@
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                var db_id = 'db-' + req.params.id;
-                var d = nano.db.use(db_id);
+                var db_id = 'db-' + req.params.id,
+                    d = nano.db.use(db_id);
                 d.get("_design/views", function (err, body2) {
                     if (err) {
                         d.insert({
@@ -1081,7 +1112,7 @@
                     } else {
                         res.json(body);
                     }
-                })
+                });
             });
         });
     });
@@ -2100,38 +2131,7 @@
     });
     //Opdater sikkerhed på en template
 
-    var createTemplate = function (req, organization) {
-        return function (callback) {
-            var id2 = 'app-' + req.params.id + '-' + organization;
-            nano.db.get(id2, function (err, body) {
-                if (err) {
-                    nano.db.create(id2, function (err, body) {
-                        var dbOrganization = nano.db.use(id2);
-                        var security = {
-                            admins: {
-                                names: [],
-                                roles: ["_admin", "sys"]
-                            },
-                            members: {
-                                names: [],
-                                roles: []
-                            }
-                        };
-                        dbOrganization.insert(security, "_security", function (err, body) {
-                            var secdoc = {
-                                validate_doc_update: "function (newDoc, oldDoc, userCtx, secObj) { if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('sys') !== -1 || userCtx.roles.indexOf('admin_" + req.params.id + "') !== -1){return;} else {throw ({ forbidden: 'Du har ikke rettigheder til denne operation.' });}}"
-                            };
-                            dbOrganization.insert(secdoc, '_design/security', function (err, body) {
-                                callback();
-                            });
-                        });
-                    });
-                } else {
-                    callback();
-                }
-            });
-        };
-    };
+
     app.put('/api/template/:id/security', auth, function (req, res) {
         if (!req.body || !req.body.organizations) {
             return res.status(400).json({
@@ -2176,8 +2176,9 @@
                         if (err) {
                             return res.status(err.status_code || 500).send(err);
                         }
-                        var tasks = [];
-                        for (var i = 0; i < req.body.organizations.length; i++) {
+                        var tasks = [],
+                            i;
+                        for (i = 0; i < req.body.organizations.length; i++) {
                             tasks.push(createTemplate(req, req.body.organizations[i]));
                         }
                         async.parallel(tasks, function () {
@@ -2394,7 +2395,6 @@
                         type: "string",
                         index: "no"
                     };
-                    console.log(mappings);
                 }
                 /*console.log(inspect(mappings, {
                     depth: null,
@@ -3402,8 +3402,8 @@
                 if (err) {
                     return res.status(err.status_code || 500).send(err);
                 }
-                var straks = JSON.parse(doc.lib.straks.substring(15));
-                var geojson = {};
+                var straks = JSON.parse(doc.lib.straks.substring(15)),
+                    geojson = {};
                 if (straks.hasOwnProperty(req.params.id)) {
                     geojson = straks[req.params.id];
                 }
