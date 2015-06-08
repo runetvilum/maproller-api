@@ -1853,6 +1853,27 @@
             }
         });
     });
+    app.get('/api/export/:database', auth, function (req, res) {
+        var d = nano.db.use(req.params.database);
+        d.list({
+            include_docs: true
+        }, function (err, body) {
+            if (err) {
+                return res.status(err.status_code || 500).send(err);
+            }
+            var geojson = {
+                type: "FeatureCollection",
+                features: []
+            };
+            for (var i = 0; i < body.rows.length; i++) {
+                var row = body.rows[i];
+                if (row.id.substring(0, 7) !== '_design') {
+                    geojson.features.push(row.doc);
+                }
+            }
+            res.json(geojson);
+        });
+    });
     //Henter alle apps
     app.get('/api/apps', auth, function (req, res) {
         if (req.userCtx.roles.indexOf("sys") === -1 && req.userCtx.roles.indexOf("admin_" + req.params.organization) === -1) {
