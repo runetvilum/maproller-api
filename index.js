@@ -1868,7 +1868,25 @@
             for (var i = 0; i < body.rows.length; i++) {
                 var row = body.rows[i];
                 if (row.id.substring(0, 7) !== '_design') {
-                    geojson.features.push(row.doc);
+                    var doc = {
+                        type: "Feature",
+                        properties: {}
+                    };
+                    if (row.doc.hasOwnProperty("properties")) {
+                        doc.properties = row.doc.properties;
+                    }
+                    doc.properties.id = row.doc["_id"];
+                    doc.properties.rev = row.doc["_rev"];
+                    if (row.doc.hasOwnProperty("geometry")) {
+                        doc.geometry = row.doc.geometry;
+                    }
+                    if (row.doc.hasOwnProperty("_attachments")) {
+                        for(var key in row.doc["_attachments"]) {
+                            doc.properties[key] = "http://geo.os2geo.dk/couchdb/" + req.params.database + "/" + row.id + "/" + key;
+                        }
+
+                    }
+                    geojson.features.push(doc);
                 }
             }
             res.json(geojson);
