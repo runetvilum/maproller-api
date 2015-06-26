@@ -1853,6 +1853,30 @@
             }
         });
     });
+    app.post('/api/geojson/:configuration/:layer', auth, function (req, res) {
+        var d = require('nano')({
+            "requestDefaults": {
+                "headers": {
+                    authorization: req.headers.authorization
+                }
+            },
+            url: 'http://localhost:' + config.couchdb.port5984 + '/' + config.app
+        });
+        d.head(req.params.configuration, function (err, _, headers) {
+            if (err) {
+                return res.status(err.status_code || 500).send(err);
+            }
+            var buffer = new Buffer(JSON.stringify(req.body));
+            d.attachment.insert(req.params.configuration, req.params.layer + '.geojson', buffer, 'application/json', {
+                rev: headers.etag.replace(/"/g, '')
+            }, function (err, body) {
+                if (err) {
+                    return res.status(err.status_code || 500).send(err);
+                }
+                res.json(body);
+            });
+        });
+    });
     app.get('/api/export/:database', auth, function (req, res) {
         var d = nano.db.use(req.params.database);
         d.list({
@@ -1863,7 +1887,12 @@
             }
             var geojson = {
                 type: "FeatureCollection",
-                "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+                "crs": {
+                    "type": "name",
+                    "properties": {
+                        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+                    }
+                },
                 features: []
             };
             for (var i = 0; i < body.rows.length; i++) {
@@ -1882,7 +1911,7 @@
                         doc.geometry = row.doc.geometry;
                     }
                     if (row.doc.hasOwnProperty("_attachments")) {
-                        for(var key in row.doc["_attachments"]) {
+                        for (var key in row.doc["_attachments"]) {
                             doc.properties[key] = "http://geo.os2geo.dk/couchdb/" + req.params.database + "/" + row.id + "/" + key;
                         }
 
